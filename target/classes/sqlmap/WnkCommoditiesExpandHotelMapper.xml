@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkCommoditiesExpandHotelMapper" >
+
+    <!--插入商品扩展信息-->
+    <insert id="insertExpandInfo" parameterType="com.springmvc.entity.WnkCommoditiesExpandHotel"  useGeneratedKeys="true" keyProperty="id" >
+        INSERT INTO wnk_commodities_expand_hotel
+        (commodities_id, cancel_reserve, time_cancel_reserve, time_enter, time_check_out, area, breakfast, floor,
+         windows, lives, air_conditioner, bathroom, broadband, type_bed, size_bed, num_bed, bathroom_matching, electric, media,
+         window_description, room_features, others)
+        VALUES
+        (#{commodities_id},#{cancel_reserve},#{time_cancel_reserve},#{time_enter},#{time_check_out},#{area},#{breakfast}
+        ,#{floor},#{windows},#{lives},#{air_conditioner},#{bathroom},#{broadband},#{type_bed},#{size_bed},#{num_bed}
+        ,#{bathroom_matching},#{electric},#{media},#{window_description},#{room_features},#{others})
+    </insert>
+
+    <!--通过商品ID查询商品扩展信息-->
+    <select id="selectCommoditiesExpandHotelByCommoditiesId" parameterType="int" resultType="com.springmvc.entity.WnkCommoditiesExpandHotel">
+        SELECT * FROM wnk_commodities_expand_hotel WHERE commodities_id = #{commodity_id}
+    </select>
+
+    <!--更新商品信息-->
+    <update id="updateExpandInfo" parameterType="com.springmvc.entity.WnkCommoditiesExpandHotel">
+        UPDATE wnk_commodities_expand_hotel
+        SET
+            cancel_reserve      = #{cancel_reserve},
+            time_cancel_reserve = #{time_cancel_reserve},
+            time_enter          = #{time_enter},
+            time_check_out      = #{time_check_out},
+            area                = #{area},
+            breakfast           = #{breakfast},
+            floor               = #{floor},
+            windows             = #{windows},
+            lives               = #{lives},
+            air_conditioner     = #{air_conditioner},
+            bathroom            = #{bathroom},
+            broadband           = #{broadband},
+            type_bed            = #{type_bed},
+            size_bed            = #{size_bed},
+            num_bed             = #{num_bed},
+            bathroom_matching   = #{bathroom_matching},
+            electric            = #{electric},
+            media               = #{media},
+            window_description  = #{window_description},
+            room_features       = #{room_features},
+            others              = #{others}
+        WHERE
+            commodities_id = #{commodities_id}
+    </update>
+
+</mapper>

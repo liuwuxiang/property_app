@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.AdminTypesMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.AdminTypes" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="type_name" property="type_name" jdbcType="VARCHAR" />
+        <result column="access_rights" property="access_rights" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,type_name,access_rights
+    </sql>
+
+    <!--插入新记录-->
+    <insert id="addRecord" parameterType="com.springmvc.entity.AdminTypes">
+        INSERT  INTO admin_types(type_name,access_rights)
+        VALUES (#{type_name,jdbcType=VARCHAR},#{access_rights,jdbcType=VARCHAR})
+    </insert>
+
+    <!--通过Id查询类别-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM admin_types
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--获取所有管理员类别-->
+    <select id="selectAllAdmin" resultType="java.util.HashMap">
+        SELECT
+        id,type_name,access_rights
+        FROM admin_types
+    </select>
+
+    <!--根据条件查询管理员类别-->
+    <select id="adminSearchAdminsTypeByConditions" resultType="java.util.Map">
+        SELECT
+        id,type_name,access_rights
+        FROM admin_types
+        WHERE 1 = 1
+
+        <if test="_parameter.type_name != null and ''!= _parameter.type_name">
+            AND type_name LIKE #{type_name}
+        </if>
+
+    </select>
+
+    <!--更新管理员类别信息-->
+    <insert id="updateAdminsTypeInformation" parameterType="com.springmvc.entity.AdminTypes">
+        UPDATE admin_types
+        SET type_name = #{type_name,jdbcType=VARCHAR},access_rights = #{access_rights,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+</mapper>

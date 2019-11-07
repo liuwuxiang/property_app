@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.UserRecommendUserRecordMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.UserRecommendUserRecord" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="number" property="number" jdbcType="INTEGER" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,user_id,number,state
+    </sql>
+
+    <!--添加记录-->
+    <insert id="insertRecord" parameterType="com.springmvc.entity.UserRecommendUserRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO user_recommend_user_record(user_id,number,state)
+        VALUES (#{param1,jdbcType=INTEGER},1,0)
+    </insert>
+
+    <!--查询用户未兑换的记录-->
+    <select id="selectNoExchangeByUserId" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM user_recommend_user_record
+        where state = 0 and user_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+
+    <!--更新商家推荐数量-->
+    <insert id="updateInformation">
+        UPDATE user_recommend_user_record
+        SET number = #{number,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--更新兑换状态为已兑换-->
+    <insert id="updateStateIsFinish">
+        UPDATE user_recommend_user_record
+        SET state = 1
+        WHERE id = #{param1,jdbcType=INTEGER}
+    </insert>
+
+
+
+
+</mapper>

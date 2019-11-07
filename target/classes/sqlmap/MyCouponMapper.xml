@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.MyCouponMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.MyCoupon" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="coupon_name" property="coupon_name" jdbcType="VARCHAR" />
+        <result column="term_validity" property="term_validity" jdbcType="TIMESTAMP" />
+        <result column="consumption_amount" property="consumption_amount" jdbcType="INTEGER" />
+        <result column="coupon_amount" property="coupon_amount" jdbcType="INTEGER" />
+        <result column="mode_consumption" property="mode_consumption" jdbcType="INTEGER" />
+        <result column="instructions" property="instructions" jdbcType="CLOB" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="get_time" property="get_time" jdbcType="TIMESTAMP" />
+    </resultMap>
+    <sql id="Base_Column_List_App" >
+        id,coupon_name,term_validity,consumption_amount,coupon_amount
+    </sql>
+
+    <!--根据用户id查询记录并重新修改所属用户-->
+    <insert id="updateRecordUserId">
+        UPDATE my_coupon
+        SET user_id = #{param1,jdbcType=INTEGER}
+        WHERE user_id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <!--获取某个用户的所有优惠券-->
+    <select id="selectAllCouponByUser" resultType="java.util.HashMap">
+        SELECT
+        coupon_name,coupon_amount,
+        date_format(term_validity, '%Y年%m月%d日') as term_validity,
+        consumption_amount,
+        (CASE WHEN mode_consumption = 0 THEN '线上消费' WHEN mode_consumption = 1 THEN '线下消费' WHEN mode_consumption = 2 THEN '线上消费/线下消费'  END) as mode_consumption,
+        instructions
+        FROM my_coupon where user_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+
+
+</mapper>

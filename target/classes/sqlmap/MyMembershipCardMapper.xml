@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.MyMembershipCardMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.MyMembershipCard" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="fold_number" property="fold_number" jdbcType="INTEGER" />
+        <result column="term_validity" property="term_validity" jdbcType="TIMESTAMP" />
+        <result column="member_no" property="member_no" jdbcType="VARCHAR" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="qrcode_url" property="qrcode_url" jdbcType="VARCHAR" />
+        <result column="get_time" property="get_time" jdbcType="TIMESTAMP" />
+    </resultMap>
+    <sql id="Base_Column_List_App" >
+        id,business_id,fold_number,term_validity,member_no,user_id,qrcode_url
+    </sql>
+
+    <!--根据用户id查询记录并重新修改所属用户-->
+    <insert id="updateRecordUserId">
+        UPDATE my_membership_card
+        SET user_id = #{param1,jdbcType=INTEGER}
+        WHERE user_id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <!--获取某个用户的所有会员卡-->
+    <select id="selectAllMemberCards" resultType="java.util.HashMap">
+        SELECT
+          member_no,qrcode_url,
+         (CASE WHEN business_id is null THEN '测试商家'  END) as business_name,
+         (CASE WHEN business_id is null THEN '云南省昆明市西山区文化空间D栋1901'  END) as business_address,
+         fold_number as pay_percentage,
+         date_format(term_validity, '%Y年%m月%d日') as term_validity
+        FROM my_membership_card where user_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+
+
+</mapper>

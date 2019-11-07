@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.SilverCoinDetailedMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.SilverCoinDetailed" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="record_date" property="record_date" jdbcType="TIMESTAMP" />
+        <result column="transaction_amount" property="transaction_amount" jdbcType="INTEGER" />
+        <result column="transaction_after_balance" property="transaction_after_balance" jdbcType="INTEGER" />
+        <result column="income_expenditure_type" property="income_expenditure_type" jdbcType="INTEGER" />
+        <result column="transaction_type" property="transaction_type" jdbcType="INTEGER" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="withdraw_state" property="withdraw_state" jdbcType="INTEGER" />
+        <result column="service_charge" property="service_charge" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,name,record_date,transaction_amount,transaction_after_balance,income_expenditure_type,transaction_type,user_id,withdraw_state,service_charge
+    </sql>
+
+    <!--查询某个用户的银币明细-->
+    <select id="selectSilverCoinDetailByUser" resultType="java.util.HashMap">
+        SELECT
+        name,date_format(record_date, '%Y-%m-%d %H:%i:%S') as record_date,transaction_after_balance as balance,transaction_amount,income_expenditure_type
+        FROM silver_coin_detailed
+        where user_id = #{param1,jdbcType=INTEGER} order by record_date DESC
+    </select>
+
+    <!--根据用户id查询记录并重新修改所属用户-->
+    <insert id="updateRecordUserId">
+        UPDATE silver_coin_detailed
+        SET user_id = #{param1,jdbcType=INTEGER}
+        WHERE user_id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <!--新增银币收支记录-->
+    <insert id="insertExchangeRecord" parameterType="com.springmvc.entity.SilverCoinDetailed" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO silver_coin_detailed(name,record_date,transaction_amount,transaction_after_balance,income_expenditure_type,transaction_type,user_id)
+        VALUES (#{name,jdbcType=VARCHAR},#{record_date,jdbcType=TIMESTAMP},#{transaction_amount,jdbcType=INTEGER},#{transaction_after_balance,jdbcType=INTEGER}
+        ,#{income_expenditure_type,jdbcType=INTEGER},#{transaction_type,jdbcType=INTEGER},#{user_id,jdbcType=INTEGER})
+    </insert>
+
+    <!--根据id删除记录-->
+    <delete id="deleteRecordById">
+        DELETE FROM silver_coin_detailed WHERE id = #{param1,jdbcType=INTEGER}
+    </delete>
+
+    <!--获取所有可提现的银币记录-->
+    <select id="getCanWithdrawSilverCoinDetail" resultType="java.util.HashMap">
+        SELECT
+        name,date_format(record_date, '%Y-%m-%d %H:%i:%S') as record_date,transaction_after_balance as balance,transaction_amount,income_expenditure_type
+        FROM silver_coin_detailed
+        where user_id = #{param1,jdbcType=INTEGER} and transaction_type = 4 and withdraw_state = 0
+    </select>
+
+    <!--获取所有可提现的余额-->
+    <select id="getCanWithdrawSilverCoinBalance" resultType="java.lang.Integer">
+        SELECT
+        (CASE WHEN SUM(transaction_amount) is not null THEN SUM(transaction_amount) WHEN SUM(transaction_amount) = '' THEN 0 WHEN SUM(transaction_amount) is null THEN 0  END) as balance
+        FROM silver_coin_detailed
+        where user_id = #{param1,jdbcType=INTEGER} and transaction_type = 4 and withdraw_state = 0
+    </select>
+
+    <!--将所有可提现的银币记录更改为已提现-->
+    <insert id="updateCanWithdrawState">
+        UPDATE silver_coin_detailed
+        SET withdraw_state = 1
+        where user_id = #{param1,jdbcType=INTEGER} and transaction_type = 4 and withdraw_state = 0
+    </insert>
+
+    <!--新增银币提现记录-->
+    <insert id="insertWithdrawRecord" parameterType="com.springmvc.entity.SilverCoinDetailed" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO silver_coin_detailed(name,record_date,transaction_amount,transaction_after_balance,income_expenditure_type,transaction_type,user_id,service_charge)
+        VALUES (#{name,jdbcType=VARCHAR},#{record_date,jdbcType=TIMESTAMP},#{transaction_amount,jdbcType=INTEGER},#{transaction_after_balance,jdbcType=INTEGER}
+        ,#{income_expenditure_type,jdbcType=INTEGER},#{transaction_type,jdbcType=INTEGER},#{user_id,jdbcType=INTEGER},#{service_charge,jdbcType=INTEGER})
+    </insert>
+
+
+</mapper>

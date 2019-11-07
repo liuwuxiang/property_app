@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessRoseDetailMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkBusinessRoseDetail" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="integral_number" property="integral_number" jdbcType="INTEGER" />
+        <result column="transactions_date" property="transactions_date" jdbcType="TIMESTAMP" />
+        <result column="transactions_type" property="transactions_type" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,business_id,name,integral_number,transactions_type,date_format(transactions_date, '%Y-%m-%d %H:%i:%S') as transactions_date
+    </sql>
+
+    <!--查询某商家的交易记录-->
+    <select id="selectRecordByBusinessId" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM wnk_business_rose_detail where business_id = #{param1,jdbcType=INTEGER} and transactions_type = #{param2,jdbcType=INTEGER}
+        order by transactions_date DESC
+    </select>
+
+    <!--插入新纪录-->
+    <insert id="insertNewRecord" parameterType="com.springmvc.entity.WnkBusinessConsumptionIntegralDetail" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_business_rose_detail(business_id,name,integral_number,transactions_date,transactions_type)
+        VALUES (#{business_id,jdbcType=INTEGER},#{name,jdbcType=VARCHAR},#{integral_number,jdbcType=INTEGER},#{transactions_date,jdbcType=TIMESTAMP},
+        #{transactions_type,jdbcType=INTEGER})
+    </insert>
+
+
+</mapper>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.IntegralOrderMapper">
+
+    <!--
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.IntegralOrder">
+        <id     column="id"               property="id"          jdbcType="INTEGER"/>
+        <result column="order_id"         property="name"        jdbcType="VARCHAR"/>
+        <result column="goods_id"         property="img"         jdbcType="VARCHAR"/>
+        <result column="user_id"          property="img"         jdbcType="VARCHAR"/>
+        <result column="count"            property="img"         jdbcType="VARCHAR"/>
+        <result column="price"            property="img"         jdbcType="VARCHAR"/>
+        <result column="status"           property="img"         jdbcType="VARCHAR"/>
+    </resultMap>
+    -->
+
+
+    <select id="getIntegralOrderById" resultType="java.util.HashMap">
+        SELECT o.*, a.img,a.name,a.trader,date_format(startTime, '%Y-%m-%d %H:%i:%S') as startTime_str
+        FROM t_integral_goods AS a LEFT JOIN
+            (SELECT t_integral_order.*  FROM users LEFT JOIN t_integral_order
+                    ON (users.id=t_integral_order.user_id) WHERE users.id=#{user_id,jdbcType=INTEGER}) AS o
+                ON (o.goods_id=a.id) WHERE a.id=o.goods_id ORDER BY o.startTime DESC
+    </select>
+
+    <insert id="addGoodsOrder" parameterType="com.springmvc.entity.IntegralOrder">
+        INSERT INTO t_integral_order
+        (order_id, goods_id, user_id, count, price, status, username, phone, address,startTime) VALUES
+            (#{orderId,jdbcType=VARCHAR}, #{goodsId,jdbcType=INTEGER},#{userId,jdbcType=INTEGER},
+             #{count,jdbcType=INTEGER},   #{price,jdbcType=VARCHAR},  #{status,jdbcType=INTEGER},
+             #{username,jdbcType=VARCHAR},#{phone,jdbcType=VARCHAR},  #{address,jdbcType=VARCHAR},
+             #{startTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <select id="getIntegralOrderAll" resultType="Map">
+        SELECT
+            o.id,o.order_id,o.user_id,o.count,o.username,o.phone,o.address,
+            DATE_FORMAT(o.startTime, ' %Y-%m-%d %H:%i:%S') AS startTime,
+            DATE_FORMAT(o.endTime,' %Y-%m-%d %H:%i:%S') AS endTime,o.status,o.express_name,o.express_id,
+            g.name
+        FROM
+            t_integral_order AS o LEFT JOIN  t_integral_goods AS g  ON (o.goods_id=g.id)
+    </select>
+
+    <update id="updateIntegralOrderExpress" parameterType="com.springmvc.entity.IntegralOrder">
+        UPDATE t_integral_order
+        SET
+            express_name = #{expressName},
+            express_id = #{expressId},
+            status = 1
+        WHERE id=#{id}
+    </update>
+
+    <select id="getOrderInfoById" resultType="Map" parameterType="string">
+        SELECT o.*,g.img,g.name,g.price,date_format(startTime, '%Y-%m-%d %H:%i:%S') as startTime_str FROM t_integral_order AS o
+            LEFT JOIN t_integral_goods AS g ON (o.goods_id=g.id) WHERE o.order_id=${id};
+    </select>
+
+    <!--根据条件查询订单管理信息-->
+    <select id="adminSearchIntegralOrder" resultType="java.util.Map">
+        SELECT
+            o.id,o.order_id,o.user_id,o.count,o.username,o.phone,o.address,
+            DATE_FORMAT(o.startTime, ' %Y-%m-%d %H:%i:%S') AS startTime,
+            DATE_FORMAT(o.endTime,' %Y-%m-%d %H:%i:%S') AS endTime,
+            o.status,o.express_name,o.express_id,
+            g.name
+        FROM
+            t_integral_order AS o LEFT JOIN  t_integral_goods AS g  ON (o.goods_id=g.id)
+        WHERE 1=1
+        <if test="_parameter.order_id != null and ''!= _parameter.order_id">
+            AND o.order_id = #{order_id}
+        </if>
+        <if test="_parameter.name != null and ''!= _parameter.name">
+            AND g.name LIKE #{name}
+        </if>
+        <if test="_parameter.count != null and ''!= _parameter.count">
+            AND o.count = #{count}
+        </if>
+        <if test="_parameter.user_id != null and ''!= _parameter.user_id">
+            AND o.user_id = #{user_id}
+        </if>
+        <if test="_parameter.startTime != null and ''!= _parameter.startTime">
+            AND unix_timestamp(o.startTime) = unix_timestamp(#{startTime})
+        </if>
+        <if test="_parameter.username != null and ''!= _parameter.username">
+            AND o.username LIKE #{username}
+        </if>
+        <if test="_parameter.phone != null and ''!= _parameter.phone">
+            AND o.phone = #{phone}
+        </if>
+        <if test="_parameter.address != null and ''!= _parameter.address">
+            AND o.address = #{address}
+        </if>
+        <if test="status != null">
+            AND o.status = #{status}
+        </if>
+        <if test="_parameter.express_name != null and ''!= _parameter.express_name">
+            AND o.express_name LIKE #{express_name}
+        </if>
+        <if test="_parameter.express_id != null and ''!= _parameter.express_id">
+            AND o.express_id LIKE #{express_id}
+        </if>
+
+        order by startTime DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+</mapper>

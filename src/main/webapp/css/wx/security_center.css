@@ -1,0 +1,104 @@
+.name{
+	color: black !important;
+}
+
+.mobile_set_check_div{
+	width: 100% !important;
+	height: 100% !important;
+	text-align: center !important;
+}
+
+.number_set_duv{
+	width: 80%;
+	height: 180px;
+	background: white;
+	margin-left: 10%;
+	border-radius: 8px;
+	position: absolute;
+    top: 50%;
+    margin-top: -150px;
+    overflow: hidden;
+}
+
+.check_title_tag{
+	display: block !important;
+	width: 100% !important;
+	height: 25px !important;
+	color: black;
+	font-size: 20px;
+	line-height: 25px;
+	margin-top: 15px;
+	text-align: center;
+}
+
+.check_content_tag{
+	display: block;
+	width: 100%;
+	height: 20px;
+	margin-top: 10px;
+	color: #808080;
+	font-size: 15px;
+	line-height: 20px;
+}
+
+.code_input_div{
+	width: 90%;
+	height: 40px;
+	margin-top: 10px;
+	margin-left: 5%;
+	border-radius: 8px;
+	border: solid 1px #D3D3D3;
+}
+
+.code_input_div input[type=number]{
+	display: block !important;
+	width: 59% !important;
+	height: 38px !important;
+	line-height: 38px !important;
+	border: 0 !important;
+	-webkit-appearance: none !important;
+	font-size: 15px;
+	float: left;
+	margin-left: 1%;
+}
+
+.code_input_div input[type=button]{
+	display: block !important;
+	width: 39% !important;
+	height: 38px !important;
+	line-height: 0px !important;
+	border: 0 !important;
+	-webkit-appearance: none !important;
+	text-align: center;
+	font-size: 15px;
+	float: left;
+	color: black;
+}
+
+.check_button_div{
+	width: 100%;
+	height: 45px;
+	margin-top: 15px;
+	border-top: solid 1px #D3D3D3;
+}
+
+.check_button_div input[type=button]{
+	display: block !important;
+	width: 50% !important;
+	height: 45px !important;
+	line-height: 0px !important;
+	border: 0;
+	-webkit-appearance: none !important;
+	text-align: center;
+	font-size: 17px;
+	float: left;
+}
+
+.close_button{
+	border-right: solid 1px #D3D3D3 !important;
+	color: black !important;
+}
+
+.submit_button{
+	color: #1DC021 !important;
+}

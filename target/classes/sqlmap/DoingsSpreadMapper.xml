@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.DoingsSpreadMapper" >
+
+    <sql id="all">
+        id,
+        title,
+        ad_type,
+        gallery_type,
+        gallery_img,
+        gallery_content_img,
+        system_msg,
+        verify_statue,
+        activating_statue,
+        DATE_FORMAT(create_time,'%Y年%m月%d日 %H:%i:%s') AS create_time
+    </sql>
+
+    <!--获取所有的推广活动审核信息-->
+    <select id="selectDoingsSpreadAll" resultType="map">
+        SELECT
+            id,
+            title,
+            ad_type,
+            gallery_type,
+            receive_type,
+            gallery_img,
+            gallery_content_img,
+            system_msg,
+            verify_statue,
+            activating_statue,
+            DATE_FORMAT(create_time,'%Y年%m月%d日 %H:%i:%s') AS create_time,
+            (SELECT store_name FROM wnk_store_information WHERE doings_spread.business_id=wnk_store_information.business_id) AS store_name
+        FROM doings_spread ORDER BY create_time DESC
+    </select>
+
+    <!--通过ID更新活动状态-->
+    <update id="updateDoingsSpreadStatue" parameterType="com.springmvc.entity.DoingsSpread" >
+        UPDATE doings_spread
+        <trim prefix="set" suffixOverrides=",">
+            <if test="activating_statue != null">
+                activating_statue=#{activating_statue,jdbcType=VARCHAR},
+            </if>
+
+            <if test="verify_statue != null">
+                verify_statue=#{verify_statue,jdbcType=VARCHAR},
+            </if>
+        </trim>
+        WHERE id=#{id}
+    </update>
+
+    <!--插入轮播点击后进入长图的广告-->
+    <insert id="insertDoingsSpreadLunBoChangTu"  parameterType="com.springmvc.entity.DoingsSpread"  >
+        INSERT INTO doings_spread
+        (ad_type,
+         gallery_type,
+         gallery_img,
+         gallery_content_img,
+         verify_statue,
+         activating_statue,
+         business_id,
+         title,
+         create_time,
+         receive_type)
+        VALUES
+        (0,
+         1,
+         #{gallery_img},
+         #{gallery_content_img},
+         0,
+         1,
+         #{business_id},
+         #{title},
+         NOW(),
+         #{receive_type});
+    </insert>
+
+    <!--插入点击后进入店铺主页的广告-->
+    <insert id="insertDoingsSpreadLunBoZhuye"  parameterType="com.springmvc.entity.DoingsSpread"  >
+        INSERT INTO doings_spread
+        (ad_type, gallery_type, gallery_img, verify_statue, activating_statue, business_id, title, create_time,receive_type)
+        VALUES
+        (0,0,#{gallery_img},0,1,#{business_id},#{title},NOW(),#{receive_type});
+    </insert>
+
+    <!--插入系统消息广告-->
+    <insert id="insertDoingsSpreadSystemMsg" parameterType="com.springmvc.entity.DoingsSpread" >
+        INSERT INTO doings_spread
+        (ad_type, system_msg, verify_statue, activating_statue, business_id, title, create_time,receive_type)
+        VALUES
+        (1,#{system_msg},0,1,#{business_id},#{title},NOW(),#{receive_type});
+    </insert>
+
+    <!--获取所有已通过审核并且未下架的-商家端获取所有商家可以查看的文字消息-->
+    <select id="selectSystemMsgDoingsSpreadByIdAll" resultType="java.util.HashMap">
+        SELECT
+            id,
+            title,
+            system_msg,
+            business_id,
+            DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') AS create_time
+        FROM doings_spread
+        WHERE ad_type=1 and activating_statue=0 and verify_statue = 1 and (receive_type=0 or receive_type = 1)
+    </select>
+
+    <!--获取所有已通过审核并且未下架-并且只有商家会员可查看的文本推广消息-->
+    <select id="selectSystemMsgDoingsSpreadByRecommend" resultType="java.util.HashMap">
+        SELECT
+            id,
+            title,
+            system_msg,
+            business_id,
+            DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') AS create_time
+        FROM doings_spread
+        WHERE ad_type=1 and activating_statue=0 and verify_statue = 1 and receive_type=4 and business_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--(商家端)获取所有已通过审核并且未下架的并且所有商家和用户或所有用户均可查看的轮播图推广消息(长页)-->
+    <select id="selectGalleryChangYeDoingsSpreadByIdAll" resultType="java.util.HashMap">
+        SELECT
+            id,
+            business_id,gallery_img,gallery_content_img,gallery_type
+        FROM doings_spread
+        WHERE ad_type=0 and activating_statue=0 and gallery_type = 1 and verify_statue = 1 and (receive_type=0 or receive_type = 1)
+    </select>
+
+    <!--获取所有已通过审核并且未下架的并且只有商家会员可查看的轮播图推广消息-->
+    <select id="selectGalleryChangYeDoingsSpreadByRecommendBusinessId" resultType="java.util.HashMap">
+        SELECT
+            id,
+            business_id,gallery_img,gallery_content_img,gallery_type
+        FROM doings_spread
+        WHERE ad_type=0 and activating_statue=0 and verify_statue = 1 and gallery_type = 1  and receive_type=4 and business_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--根据商家ID获取自己所发布的所有广告-->
+    <select id="getBusinessIdAdById" parameterType="int" resultType="map">
+        SELECT * FROM doings_spread WHERE business_id = #{business_id}
+            <if test="type == 0">
+                AND verify_statue = 0
+            </if>
+
+            <if test="type == 1">
+                AND activating_statue = 0 AND verify_statue = 1
+            </if>
+
+            <if test="type == 2">
+                AND activating_statue = 1 AND verify_statue = 1
+            </if>
+    </select>
+
+    <!--获取所有已通过审核并且未下架的并且所有商家和用户或所有用户均可查看的文本推广消息-->
+    <select id="selectNotDownTextMessageAndExaminePassJurisdictionForAllUserAndBusinessOrUser" resultType="java.util.HashMap">
+        SELECT
+        id,
+        title,
+        system_msg,
+        business_id,
+        DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') AS create_time,
+        read_status
+        FROM doings_spread
+        WHERE ad_type=1 and activating_statue=0 and verify_statue = 1 and (receive_type=0 or receive_type = 2)
+    </select>
+
+    <!--获取所有已通过审核并且未下架的并且只有商家会员可查看的文本推广消息-->
+    <select id="selectNotDownTextMessageAndExaminePassJurisdictionForBusinessMember" resultType="java.util.HashMap">
+        SELECT
+        id,
+        title,
+        system_msg,
+        business_id,
+        DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') AS create_time,
+        read_status
+        FROM doings_spread
+        WHERE ad_type=1 and activating_statue=0 and verify_statue = 1 and receive_type=3 and business_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+
+    <!--获取所有已通过审核并且未下架的并且所有商家和用户或所有用户均可查看的轮播图推广消息-->
+    <select id="selectNotDownImgMessageAndExaminePassJurisdictionForAllUserAndBusinessOrUser" resultType="java.util.HashMap">
+        SELECT
+        id,
+        business_id,gallery_img,gallery_content_img,gallery_type
+        FROM doings_spread
+        WHERE ad_type=0 and activating_statue=0 and verify_statue = 1 and (receive_type=0 or receive_type = 2)
+    </select>
+
+    <!--获取所有已通过审核并且未下架的并且只有商家会员可查看的轮播图推广消息-->
+    <select id="selectNotDownImgMessageAndExaminePassJurisdictionForBusinessMember" resultType="java.util.HashMap">
+        SELECT
+        id,
+        business_id,gallery_img,gallery_content_img,gallery_type
+        FROM doings_spread
+        WHERE ad_type=0 and activating_statue=0 and verify_statue = 1 and receive_type=3 and business_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--根据商家ID获取条目数量 推广活动 -->
+    <!--总消息数量 - 已读消息数量 -->
+    <select id="getAdUnread" parameterType="int" resultType="map">
+        SELECT (COUNT(id) - dc.dcc) AS unread  FROM doings_spread AS ds ,
+            (SELECT COUNT(da.id) as dcc FROM doings_spread AS da
+                INNER JOIN doing_spread_business_read_record AS db
+                    ON (db.type=1 AND da.ad_type=1 AND da.id=db.message_id AND db.business_id=#{business_id})) AS dc
+        WHERE ds.ad_type = 1  AND ds.business_id = #{business_id}
+    </select>
+
+    <!--根据商家ID获取未读条目数量 系统消息 -->
+    <!--总消息数量 - 已读消息数量 -->
+    <select id="getSystemMsg" parameterType="int" resultType="map">
+        SELECT (COUNT(id) - dc.dcc) AS unread  FROM wnk_business_system_message AS ds ,
+            (SELECT COUNT(da.id) as dcc FROM wnk_business_system_message AS da
+                INNER JOIN doing_spread_business_read_record AS db
+                    ON (da.id=db.message_id AND db.business_id=#{business_id} AND db.type=0)) AS dc WHERE ds.business_id = #{business_id}
+    </select>
+
+
+    <!--根据商家ID获取未读消息的信息 ( 推广活动 )-->
+    <select id="selectDoingsSpreadReadFalseByAd" parameterType="int" resultType="map">
+        SELECT ds.id,ds.business_id,dsbrr.message_id FROM doings_spread AS ds
+            LEFT JOIN doing_spread_business_read_record AS dsbrr
+                ON (ds.id=dsbrr.message_id AND dsbrr.type = 1)  WHERE ds.ad_type=1 AND ds.business_id = #{business_id}
+    </select>
+
+    <!--根据商家ID获取未读消息的信息 ( 系统消息 )-->
+    <select id="selectSystemMsgReadFalseByAd" parameterType="int" resultType="map">
+        SELECT ds.id,ds.business_id,dsbrr.message_id FROM wnk_business_system_message AS ds
+            LEFT JOIN doing_spread_business_read_record AS dsbrr
+                ON ( ds.id=dsbrr.message_id AND dsbrr.type = 0) WHERE ds.business_id = #{business_id}
+    </select>
+
+    <!--插入记录的消息才是已读消息-->
+    <insert id="UpdateDoingsSpreadReadTrue" parameterType="string" >
+        INSERT INTO doing_spread_business_read_record
+        (message_id, business_id, type)
+        VALUES
+            (#{id},#{business_id},#{types})
+    </insert>
+
+    <!--根据商家ID吧未读消息标记为已读-->
+    <update id="updateReadByBusinessId" parameterType="int">
+        UPDATE doings_spread
+        SET read_status = 1
+        WHERE business_id = #{business_id} AND read_status = 0
+    </update>
+
+    <!--查询所有未审核的活动信息-->
+    <select id="selectNoReviewAll" resultType="map">
+        SELECT ds.*,wsi.store_name FROM doings_spread  AS ds ,wnk_store_information AS wsi
+        WHERE ds.verify_statue=0 AND ds.business_id = wsi.id
+    </select>
+
+    <!--根据条件查询推广活动审核信息-->
+    <select id="adminSearchDoingsSpread" resultType="java.util.Map">
+        SELECT
+            ds.id,
+            ds.title,
+            ds.ad_type,
+            ds.gallery_type,
+            ds.receive_type,
+            ds.gallery_img,
+            ds.gallery_content_img,
+            ds.system_msg,
+            ds.verify_statue,
+            ds.activating_statue,
+            DATE_FORMAT(ds.create_time,'%Y年%m月%d日 %H:%i:%s') AS create_time,
+            wsi.store_name  AS store_name
+        FROM doings_spread AS ds ,
+             wnk_store_information AS wsi
+        WHERE 1 = 1 AND ds.business_id = wsi.business_id
+        <if test="_parameter.title != null and ''!= _parameter.title">
+            AND ds.title LIKE #{title}
+        </if>
+        <if test="_parameter.store_name != null and ''!= _parameter.store_name">
+            AND wsi.store_name LIKE #{store_name}
+        </if>
+        <if test="_parameter.ad_type != null ">
+            AND ds.ad_type = #{ad_type}
+        </if>
+        <if test="_parameter.receive_type != null">
+            AND ds.receive_type = #{receive_type}
+        </if>
+        <if test="_parameter.verify_statue != null ">
+            AND ds.verify_statue = #{verify_statue}
+        </if>
+        <if test="_parameter.activating_statue != null">
+            AND ds.activating_statue = #{activating_statue}
+        </if>
+        <if test="_parameter.create_time != null and ''!= _parameter.create_time">
+            AND unix_timestamp(#{create_time}) = unix_timestamp(create_time)
+        </if>
+        order by create_time DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+
+</mapper>

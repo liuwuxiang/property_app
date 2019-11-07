@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessLegalizeMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkBusinessLegalize" >
+        <id     column="id"                     property="id"                   jdbcType="INTEGER" />
+        <result column="business_id"            property="business_id"          jdbcType="INTEGER" />
+        <result column="legalize_status"        property="legalize_status"      jdbcType="INTEGER" />
+        <result column="start_time"             property="start_time"           jdbcType="TIMESTAMP" />
+        <result column="stop_time"              property="stop_time"            jdbcType="TIMESTAMP" />
+        <result column="id_card_facade_img"     property="id_card_facade_img"   jdbcType="VARCHAR" />
+        <result column="id_card_rear_img"       property="id_card_rear_img"     jdbcType="VARCHAR" />
+        <result column="business_license_img"   property="business_license_img" jdbcType="VARCHAR" />
+        <result column="license_img"            property="license_img"          jdbcType="VARCHAR" />
+        <result column="phone"                  property="phone"                jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!--审核通过插入未认证信息-->
+    <insert id="insertLegalizeInfo" parameterType="com.springmvc.entity.WnkBusinessLegalize">
+        INSERT INTO wnk_business_legalize
+        ( business_id, legalize_status, start_time)
+        VALUES
+        (#{business_id},#{legalize_status},NOW())
+    </insert>
+
+    <!--更新用户审核信息-->
+    <update id="updateBusinessLegalizeInfoById" parameterType="com.springmvc.entity.WnkBusinessLegalize">
+      UPDATE wnk_business_legalize SET
+          id_card_facade_img   = #{id_card_facade_img,jdbcType=VARCHAR},
+          id_card_rear_img     = #{id_card_rear_img,jdbcType=VARCHAR},
+          business_license_img = #{business_license_img,jdbcType=VARCHAR},
+          phone                = #{phone,jdbcType=VARCHAR},
+            <if test="license_img != null">
+                license_img = #{license_img,jdbcType=VARCHAR},
+            </if>
+          legalize_status = 0
+        WHERE business_id = #{business_id,jdbcType=INTEGER}
+
+    </update>
+
+    <!--根据ID获取商家认证状态-->
+    <select id="selectBusinessLegalizeStatusById" parameterType="int" resultType="java.util.Map">
+        SELECT
+            IF(legalize_status=-1,'未上传认证信息', IF(legalize_status=0,'未认证', IF(legalize_status=1,'已认证','认证拒绝'))) AS status
+        FROM wnk_business_legalize WHERE business_id = #{business_id,jdbcType=INTEGER}
+    </select>
+
+    <!--获取所有未认证的商家信息-->
+    <select id="selectBusinessLegalizeAll" resultType="java.util.Map">
+        SELECT
+            wbl.id,wbl.business_id,wbl.phone,wbl.id_card_facade_img,
+            wbl.id_card_rear_img,wbl.business_license_img,wbl.license_img,
+            DATE_FORMAT(start_time,'%Y年%m月%d日 %H:%i:%s') AS start_time,
+            wbl.legalize_status,wsi.store_name,wbt.name AS business_type_str
+        FROM wnk_business_legalize AS wbl , wnk_store_information AS wsi,wnk_business_type AS wbt
+        WHERE wbl.legalize_status = 0 or wbl.legalize_status = -1
+              AND wsi.business_id=wbl.business_id AND wsi.business_type_id=wbt.id
+    </select>
+
+    <!--获取所有已审核的商家信息-->
+    <select id="selectBusinessAuditedLegalizeAll" resultType="java.util.Map">
+        SELECT
+        id,business_id,phone,id_card_facade_img,id_card_rear_img,business_license_img,license_img,
+        DATE_FORMAT(start_time,'%Y年%m月%d日 %H:%i:%s') AS start_time,
+        DATE_FORMAT(stop_time,'%Y年%m月%d日 %H:%i:%s') AS stop_time,
+        legalize_status,
+        (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_store_information.business_id=wnk_business_legalize.business_id) as store_name
+        FROM wnk_business_legalize
+        WHERE legalize_status = 1 or legalize_status = 2
+    </select>
+
+    <!--通过条件查询符合条件的已审核认证商家信息-->
+    <select id="adminSearchWnkBusinessAuditedLegalizeInfoByConditions" parameterType="map" resultType="java.util.Map">
+        SELECT
+            wbl.id,wbl.business_id,wbl.phone,wbl.id_card_facade_img,wbl.id_card_rear_img,
+            wbl.business_license_img,wbl.license_img,
+            DATE_FORMAT(wbl.start_time,'%Y年%m月%d日 %H:%i:%s') AS start_time,
+            DATE_FORMAT(wbl.stop_time,'%Y年%m月%d日 %H:%i:%s') AS stop_time,
+            (CASE WHEN wbl.legalize_status = -1 THEN '未上传认证信息'  WHEN wbl.legalize_status = 0 THEN '未认证'
+            WHEN wbl.legalize_status = 1 THEN '认证通过' WHEN wbl.legalize_status = 2 THEN '审核拒绝' END) AS legalize_status,
+            wsi.business_type_id as wnk_business_type,wsi.store_name as store_name
+        FROM wnk_business_legalize AS wbl ,wnk_store_information AS wsi,wnk_business_type AS wbt
+        WHERE 1=1 AND wbl.legalize_status > 0
+        AND wsi.business_id=wbl.business_id AND wsi.business_type_id=wbt.id
+        <if test="_parameter.business_id != null and ''!= _parameter.business_id">
+            AND wbl.business_id = #{business_id}
+        </if>
+        <if test="_parameter.store_name != null and ''!= _parameter.store_name">
+            AND wsi.store_name LIKE #{store_name}
+        </if>
+        <if test="_parameter.phone != null and ''!= _parameter.phone">
+            AND wbl.phone = #{phone}
+        </if>
+        <if test="_parameter.wnk_business_type != null and ''!= _parameter.wnk_business_type">
+            AND wsi.business_type_id = #{wnk_business_type}
+        </if>
+        <if test="_parameter.legalize_status != null ">
+            AND wbl.legalize_status = #{legalize_status}
+        </if>
+        <if test="_parameter.stop_time != null and ''!= _parameter.stop_time">
+            AND unix_timestamp(stop_time) = unix_timestamp(#{stop_time})
+        </if>
+        order by stop_time DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+    <!--更新用户认证状态-->
+    <update id="updateBusinessLegalize" parameterType="int" >
+        UPDATE wnk_business_legalize
+        SET
+            legalize_status = #{type},stop_time = NOW()
+        WHERE id=#{legalize_id} AND business_id=#{business_id}
+    </update>
+
+    <!--通过商家id查询记录-->
+    <select id="selectByBusinessId" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_business_legalize
+        where business_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--获取商家审核通过时间-->
+    <select id="selectStopTimeByBusinessId" resultType="java.util.Map" parameterType="int">
+        SELECT
+            DATE_FORMAT(stop_time,'%Y/%m/%d %H:%i:%S') AS stop_time_str
+        FROM wnk_business_legalize
+        where business_id = #{business_id} AND stop_time IS NOT NULL
+    </select>
+
+    <!--通过条件查询符合条件的待审核认证商家信息-->
+    <select id="adminSearchWnkBusinessLegalizeInfoByConditions" parameterType="map" resultType="java.util.Map">
+        SELECT
+            wbl.id,wbl.business_id,wbl.phone,wbl.id_card_facade_img,
+            wbl.id_card_rear_img,wbl.business_license_img,wbl.license_img,
+            DATE_FORMAT(start_time,'%Y年%m月%d日 %H:%i:%s') AS start_time,
+            (CASE WHEN wbl.legalize_status = -1 THEN '未上传认证信息' WHEN wbl.legalize_status = 0 THEN '未认证'
+            WHEN wbl.legalize_status = 1 THEN '认证通过' WHEN wbl.legalize_status = 2 THEN '审核拒绝' END) as legalize_status,
+            wsi.business_type_id,wsi.store_name,wbt.name AS business_type_str
+        FROM wnk_business_legalize AS wbl , wnk_store_information AS wsi,wnk_business_type AS wbt
+        WHERE wbl.legalize_status = 0 or wbl.legalize_status = -1
+              AND wsi.business_id=wbl.business_id AND wsi.business_type_id=wbt.id
+        <if test="_parameter.business_id != null and ''!= _parameter.business_id">
+            AND wbl.business_id = #{business_id}
+        </if>
+        <if test="_parameter.store_name != null and ''!= _parameter.store_name">
+            AND wsi.store_name LIKE #{store_name}
+        </if>
+        <if test="_parameter.phone != null and ''!= _parameter.phone">
+            AND wbl.phone = #{phone}
+        </if>
+        <if test="_parameter.wnk_business_type != null and ''!= _parameter.wnk_business_type">
+            AND wsi.business_type_id LIKE #{wnk_business_type}
+        </if>
+        <if test="_parameter.legalize_status != null ">
+            AND wbl.legalize_status = #{legalize_status}
+        </if>
+        <if test="_parameter.start_time != null and ''!= _parameter.start_time">
+            AND unix_timestamp(start_time) = unix_timestamp(#{start_time})
+        </if>
+        order by start_time DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+    <!--根据商家认证记录ID查询商家认证信息-->
+    <select id="selectBusinessLegalizeInfoById" parameterType="int" resultType="java.util.Map">
+        SELECT
+            wbl.id,wbl.business_id,wbl.phone,wbl.id_card_facade_img,
+            wbl.id_card_rear_img,wbl.business_license_img,wbl.license_img,
+            DATE_FORMAT(start_time,'%Y年%m月%d日 %H:%i:%s') AS start_time,
+            (CASE WHEN wbl.legalize_status = -1 THEN '未认证' WHEN wbl.legalize_status = 0 THEN '未认证' WHEN wbl.legalize_status = 1 THEN '认证通过' WHEN wbl.legalize_status = 2 THEN '审核拒绝' END) as legalize_status,
+            wsi.store_name,wbt.name AS business_type_str
+        FROM wnk_business_legalize AS wbl , wnk_store_information AS wsi,wnk_business_type AS wbt
+        WHERE wsi.business_id=wbl.business_id AND wsi.business_type_id=wbt.id AND wbl.id=#{id}
+    </select>
+
+</mapper>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessTypeMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkBusinessType" >
+        <id     column="id"                     property="id"                   jdbcType="INTEGER" />
+        <result column="name"                   property="name"                 jdbcType="VARCHAR" />
+        <result column="background_photo_id"    property="background_photo_id"  jdbcType="VARCHAR" />
+        <result column="logo_photo_id"          property="logo_photo_id"        jdbcType="VARCHAR" />
+        <result column="month_free_number"      property="month_free_number"    jdbcType="INTEGER" />
+        <result column="commdity_charge_way"    property="commdity_charge_way"  jdbcType="INTEGER" />
+        <result column="commodifty_price"       property="commodifty_price"     jdbcType="DOUBLE" />
+        <result column="make_wnk_state"         property="make_wnk_state"       jdbcType="INTEGER" />
+        <result column="discount_type"          property="discount_type"        jdbcType="INTEGER" />
+        <result column="is_del"                 property="is_del"               jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,name,background_photo_id,logo_photo_id,month_free_number,make_wnk_state,discount_type,is_del
+    </sql>
+
+    <!--查询所有记录-->
+    <select id="selectAllRecord" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM wnk_business_type
+        WHERE is_del = 0
+    </select>
+
+    <!--后台查询所有记录-->
+    <select id="adminSelectAllRecord" resultType="java.util.HashMap">
+        SELECT
+        id,name,logo_photo_id,commodifty_price,
+        (CASE WHEN commdity_charge_way = 0 THEN '按次' WHEN commdity_charge_way = 1 THEN '按年'  END) as commdity_charge_way,
+        (CASE WHEN make_wnk_state = 0 THEN '不执行' WHEN make_wnk_state = 1 THEN '执行'  END) as make_wnk_state,
+        (CASE WHEN discount_type = 0 THEN '定价' WHEN discount_type = 1 THEN '折扣'  END) as discount_type
+        FROM wnk_business_type
+        WHERE is_del = 0
+    </select>
+
+    <!--通过id查询记录-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_business_type
+        where id = #{param1,jdbcType=INTEGER} AND is_del = 0
+    </select>
+
+    <!--根据条件查询商家分类管理-->
+    <select id="adminSearchWnkBusinessType" resultType="java.util.Map">
+        SELECT
+            id,name,logo_photo_id,commodifty_price,
+            (CASE WHEN commdity_charge_way = 0 THEN '按次' WHEN commdity_charge_way = 1 THEN '按年'  END) as commdity_charge_way,
+            (CASE WHEN make_wnk_state = 0 THEN '不执行' WHEN make_wnk_state = 1 THEN '执行'  END) as make_wnk_state,
+            (CASE WHEN discount_type = 0 THEN '定价' WHEN discount_type = 1 THEN '折扣'  END) as discount_type
+        FROM wnk_business_type
+        WHERE 1=1 AND is_del = 0
+        <if test="_parameter.name != null and ''!= _parameter.name">
+            AND name LIKE #{name}
+        </if>
+        <if test="_parameter.commdity_charge_way != null ">
+            AND commdity_charge_way = #{commdity_charge_way}
+        </if>
+        <if test="_parameter.commodifty_price != null and ''!= _parameter.commodifty_price">
+            AND commodifty_price LIKE #{commodifty_price}
+        </if>
+        <if test="_parameter.make_wnk_state != null">
+            AND make_wnk_state = #{make_wnk_state}
+        </if>
+        <if test="_parameter.discount_type != null ">
+            AND discount_type = #{discount_type}
+        </if>
+        order by id DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+    <!--新增万能卡分类信息-->
+    <insert id="addWnkBusinessInformationAction">
+        INSERT  INTO wnk_business_type(name,logo_photo_id,commdity_charge_way,commodifty_price,make_wnk_state,discount_type)
+        VALUES (#{name,jdbcType=VARCHAR},logo_photo_id = #{logo_photo_id,jdbcType=VARCHAR},commdity_charge_way = #{commdity_charge_way,jdbcType=INTEGER},
+        commodifty_price = #{commodifty_price,jdbcType=DOUBLE},make_wnk_state = #{make_wnk_state,jdbcType=INTEGER},discount_type = #{discount_type,jdbcType=INTEGER})
+    </insert>
+
+    <!--更新万能卡分类信息-->
+    <insert id="updateWnkTypeInformation">
+        UPDATE wnk_business_type
+        SET name = #{name,jdbcType=VARCHAR},logo_photo_id = #{logo_photo_id,jdbcType=VARCHAR},commdity_charge_way = #{commdity_charge_way,jdbcType=INTEGER},
+        commodifty_price = #{commodifty_price,jdbcType=DOUBLE},make_wnk_state = #{make_wnk_state,jdbcType=INTEGER},discount_type = #{discount_type,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--删除-->
+    <update id="deleteWnkBusinessTypeById" parameterType="string" >
+        UPDATE wnk_business_type
+        SET
+          is_del = 1
+        WHERE id = #{id}
+    </update>
+
+</mapper>

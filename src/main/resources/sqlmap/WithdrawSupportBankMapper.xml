@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WithdrawSupportBankMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WithdrawSupportBank" >
+        <id     column="id"     property="id"   jdbcType="INTEGER" />
+        <result column="name"   property="name" jdbcType="VARCHAR" />
+        <result column="code"   property="code" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List_APP" >
+        id,name,code
+    </sql>
+
+    <!--APP获取所有可选择的银行-->
+    <select id="selectAllRecord" resultType="java.util.HashMap">
+        SELECT
+        id as bank_id,name
+        FROM withdraw_support_bank
+    </select>
+
+    <!--通过Id查询银行-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_APP" />
+        FROM withdraw_support_bank
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--获取所有银行-->
+    <select id="selectAllAdmin" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List_APP" />
+        FROM withdraw_support_bank
+    </select>
+
+    <!--修改银行信息-->
+    <insert id="updateBank" parameterType="com.springmvc.entity.WithdrawSupportBank">
+        UPDATE withdraw_support_bank
+        SET name = #{name,jdbcType=VARCHAR},code = #{code,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--新增银行-->
+    <insert id="addBank" parameterType="com.springmvc.entity.WithdrawSupportBank" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO withdraw_support_bank(name,code)
+        VALUES (#{name,jdbcType=VARCHAR},#{code,jdbcType=VARCHAR})
+    </insert>
+
+    <!--通过银行名称查询银行-->
+    <select id="selectByName" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_APP" />
+        FROM withdraw_support_bank
+        where name = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--根据id删除记录-->
+    <delete id="deleteRecordById">
+        DELETE FROM withdraw_support_bank WHERE id = #{param1,jdbcType=INTEGER}
+    </delete>
+
+    <!--根据条件查询银行信息-->
+    <select id="adminSearchBankByConditions" resultType="java.util.Map">
+        SELECT
+          id,name,code
+        FROM withdraw_support_bank
+        WHERE 1=1
+
+        <if test="_parameter.name != null and ''!= _parameter.name">
+            AND name LIKE #{name}
+        </if>
+
+        <if test="_parameter.code != null and ''!= _parameter.code">
+            AND code LIKE #{code}
+        </if>
+        order by id DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+</mapper>

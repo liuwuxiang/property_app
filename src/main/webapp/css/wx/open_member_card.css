@@ -1,0 +1,33 @@
+.wc_qrcode_div{
+    width: 100%;
+    height: auto;
+    position: absolute;
+    top: 50%;
+    margin-top: -580px;
+    text-align: center;
+}
+
+.qrcode_div{
+    width: 80%;
+    height: auto;
+    background: white;
+    margin-left: 10%;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+}
+
+.agree_button{
+    display: block !important;
+    width: 100% !important;
+    height: 40px !important;
+    margin-top: 150px !important;
+    border: 0 !important;
+    -webkit-appearance: none !important;
+    border-bottom-left-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+    color: white !important;
+    font-size: 15px !important;
+    background: #1E91FB !important;
+    line-height: 0 !important;
+}

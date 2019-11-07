@@ -1,0 +1,79 @@
+ul {
+	list-style: none;
+	margin: 0 auto;
+	padding: 0;
+}
+
+li {
+	float: left;
+	/*li 之间的间隔 */
+	margin-left: 0.3rem;
+	text-align: center;
+	margin-right: 0.3rem;
+	margin-bottom: 0.5rem;
+}
+
+.no-record {
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	color: #999;
+}
+
+/*订单块*/
+.mui-card {
+	width: auto;
+	margin: 0;
+	padding: 0;
+}
+	/*订单号和订单状态*/
+.mui-card-header{
+	font-size: 0.8rem;
+}
+.order-id-status{
+	color: #fc9153;
+}
+
+/*订单简单详情*/
+.mui-card-content > div > img{
+	width: 4rem;
+	height: 4rem;
+}
+
+.order-goods-img {
+	width: 29%;
+}
+.order-goods-trader{
+	width: 69%;
+	margin-left: 30%;
+	text-align: left;
+}
+.order-goods-trader > span{
+	position:absolute;
+	top: 0;
+}
+.order-goods-trader {
+	font-size: 0.8rem;
+}
+.order-goods-trader-name{
+	font-size: 1rem;
+	margin-top: 1.5rem;
+}
+
+/*订单追踪*/
+.mui-card-footer {
+	font-size: 0.8rem;
+	color:#000;
+	height: 2.8rem;
+}
+
+.mui-card-footer > div > input {
+	font-size: 0.8rem;
+	width: 5.5rem;
+	height: 1rem;
+	margin-top: 0.8rem;
+}
+
+.mui-card-footer > div > span > span{
+	color: #fc9153;
+}

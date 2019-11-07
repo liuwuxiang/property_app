@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessGoodsTagMapper" >
+
+    <select id="selectBusinessGoodsTagById" parameterType="int" resultType="map">
+        SELECT * FROM wnk_business_goods_tag WHERE business_id = #{business_id} AND state = #{type}
+    </select>
+
+    <!--新增商品标签-->
+    <insert id="insertBusinessGoodsTag" parameterType="com.springmvc.entity.WnkBusinessGoodsTag">
+        INSERT INTO wnk_business_goods_tag
+        (name, state, create_time, business_id)
+        VALUES
+        (#{name},0,NOW(),#{business_id})
+    </insert>
+
+    <!--更新商品标签-->
+    <update id="updateBusinessGoodsTag" parameterType="com.springmvc.entity.WnkBusinessGoodsTag">
+        UPDATE wnk_business_goods_tag
+        <trim prefix="set" suffixOverrides=",">
+            <if test="name != null">
+                name=#{name,jdbcType=VARCHAR},
+            </if>
+
+            <if test="state != null">
+                state=#{state,jdbcType=VARCHAR},
+            </if>
+
+        </trim>
+        WHERE id=#{id}
+    </update>
+
+    <select id="selectGoodsTagInfoById" parameterType="int" resultType="com.springmvc.entity.WnkBusinessGoodsTag">
+        SELECT * FROM wnk_business_goods_tag WHERE id = #{tag_id}
+    </select>
+
+</mapper>

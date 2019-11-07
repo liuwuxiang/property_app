@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkIntegralGoodsMapper">
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkIntegralGoods">
+        <id     column="id"            property="id"            jdbcType="INTEGER"/>
+        <result column="business_id"   property="business_id"   jdbcType="INTEGER"/>
+        <result column="name"          property="name"          jdbcType="VARCHAR"/>
+        <result column="price"         property="price"         jdbcType="INTEGER"/>
+        <result column="img"           property="img"           jdbcType="VARCHAR"/>
+        <result column="detail"        property="detail"        jdbcType="LONGVARCHAR"/>
+        <result column="type"          property="type"          jdbcType="INTEGER"/>
+        <result column="is_checked"    property="is_checked"    jdbcType="INTEGER"/>
+        <result column="synopsis"      property="synopsis"      jdbcType="VARCHAR"/>
+        <result column="creation_time" property="creation_time" jdbcType="TIMESTAMP"/>
+        <result column="is_recommend"  property="is_recommend"  jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="all">
+        id,business_id, name, img, detail, type, is_checked, synopsis,creation_time,price
+    </sql>
+
+    <insert id="addIntegralGoods" parameterType="com.springmvc.entity.WnkIntegralGoods">
+        INSERT INTO
+        wnk_integral_goods
+        ( business_id, name, img, detail, type, is_checked, synopsis,creation_time,price) VALUES
+        (#{business_id},#{name},#{img},#{detail},#{type},#{is_checked},#{synopsis},NOW(),#{price})
+    </insert>
+
+    <select id="getIntegralGoodsById" resultType="map">
+      SELECT g.*,t.name as typeName  FROM wnk_integral_goods AS g LEFT JOIN wnk_integral_type AS t
+        ON (g.type=t.id) WHERE g.id=#{id} AND g.business_id=#{business_id} ORDER BY id DESC
+    </select>
+
+    <update id="editIntegralGoods" parameterType="com.springmvc.entity.WnkIntegralGoods">
+        UPDATE wnk_integral_goods
+            <trim prefix="set" suffixOverrides=",">
+
+                <if test="name != null">
+                    name=#{name},
+                </if>
+
+                <if test="img != null">
+                    img=#{img},
+                </if>
+
+                <if test="detail != null">
+                    detail=#{detail},
+                </if>
+
+                <if test="type != null">
+                    type=#{type},
+                </if>
+
+                <if test="is_checked != null">
+                    is_checked=#{is_checked},
+                </if>
+
+                <if test="synopsis != null">
+                    synopsis=#{synopsis},
+                </if>
+
+                <if test="price != null">
+                    price=#{price},
+                </if>
+
+            </trim>
+        WHERE id=#{id} AND business_id=#{business_id}
+    </update>
+
+    <select id="getIntegralGoodsAll" parameterType="int" resultMap="BaseResultMap">
+        SELECT <include refid="all"></include> FROM wnk_integral_goods WHERE business_id=#{business_id} ORDER BY id DESC
+    </select>
+
+    <select id="getIntegralGoodsAllAndTrue" parameterType="int" resultMap="BaseResultMap">
+        SELECT <include refid="all"></include> FROM wnk_integral_goods WHERE business_id=#{business_id} AND is_checked=0 ORDER BY id DESC
+    </select>
+
+    <!--获取推荐商品-->
+    <select id="getRecommednGoods" resultType="map">
+        SELECT
+        wnk_integral_goods.*,
+        wsi.store_name AS business_name,
+        (SELECT COUNT(id) FROM wnk_integral_order WHERE wnk_integral_order.goods_id=wnk_integral_goods.id) AS exchanged
+        FROM
+        wnk_integral_goods,
+        wnk_store_information AS wsi
+        WHERE
+        is_checked=0 AND is_recommend = 1 AND wsi.business_id = wnk_integral_goods.business_id
+    </select>
+    <!--        SELECT <include refid="all"></include> FROM wnk_integral_goods limit 6-->
+
+    <!--获取某个分类下的商品-->
+    <select id="getGoodsByTypeId" resultMap="BaseResultMap">
+        SELECT <include refid="all"></include> FROM wnk_integral_goods where type = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <select id="getIntegralByIdAndWnk" parameterType="int" resultType="map">
+        SELECT g.id,g.name,g.price,g.detail,g.synopsis,t.name,t.img
+          FROM wnk_integral_goods AS g LEFT JOIN wnk_integral_type AS t
+                ON (g.type = t.id) WHERE g.business_id = #{business_id} AND g.id = #{goods_id} AND g.is_checked=0
+    </select>
+
+    <select id="getAllIntegralBusinessGoods" resultType="map">
+        SELECT
+            wig.id,
+            wig.name,
+            wig.price,
+            wsi.store_name as business_name,
+            wig.detail,
+            wig.img,
+            (CASE WHEN is_recommend = 0 THEN '不推荐' WHEN is_recommend = 1 THEN '推荐' END) as is_recommend,
+            (CASE WHEN is_checked = 0   THEN '启用'   WHEN is_checked = 1   THEN '禁用' END) as is_checked
+        FROM wnk_integral_goods   as wig,
+            wnk_store_information as wsi
+        WHERE
+            wsi.business_id = wig.business_id
+        order by wig.id ASC
+    </select>
+
+    <!--查询商家积分商品管理-->
+    <select id="adminSearchIntegralBusinessGoods" resultType="java.util.Map">
+        SELECT
+            wig.id,
+            wig.name,
+            wig.price,
+            wsi.store_name as business_name,
+            wig.detail,
+            wig.img,
+            (CASE WHEN is_recommend = 0 THEN '不推荐' WHEN is_recommend = 1 THEN '推荐' END) as is_recommend,
+            (CASE WHEN is_checked = 0   THEN '启用'   WHEN is_checked = 1   THEN '禁用' END) as is_checked
+        FROM wnk_integral_goods   as wig,
+            wnk_store_information as wsi
+        WHERE
+            wsi.business_id = wig.business_id
+        <if test="_parameter.business_name != null and ''!= _parameter.business_name">
+            AND wsi.store_name LIKE #{business_name}
+        </if>
+        <if test="_parameter.name != null and ''!= _parameter.name">
+            AND wig.name LIKE #{name}
+        </if>
+        <if test="_parameter.price != null and ''!= _parameter.price">
+            AND wig.price = #{price}
+        </if>
+
+        <if test="is_recommend != null">
+            AND is_recommend = #{is_recommend}
+        </if>
+        <if test="is_checked != null">
+            AND is_checked = #{is_checked}
+        </if>
+        order by wig.id ASC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+    <update id="updateBusinessIntegralGoodsRecommendStatus" parameterType="int">
+        UPDATE
+          wnk_integral_goods
+        SET
+            is_recommend = #{status}
+        WHERE id = #{goods_id}
+    </update>
+
+    <update id="updateBusinessIntegralGoodsCheckedStatus" parameterType="int">
+        UPDATE
+            wnk_integral_goods
+        SET
+            is_checked = #{status}
+        WHERE id = #{goods_id}
+    </update>
+
+</mapper>

@@ -1,0 +1,42 @@
+.top_div{
+	width: 80%;
+	height: auto;
+	margin-left: 10%;
+	margin-top: 15px;
+	text-align: right;
+}
+
+.set_member_level_ul{
+	width: 80%;
+	height: auto;
+	margin-left: 10%;
+}
+
+.set_member_level_ul li{
+	width: 100%;
+	height: auto;
+	list-style: none;
+	text-align: center;
+	background: white;
+	cursor: pointer;
+	overflow: hidden;
+	margin-top: 10px;
+	text-align: left;
+}
+
+.set_member_level_ul li a{
+	display: block;
+	width: 100%;
+	height: 30px;
+	line-height: 30px;
+	text-align: left;
+	font-size: 15px;
+	color: #575757;
+}
+
+.set_member_level_ul li select{
+	display: block;
+	width: 30%;
+	height: 30px;
+	line-height: 30px;
+}

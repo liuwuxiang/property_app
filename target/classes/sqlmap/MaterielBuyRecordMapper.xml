@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.MaterielBuyRecordMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.MaterielBuyRecord" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="materiel_id" property="materiel_id" jdbcType="INTEGER" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="buy_number" property="buy_number" jdbcType="INTEGER" />
+        <result column="buy_date" property="buy_date" jdbcType="TIMESTAMP" />
+    </resultMap>
+    <sql id="Base_Column_List_App" >
+        id,materiel_id,business_id,buy_number,buy_date
+    </sql>
+
+    <!--查询某个商家某个物料的购买记录-->
+    <select id="selectRecordByBusinessIdAndMaterielId" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List_App" />
+        FROM materiel_buy_record where business_id = #{param1,jdbcType=INTEGER} and materiel_id = #{param2,jdbcType=INTEGER}
+    </select>
+
+    <!--插入商家购买物料记录-->
+    <insert id="inserRecord" parameterType="com.springmvc.entity.MaterielBuyRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO materiel_buy_record(materiel_id,business_id,buy_number,buy_date)
+        VALUES (#{materiel_id,jdbcType=INTEGER},#{business_id,jdbcType=INTEGER},#{buy_number,jdbcType=INTEGER},#{buy_date,jdbcType=TIMESTAMP})
+    </insert>
+
+
+
+</mapper>

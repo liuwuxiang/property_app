@@ -1,0 +1,40 @@
+body{
+	margin: 0;
+	padding: 0;
+	background: #F2F2F2;
+}
+
+.nickName_input_div{
+	width: 100%;
+	height:auto;
+	background: white;
+	margin-top: 10px;
+	overflow: hidden;
+}
+
+.nickName_input{
+	display: block;
+	width: 97%;
+	height: 40px;
+	border: 0;
+	font-size: 15px;
+	padding-left: 0;
+	padding-right: 0;
+	margin-left: 1.5%;
+}
+
+.set_button{
+	display: block;
+	width: 96%;
+	height: 40px;
+	margin-top: 15px;
+	float: left;
+	border: 0;
+	-webkit-appearance: none;
+	border-radius: 8px;
+	margin-left: 2%;
+	color: white;
+	font-size: 15px;
+	background: #1E91FB;
+	line-height: 0;
+}

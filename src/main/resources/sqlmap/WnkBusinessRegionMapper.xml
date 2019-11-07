@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessRegionMapper" >
+
+
+    <!--获取所有区域-->
+    <select id="selectWnkBusinessRegionAll"  resultType="map">
+        SELECT * FROM wnk_business_region
+    </select>
+
+    <!--根据条件查询商户区域管理-->
+    <select id="adminSearchWnkBusinessRegionInfoByConditions" resultType="java.util.Map">
+        SELECT id,name
+        FROM wnk_business_region
+        WHERE 1=1
+        <if test="_parameter.name != null and '' != _parameter.name">
+            AND name LIKE #{name}
+        </if>
+        ORDER BY id ASC LIMIT #{start_index},#{limit}
+    </select>
+
+    <!--新增区域-->
+    <insert id="insertWnkBusinessRegion" parameterType="com.springmvc.entity.WnkBusinessRegion">
+        INSERT  INTO
+        wnk_business_region
+        (name) VALUES (#{name})
+    </insert>
+
+    <!--更新区域-->
+    <update id="updateWnkBusinessRegion" parameterType="com.springmvc.entity.WnkBusinessRegion">
+        UPDATE
+            wnk_business_region
+        SET
+            name = #{name}
+        WHERE
+            id = #{id}
+    </update>
+
+    <!--删除区域-->
+    <delete id="deleteWnkBusinessRegion" parameterType="int">
+        DELETE FROM wnk_business_region WHERE id = #{id}
+    </delete>
+
+
+</mapper>

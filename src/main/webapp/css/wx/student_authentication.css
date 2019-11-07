@@ -1,0 +1,37 @@
+.checkbox_div{
+	width: 96%;
+	height: auto;
+	margin-left: 2%;
+}
+
+.check_img{
+	display: block;
+	width: 30px;
+	height: 30px;
+	float: left;
+	margin-right: 5px;
+}
+
+.span_tag{
+	/*display: block;*/
+	height: 30px;
+	width: auto;
+	line-height: 30px;
+	text-align: left;
+	font-size: 14px;
+}
+
+.href_tag{
+	color: #E9C485;
+	text-decoration:underline;
+}
+
+.tip_tag{
+	display: block;
+	width: 100%;
+	height: 20px;
+	line-height: 20px;
+	text-align: center;
+	font-size: 13px;
+	color: #A9A9A9;
+}

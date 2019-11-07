@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkCommoditySpecificationsMapper" >
+
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkCommoditySpecifications" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="commodity_id" property="commodity_id" jdbcType="INTEGER" />
+        <result column="specifications_name" property="specifications_name" jdbcType="VARCHAR" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+        <result column="price" property="price" jdbcType="DOUBLE" />
+        <result column="inventory" property="inventory" jdbcType="INTEGER" />
+        <result column="is_wnk" property="is_wnk" jdbcType="INTEGER" />
+        <result column="gift_noun" property="gift_noun" jdbcType="INTEGER" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id,commodity_id,specifications_name,state,price,inventory,is_wnk,inventory,is_wnk,gift_noun
+    </sql>
+
+    <!--查询某个商品的所有规格-->
+    <select id="selectByCommodityId" resultType="java.util.HashMap">
+        SELECT
+          <include refid="Base_Column_List" />
+        FROM
+          wnk_commodity_specifications
+        WHERE
+          commodity_id = #{param1,jdbcType=INTEGER} AND state = 0
+    </select>
+
+    <!--查询某个商家下所有执行万能卡权益的规格数据-->
+    <select id="selectWnkGuiGeByBusinessId" resultType="java.util.HashMap">
+        SELECT
+            wcs.*
+        FROM
+            wnk_commodity_specifications  AS wcs,
+            wnk_commodities               AS wc
+        WHERE
+            wc.id = wcs.commodity_id AND wcs.is_wnk = 0 AND wc.business_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--查询某个商家下已开启万能卡权益的规格最低价-->
+    <select id="selectWnkGuiGeMinPriceByBusinessId" resultType="map">
+        SELECT
+            min(wcs.price) as min_price
+        from
+            wnk_commodity_specifications as wcs,
+            wnk_commodities              as wc
+        where  wcs.is_wnk = 0 and wcs.state = 0 AND wc.business_id = #{param1,jdbcType=INTEGER} and wc.id = wcs.commodity_id and wc.delete_state =0 and wc.state = 0
+    </select>
+
+    <!--查询某个商家下已启用的的规格最低价-->
+    <select id="selectWnkGuiGeStartByBusinessId" resultType="map">
+        SELECT
+            min(wcs.price) as min_price
+        from
+            wnk_commodity_specifications as wcs,
+            wnk_commodities              as wc
+        where wcs.state = 0 AND wc.business_id = #{param1,jdbcType=INTEGER} and wc.id = wcs.commodity_id and wc.delete_state =0 and wc.state = 0
+    </select>
+
+    <!--查询某个商品下所有执行万能卡权益的规格数据-->
+    <select id="selectWnkGuiGeByCommodity" resultType="java.util.HashMap">
+        SELECT
+            *
+        FROM
+            wnk_commodity_specifications
+        WHERE
+            commodity_id = #{param1,jdbcType=INTEGER} AND is_wnk = 0
+    </select>
+
+    <!--查询某个商品的所有规格 包括禁用的 -->
+    <select id="selectByCommodityIdByAll" resultType="java.util.HashMap">
+        SELECT
+          <include refid="Base_Column_List" />
+        FROM
+          wnk_commodity_specifications
+        WHERE
+          commodity_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--通过id查询记录-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM
+            wnk_commodity_specifications
+        WHERE
+            id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--插入新记录-->
+    <insert id="insertNewRecord" parameterType="com.springmvc.entity.WnkCommoditySpecifications" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_commodity_specifications
+        (commodity_id,specifications_name,price,inventory,is_wnk,gift_noun)
+        VALUES
+        (#{commodity_id,jdbcType=INTEGER},#{specifications_name,jdbcType=VARCHAR},#{price},#{inventory},#{is_wnk},#{gift_noun})
+    </insert>
+
+    <!--查询某个商品下某个状态的所有规格-->
+    <select id="selectByCommodityIdAndState" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM wnk_commodity_specifications where commodity_id = #{param1,jdbcType=INTEGER} and state = #{param2,jdbcType=INTEGER}
+    </select>
+
+    <!--更改规格信息状态-->
+    <insert id="updateStateByRecordId">
+        UPDATE wnk_commodity_specifications
+        SET state = #{param1,jdbcType=INTEGER}
+        WHERE id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <!--更新规格库存-->
+    <insert id="updateSpecificationStock">
+        UPDATE wnk_commodity_specifications
+        SET inventory = #{inventory,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--更改规格信息名称-->
+    <insert id="updateNameByRecordId">
+        UPDATE wnk_commodity_specifications
+        SET specifications_name = #{param1,jdbcType=VARCHAR}
+        WHERE id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <update id="updateCommoditySpecificationsInfo" parameterType="com.springmvc.entity.WnkCommoditySpecifications">
+        UPDATE wnk_commodity_specifications
+        SET
+            commodity_id = #{commodity_id},
+            specifications_name = #{specifications_name},
+            state     = #{state},
+            price     = #{price},
+            inventory = #{inventory},
+            is_wnk    = #{is_wnk},
+            gift_noun = #{gift_noun}
+        WHERE
+            id = #{id}
+    </update>
+
+
+    <!--根据规格ID删除商品规格记录-->
+    <delete id="deleteBusinessCommodityGuiGeById" parameterType="int" >
+        DELETE FROM wnk_commodity_specifications WHERE  id = #{guige_id}
+    </delete>
+
+</mapper>

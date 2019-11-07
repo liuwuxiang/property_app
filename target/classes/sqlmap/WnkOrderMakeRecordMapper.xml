@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkOrderMakeRecordMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkOrderMakeRecord" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="order_no" property="order_no" jdbcType="VARCHAR" />
+        <result column="make_date" property="make_date" jdbcType="TIMESTAMP" />
+        <result column="make_number" property="make_number" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,make_date,make_number,date_format(make_date, '%Y-%m-%d %H:%i:%S') as make_date_str
+    </sql>
+
+    <!--插入新记录-->
+    <insert id="insertNewRecord" parameterType="com.springmvc.entity.WnkOrderMakeRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_order_make_record(order_no,make_date,make_number)
+        VALUES (#{order_no,jdbcType=VARCHAR},#{make_date,jdbcType=TIMESTAMP},#{make_number,jdbcType=INTEGER})
+    </insert>
+
+    <!--查询某个订单的使用记录-->
+    <select id="selectByOrderNo" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM wnk_order_make_record
+        where order_no = #{param1,jdbcType=VARCHAR} ORDER BY make_date DESC
+    </select>
+
+
+</mapper>

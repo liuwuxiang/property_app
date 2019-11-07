@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.UserRecommendChangeMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.UserRecommendChange" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="before_type" property="before_type" jdbcType="INTEGER" />
+        <result column="before_recommend_user_id" property="before_recommend_user_id" jdbcType="INTEGER" />
+        <result column="after_type" property="after_type" jdbcType="INTEGER" />
+        <result column="after_recommend_user_id" property="after_recommend_user_id" jdbcType="INTEGER" />
+        <result column="change_date" property="change_date" jdbcType="TIMESTAMP" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,before_type,before_recommend_user_id,after_type,after_recommend_user_id,change_date,user_id
+    </sql>
+
+    <!--插入变更记录-->
+    <insert id="insertChangeRecord" parameterType="com.springmvc.entity.UserRecommendChange" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO user_recommend_change(before_type,before_recommend_user_id,after_type,after_recommend_user_id,change_date,user_id)
+        VALUES (#{before_type,jdbcType=INTEGER},#{before_recommend_user_id,jdbcType=INTEGER},#{after_type,jdbcType=INTEGER}
+        ,#{after_recommend_user_id,jdbcType=INTEGER},#{change_date,jdbcType=TIMESTAMP},#{user_id,jdbcType=INTEGER})
+    </insert>
+
+</mapper>

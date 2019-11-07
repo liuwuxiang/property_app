@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.SecurityQuestionMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.SecurityQuestion" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="question_name" property="question_name" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,question_name
+    </sql>
+
+    <!--APP获取所有可选择的密保问题-->
+    <select id="selectAllSecurityQuestion" resultType="java.util.HashMap">
+        SELECT
+        id as question_id,question_name
+        FROM security_question
+    </select>
+
+</mapper>

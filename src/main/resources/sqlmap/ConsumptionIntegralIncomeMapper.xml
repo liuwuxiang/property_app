@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.ConsumptionIntegralIncomeMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.ConsumptionIntegralIncome" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="income_date" property="income_date" jdbcType="TIMESTAMP" />
+        <result column="income_amount" property="income_amount" jdbcType="DOUBLE" />
+        <result column="income_after_balance" property="income_after_balance" jdbcType="DOUBLE" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="income_type" property="income_type" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,name,income_date,income_amount,income_after_balance,user_id,income_type
+    </sql>
+
+    <!--查询用户的充值明细-->
+    <select id="selectRechargeIncomeByUser" resultType="java.util.HashMap">
+        SELECT
+        name,date_format(income_date, '%Y-%m-%d %H:%i:%S') as income_date,income_after_balance as balance,income_amount
+        FROM consumption_integral_income where user_id = #{param1,jdbcType=INTEGER} and income_type = 0
+    </select>
+
+    <!--根据用户id查询记录并重新修改所属用户-->
+    <insert id="updateRecordUserId">
+        UPDATE consumption_integral_income
+        SET user_id = #{param1,jdbcType=INTEGER}
+        WHERE user_id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <!--新增收入明细-->
+    <insert id="addIncome" parameterType="com.springmvc.entity.ConsumptionIntegralIncome" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO consumption_integral_income(name,income_date,income_amount,income_after_balance,user_id,income_type)
+        VALUES (#{name,jdbcType=VARCHAR},#{income_date,jdbcType=TIMESTAMP},#{income_amount,jdbcType=DOUBLE},#{income_after_balance,jdbcType=DOUBLE}
+        ,#{user_id,jdbcType=INTEGER},#{income_type,jdbcType=INTEGER})
+    </insert>
+
+
+
+</mapper>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.UserOpenBusinessMemberCardWXOrdersMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.UserOpenBusinessMemberCardWXOrders" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="order_no" property="order_no" jdbcType="VARCHAR" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+        <result column="create_time" property="create_time" jdbcType="TIMESTAMP" />
+        <result column="business_type_id" property="business_type_id" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,user_id,business_id,order_no,state,create_time,business_type_id
+    </sql>
+
+    <!--插入记录-->
+    <insert id="insertNewOrder" parameterType="com.springmvc.entity.UserOpenBusinessMemberCardWXOrders" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO user_open_business_member_card_wx_orders(user_id,business_id,order_no,state,create_time,business_type_id)
+        VALUES (#{user_id,jdbcType=INTEGER},#{business_id,jdbcType=INTEGER},#{order_no,jdbcType=VARCHAR}
+        ,#{state,jdbcType=INTEGER},#{create_time,jdbcType=TIMESTAMP},#{business_type_id,jdbcType=INTEGER})
+    </insert>
+
+    <!--通过订单号查询订单-->
+    <select id="selectByOrderNo" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM user_open_business_member_card_wx_orders
+        where order_no = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--通过订单号更新订单状态-->
+    <insert id="updateOrderStateByOrderNo">
+        UPDATE user_open_business_member_card_wx_orders
+        SET state = #{param1,jdbcType=INTEGER}
+        WHERE order_no = #{param2,jdbcType=VARCHAR}
+    </insert>
+
+</mapper>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkCommodityTypesMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkCommodityTypes" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="type_name" property="type_name" jdbcType="VARCHAR" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+        <result column="delete_state" property="delete_state" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,type_name,business_id,state,delete_state
+    </sql>
+
+    <!--查询某个商家的所有分类-->
+    <select id="selectAllTypeByBusinessId" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM wnk_commodity_types
+        where business_id = #{param1,jdbcType=INTEGER} and state = 0 and delete_state = 0
+    </select>
+
+    <!--通过名称以及商家id查询分类-->
+    <select id="selectByNameAndBusinessId" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_commodity_types
+        where type_name = #{param1,jdbcType=VARCHAR} and business_id = #{param2,jdbcType=INTEGER} and delete_state = 0
+    </select>
+
+    <!--通过Id查询分类-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_commodity_types
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--添加分类-->
+    <insert id="addType" parameterType="com.springmvc.entity.WnkCommodityTypes" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_commodity_types(type_name,business_id)
+        VALUES (#{type_name,jdbcType=VARCHAR},#{business_id,jdbcType=INTEGER})
+    </insert>
+
+    <!--修改分类信息-->
+    <insert id="updateType" parameterType="com.springmvc.entity.WnkCommodityTypes">
+        UPDATE wnk_commodity_types
+        SET type_name = #{type_name,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--修改分类状态-->
+    <insert id="setTypeState" parameterType="com.springmvc.entity.WnkCommodityTypes">
+        UPDATE wnk_commodity_types
+        SET state = #{state,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--修改分类删除状态-->
+    <insert id="updateTypeDeleteState">
+        UPDATE wnk_commodity_types
+        SET delete_state = #{param1,jdbcType=INTEGER}
+        WHERE id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+</mapper>

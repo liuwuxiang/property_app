@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.RechargeOrderMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.RechargeOrder" >
+        <id     column="id"                     property="id"                   jdbcType="INTEGER" />
+        <result column="user_id"                property="user_id"              jdbcType="INTEGER" />
+        <result column="recharge_amount"        property="recharge_amount"      jdbcType="INTEGER" />
+        <result column="recharge_type"          property="recharge_type"        jdbcType="INTEGER" />
+        <result column="pay_type"               property="pay_type"             jdbcType="INTEGER" />
+        <result column="state"                  property="state"                jdbcType="INTEGER" />
+        <result column="recharge_time"          property="recharge_time"        jdbcType="TIMESTAMP" />
+        <result column="system_order_no"        property="system_order_no"      jdbcType="VARCHAR" />
+        <result column="pay_system_order_no"    property="pay_system_order_no"  jdbcType="VARCHAR" />
+        <result column="pay_time"               property="pay_time"             jdbcType="TIMESTAMP" />
+        <result column="integral_number"        property="integral_number"      jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,(SELECT users.mobile FROM users WHERE recharge_order.user_id=users.id) as user_mobile,recharge_amount,
+        (CASE WHEN recharge_type = 0 THEN '线上充值' WHEN recharge_type = 1 THEN '线下充值'  END) as recharge_type,
+        (CASE WHEN pay_type = 0 THEN '微信支付' WHEN pay_type = 1 THEN '支付宝支付' WHEN pay_type = 2 THEN '线下支付'  END) as pay_type,
+        (CASE WHEN state = 0 THEN '订单创建' WHEN state = 1 THEN '待支付' WHEN state = 2 THEN '支付成功' WHEN state = 3 THEN '支付失败'  END) as state,
+        system_order_no,
+        date_format(recharge_time, '%Y-%m-%d %H:%i:%S') as recharge_time,
+        date_format(pay_time, '%Y-%m-%d %H:%i:%S') as pay_time,integral_number
+    </sql>
+
+    <!--后台查询所有充值记录-->
+    <select id="selectAllAdmin" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM recharge_order order by recharge_time DESC
+    </select>
+
+    <!--后台查询所有充值记录-->
+    <select id="selectAllBusiness" parameterType="com.springmvc.entity.WnkBusinessRechargeOrder" resultType="java.util.Map">
+        SELECT
+         id,order_no,business_id,
+        (CASE  WHEN state = 0 THEN '待支付' WHEN state = 1 THEN '已支付' WHEN state = 2 THEN '支付失败'  END) as state,
+        date_format(create_time, '%Y-%m-%d %H:%i:%S') as create_time,amount
+        FROM wnk_business_recharge_order order by create_time DESC
+    </select>
+
+    <!--新增线下充值订单-->
+    <insert id="addUnderLineRechargeOrder" parameterType="com.springmvc.entity.RechargeOrder" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO recharge_order(user_id,recharge_amount,recharge_type,pay_type,state,recharge_time,system_order_no,pay_time,integral_number)
+        VALUES (#{user_id,jdbcType=INTEGER},#{recharge_amount,jdbcType=INTEGER},#{recharge_type,jdbcType=INTEGER},#{pay_type,jdbcType=INTEGER}
+        ,#{state,jdbcType=INTEGER},#{recharge_time,jdbcType=TIMESTAMP},#{system_order_no,jdbcType=VARCHAR},#{pay_time,jdbcType=TIMESTAMP}
+        ,#{integral_number,jdbcType=INTEGER})
+    </insert>
+
+    <!--通过订单号查询订单-->
+    <select id="selectBySystemOrderNo" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM recharge_order
+        where system_order_no = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--更新支付状态-->
+    <insert id="updatePayState" parameterType="com.springmvc.entity.RechargeOrder">
+        UPDATE recharge_order
+        SET pay_time = #{pay_time,jdbcType=TIMESTAMP},state = #{state,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--充值订单模糊查询-->
+    <select id="adminSearchRechargeOrderByConditions"  resultType="java.util.Map">
+        SELECT
+            ro.id,
+            u.mobile as user_mobile,
+            ro.recharge_amount,
+            ro.recharge_time,
+            (CASE WHEN ro.recharge_type = 0 THEN '线上充值' WHEN ro.recharge_type = 1 THEN '线下充值'  END) as recharge_type,
+            (CASE WHEN ro.pay_type = 0 THEN '微信支付' WHEN ro.pay_type = 1 THEN '支付宝支付' WHEN ro.pay_type = 2 THEN '线下支付'  END) as pay_type,
+            (CASE WHEN ro.state = 0 THEN '订单创建' WHEN ro.state = 1 THEN '待支付' WHEN ro.state = 2 THEN '支付成功' WHEN ro.state = 3 THEN '支付失败'  END) as state,
+            ro.system_order_no,
+            date_format(recharge_time, '%Y-%m-%d %H:%i:%S') as recharge_time,
+            date_format(pay_time, '%Y-%m-%d %H:%i:%S')      as pay_time,integral_number
+        FROM
+            recharge_order AS ro ,
+            users          AS u
+        WHERE
+        u.id = ro.user_id
+        <if test="_parameter.username != null and ''!= _parameter.username">
+            AND u.mobile LIKE #{username}
+        </if>
+        <if test="_parameter.system_order_no != null and ''!= _parameter.system_order_no">
+            AND ro.system_order_no LIKE #{system_order_no}
+        </if>
+        <if test="_parameter.pay_recharge_type != null and ''!= _parameter.pay_recharge_type">
+            AND ro.recharge_type = #{pay_recharge_type}
+        </if>
+        <if test="_parameter.pay_type != null and ''!= _parameter.pay_type">
+            AND ro.pay_type = #{pay_type}
+        </if>
+        <if test="_parameter.pay_state != null and ''!= _parameter.pay_state">
+            AND ro.state = #{pay_state}
+        </if>
+        <if test="_parameter.recharge_time != null and ''!= _parameter.recharge_time">
+            AND unix_timestamp(recharge_time) = unix_timestamp(#{recharge_time})
+        </if>
+        order by ro.recharge_time DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+
+    <!--商家充值订单模糊查询-->
+    <select id="adminBusinessSearchRechargeOrderByConditions" parameterType="com.springmvc.entity.WnkBusinessRechargeOrder" resultType="java.util.Map">
+        SELECT
+            id,business_id,amount,order_no,
+            (CASE  WHEN state = 0 THEN '待支付' WHEN state = 1 THEN '已支付' WHEN state = 2 THEN '支付失败'  END) as state,
+            date_format(create_time, '%Y-%m-%d %H:%i:%S') as create_time
+        FROM
+           wnk_business_recharge_order
+        WHERE  1=1
+        <if test="_parameter.business_id != null and ''!= _parameter.business_id">
+            AND business_id = #{business_id}
+        </if>
+        <if test="_parameter.amount != null and ''!= _parameter.amount">
+            AND amount = #{amount}
+        </if>
+        <if test="_parameter.state != null ">
+            AND state = #{state}
+        </if>
+        <if test="_parameter.order_no != null and ''!= _parameter.order_no">
+            AND order_no LIKE #{order_no}
+        </if>
+        <if test="_parameter.create_time != null and ''!= _parameter.create_time">
+            AND unix_timestamp(create_time) = unix_timestamp(#{create_time})
+        </if>
+        order by create_time DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+</mapper>

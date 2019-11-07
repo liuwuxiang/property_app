@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.MemberLevelsMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.MemberLevels" >
+        <id     column="id"                            property="id"                            jdbcType="INTEGER" />
+        <result column="icon_url"                      property="icon_url"                      jdbcType="VARCHAR" />
+        <result column="name"                          property="name"                          jdbcType="VARCHAR" />
+        <result column="level_introduction"            property="level_introduction"            jdbcType="CLOB" />
+        <result column="is_default_level"              property="is_default_level"              jdbcType="INTEGER" />
+        <result column="brief_introduction"            property="brief_introduction"            jdbcType="CLOB" />
+        <result column="recharge_consumption_integral" property="recharge_consumption_integral" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,icon_url,name,level_introduction,is_default_level,
+        brief_introduction,recharge_consumption_integral
+    </sql>
+
+    <!--通过Id查询会员等级-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM member_levels
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--查询默认等级-->
+    <select id="selectDefaultLevel" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM member_levels
+        where is_default_level = 1
+    </select>
+
+    <!--查询用户可选择升级的所有会员等级-->
+    <select id="selectUserCanChooseLevel" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM member_levels where recharge_consumption_integral > #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--查询升级所需最大值的记录id-->
+    <select id="selectMaxValueId" resultType="java.lang.Integer">
+        SELECT
+        id
+        FROM member_levels ORDER BY recharge_consumption_integral DESC LIMIT 1
+    </select>
+
+    <!--通过升级条件查询等级记录-->
+    <select id="selectLevelBySJTJ" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM member_levels where recharge_consumption_integral = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--获取所有会员等级-->
+    <select id="selectAllLevelAdmin" resultType="java.util.HashMap">
+        SELECT
+        id,name,recharge_consumption_integral,
+        (CASE WHEN is_default_level = 0 THEN '否' WHEN is_default_level = 1 THEN '是'  END) as is_default_level
+        FROM member_levels
+    </select>
+
+    <!--更新会员等级信息-->
+    <insert id="updateMemberLevelById" parameterType="com.springmvc.entity.MemberLevels">
+        UPDATE member_levels
+        SET recharge_consumption_integral = #{recharge_consumption_integral,jdbcType=INTEGER},brief_introduction = #{brief_introduction,jdbcType=CLOB}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--通过会员等级名称查询会员等级-->
+    <select id="selectByMembrLevelName" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM member_levels
+        where name = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--根据条件查询搜索会员等级-->
+    <select id="adminSearchMemberLevelByConditions" resultType="java.util.Map">
+        SELECT
+            id,name,recharge_consumption_integral,
+            (CASE WHEN is_default_level = 0 THEN '否' WHEN is_default_level = 1 THEN '是'  END) as is_default_level
+        FROM member_levels
+        WHERE 1 = 1
+        <if test="_parameter.name != null and ''!= _parameter.name">
+            AND name LIKE #{name}
+        </if>
+        <if test="is_default_level != null">
+            AND is_default_level = #{is_default_level}
+        </if>
+        <if test="_parameter.recharge_consumption_integral != null and ''!= _parameter.recharge_consumption_integral">
+            AND recharge_consumption_integral LIKE #{recharge_consumption_integral}
+        </if>
+        ORDER BY recharge_consumption_integral DESC LIMIT #{start_index} , #{limit}
+    </select>
+
+</mapper>

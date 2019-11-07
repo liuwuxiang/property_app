@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessFitnessRecordMapper" >
+
+    <select id="selectUserGymCardStatusByUserId" parameterType="int" resultType="map">
+        SELECT
+            (
+                (SELECT COUNT(id) FROM wnk_business_fitness_record WHERE user_id=#{user_id} AND business_id=#{business_id} AND use_type=0)
+                -
+                (SELECT COUNT(id) FROM wnk_business_fitness_record WHERE user_id=#{user_id} AND business_id=#{business_id} AND use_type=1)
+
+            ) AS status
+        FROM wnk_business_fitness_record WHERE user_id=#{user_id} AND business_id=#{business_id}  LIMIT 0,1
+    </select>
+
+    <insert id="insertUserGymCardStatusByUserId" parameterType="com.springmvc.entity.WnkBusinessFitnessRecord">
+        INSERT INTO
+        wnk_business_fitness_record
+        (user_id, business_id, use_time, use_type)
+        VALUES (#{user_id},#{business_id},#{use_time},#{use_type})
+    </insert>
+
+    <select id="selectFitnessCardDetailById" parameterType="int" resultType="map">
+        SELECT
+            DATE_FORMAT(use_time,'%Y-%m-%d- %H:%i') AS use_time,
+            (CASE WHEN use_type = 0 THEN '进入' WHEN use_type = 1 THEN '离开' END) AS use_type_str
+        FROM
+            wnk_business_fitness_record
+        WHERE user_id=#{user_id} AND business_id=#{business_id} AND use_type = 0 OR use_type = 1
+    </select>
+
+</mapper>

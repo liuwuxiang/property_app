@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.ResidentialHousesNumberMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.ResidentialHousesNumber" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="residential_id" property="residential_id" jdbcType="INTEGER" />
+        <result column="residential_building_id" property="residential_building_id" jdbcType="INTEGER" />
+        <result column="residential_unit_id" property="residential_unit_id" jdbcType="INTEGER" />
+        <result column="house_number" property="house_number" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,residential_id,residential_building_id,residential_unit_id,house_number
+    </sql>
+
+    <!--APP获取某个单元号下的所有的房间-->
+    <select id="selectAllHouseByUnitId" resultType="java.util.HashMap">
+        SELECT
+        id as number_id,house_number
+        FROM residential_houses_number where residential_unit_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--通过Id查询房间-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM residential_houses_number
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.IntegralTypeMapper">
+
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.IntegralType">
+        <id     column="id"          property="id"          jdbcType="INTEGER"/>
+        <result column="name"        property="name"        jdbcType="VARCHAR"/>
+        <result column="img"         property="img"         jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="list">
+        id,name,img,isDelete
+    </sql>
+
+    <select id="getAllIntegralTypeTrue"   resultType="java.util.HashMap">
+        SELECT
+        <include refid="list"></include>
+        FROM t_integral_type WHERE isDelete = 0
+    </select>
+
+    <select id="getAllIntegralType"   resultType="java.util.HashMap">
+        SELECT
+        <include refid="list"></include>
+        FROM t_integral_type
+    </select>
+
+    <select id="getIntegralTypeByID"   resultType="com.springmvc.entity.IntegralType">
+        SELECT
+        <include refid="list"></include>
+        FROM t_integral_type WHERE id = #{id}
+    </select>
+    <!--根据条件查询商品类别-->
+    <select id="adminSearchIntegralTypeInfoByConditions" resultType="java.util.Map">
+        SELECT
+            id,name,img,isDelete
+        FROM t_integral_type
+        WHERE 1=1
+        <if test="_parameter.name != null and ''!= _parameter.name">
+            AND name LIKE #{name}
+        </if>
+        <if test="_parameter.isDelete != null ">
+            AND isDelete = #{isDelete}
+        </if>
+        order by id DESC LIMIT #{start_index} , #{limit}
+    </select>
+
+    <update id="updateIntegralGoodsType" parameterType="com.springmvc.entity.IntegralType">
+        UPDATE t_integral_type
+        SET name=#{name},
+            img=#{img},
+            isDelete=#{isDelete}
+        WHERE id = #{id}
+    </update>
+
+    <!--新增商品分类-->
+    <insert id="addIntegralGoodsType" parameterType="com.springmvc.entity.IntegralType">
+        INSERT INTO t_integral_type
+        (name, img, isDelete) VALUES
+            (#{name},#{img},#{isDelete});
+    </insert>
+
+</mapper>

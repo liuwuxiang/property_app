@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkStoreInformationMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkStoreInformation" >
+        <id     column="id"                         property="id"                           jdbcType="INTEGER" />
+        <result column="business_id"                property="business_id"                  jdbcType="INTEGER" />
+        <result column="store_name"                 property="store_name"                   jdbcType="VARCHAR" />
+        <result column="address"                    property="address"                      jdbcType="VARCHAR" />
+        <result column="store_describe"             property="store_describe"               jdbcType="CLOB" />
+        <result column="banners_photoid"            property="banners_photoid"              jdbcType="CLOB" />
+        <result column="contact_mobile"             property="contact_mobile"               jdbcType="VARCHAR" />
+        <result column="business_type_id"           property="business_type_id"             jdbcType="INTEGER" />
+        <result column="state"                      property="state"                        jdbcType="INTEGER" />
+        <result column="area"                       property="area"                         jdbcType="VARCHAR" />
+        <result column="recommend_business_id"      property="recommend_business_id"        jdbcType="INTEGER" />
+        <result column="business_level_id"          property="business_level_id"            jdbcType="INTEGER" />
+        <result column="level_term_validity"        property="level_term_validity"          jdbcType="TIMESTAMP" />
+        <result column="recommend_qr_code"          property="recommend_qr_code"            jdbcType="VARCHAR" />
+        <result column="pay_qr_code"                property="pay_qr_code"                  jdbcType="VARCHAR" />
+        <result column="lat"                        property="lat"                          jdbcType="DOUBLE" />
+        <result column="longt"                      property="longt"                        jdbcType="DOUBLE" />
+        <result column="tese_label"                 property="tese_label"                   jdbcType="VARCHAR" />
+        <result column="fuwu_label"                 property="fuwu_label"                   jdbcType="VARCHAR" />
+        <result column="business_hours"             property="business_hours"               jdbcType="VARCHAR" />
+        <result column="position_name"              property="position_name"                jdbcType="VARCHAR" />
+        <result column="wnk_yinka_buy_number"       property="wnk_yinka_buy_number"         jdbcType="INTEGER" />
+        <result column="cover_photo"                property="cover_photo"                  jdbcType="VARCHAR" />
+        <result column="positive_price"             property="positive_price"               jdbcType="DOUBLE" />
+        <result column="operate_status"             property="operate_status"               jdbcType="INTEGER" />
+        <result column="especially_recommend_state" property="especially_recommend_state"   jdbcType="INTEGER" />
+        <result column="getui_appid"                property="getui_appid"                  jdbcType="VARCHAR" />
+        <result column="is_lower"                   property="is_lower"                     jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,business_id,store_name,address,store_describe,banners_photoid,contact_mobile,business_type_id,state,area,recommend_business_id,
+        (CASE WHEN state =0 THEN '启用' WHEN state = 1 THEN '停用' END) as state_str,state,business_level_id,recommend_qr_code,pay_qr_code,
+        (SELECT wnk_business_type.name FROM wnk_business_type WHERE wnk_store_information.business_type_id=wnk_business_type.id) as type_name,
+        (SELECT date_format(wnk_business_account.join_time, '%Y-%m-%d %H:%i:%S') FROM wnk_business_account WHERE wnk_store_information.business_id=wnk_business_account.id) as join_time,
+        (SELECT wnk_business_level.level_name FROM wnk_business_level WHERE wnk_store_information.business_level_id=wnk_business_level.id) as level_name,
+        (SELECT count(*) FROM wnk_orders WHERE wnk_store_information.business_id=wnk_orders.business_id) as sale,cover_photo,positive_price,
+        (SELECT min(price) FROM wnk_commodities WHERE wnk_store_information.business_id=wnk_commodities.business_id) as min_price,business_hours,especially_recommend_state,operate_status,getui_appid,is_lower
+    </sql>
+
+    <!--根据商家名称搜索商家-->
+    <select id="selectBusinessByStoreName" resultType="java.util.HashMap">
+        SELECT
+        *
+        FROM wnk_store_information
+        where store_name = #{param1,jdbcType=VARCHAR} and state = 0
+    </select>
+
+    <!--通过商家id查询店铺信息-->
+    <select id="selectByBusinessId" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_store_information
+        where business_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--上架/下架商户-->
+    <insert id="upperOrLowerBusiness">
+        UPDATE wnk_store_information
+        SET is_lower = #{param1,jdbcType=INTEGER}
+        WHERE id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <!--修改店铺信息-->
+    <insert id="updateStoreInformation" parameterType="com.springmvc.entity.WnkStoreInformation">
+        UPDATE wnk_store_information
+        SET store_name = #{store_name,jdbcType=VARCHAR},
+            address = #{address,jdbcType=VARCHAR},
+            store_describe = #{store_describe,jdbcType=CLOB},
+            banners_photoid = #{banners_photoid,jdbcType=CLOB},
+            contact_mobile = #{contact_mobile,jdbcType=VARCHAR},
+            fuwu_label = #{fuwu_label,jdbcType=VARCHAR},
+            tese_label = #{tese_label,jdbcType=VARCHAR},
+            business_hours = #{business_hours,jdbcType=VARCHAR},
+            lat = #{lat,jdbcType=DOUBLE},
+            longt = #{longt,jdbcType=DOUBLE},
+            position_name = #{position_name,jdbcType=VARCHAR},
+            area = #{area,jdbcType=VARCHAR},
+            cover_photo = #{cover_photo,jdbcType=VARCHAR},
+            positive_price = #{positive_price,jdbcType=DOUBLE}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--修改店铺个推AppId-->
+    <insert id="updateStoreGeTuiAppId" parameterType="com.springmvc.entity.WnkStoreInformation">
+        UPDATE wnk_store_information
+        SET getui_appid = #{getui_appid,jdbcType=VARCHAR}
+        WHERE business_id = #{business_id,jdbcType=INTEGER}
+    </insert>
+
+    <!--更新商家等级信息-->
+    <insert id="updateBusinessLevel" parameterType="com.springmvc.entity.WnkStoreInformation">
+        UPDATE wnk_store_information
+        SET business_level_id = #{business_level_id,jdbcType=INTEGER},level_term_validity = #{level_term_validity,jdbcType=TIMESTAMP}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--更新商户特别推荐状态-->
+    <insert id="updateBusinessEspeciallyRecommendState" parameterType="com.springmvc.entity.WnkStoreInformation">
+        UPDATE wnk_store_information
+        SET especially_recommend_state = #{especially_recommend_state,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--查询某个商家分类下的所有商家信息-->
+    <select id="selectByTypeId" resultType="java.util.HashMap">
+        SELECT
+        id,business_id,store_name,address,store_describe,banners_photoid,contact_mobile,business_type_id,state,area,recommend_business_id,area,tese_label,fuwu_label,
+        (CASE WHEN state =0 THEN '启用' WHEN state = 1 THEN '停用' END) as state_str,state,business_level_id,recommend_qr_code,pay_qr_code,
+        (SELECT wnk_business_type.name FROM wnk_business_type WHERE wnk_store_information.business_type_id=wnk_business_type.id) as type_name,
+        (SELECT date_format(wnk_business_account.join_time, '%Y-%m-%d %H:%i:%S') FROM wnk_business_account WHERE wnk_store_information.business_id=wnk_business_account.id) as join_time,
+        (SELECT wnk_business_level.level_name FROM wnk_business_level WHERE wnk_store_information.business_level_id=wnk_business_level.id) as level_name,
+        (SELECT count(*) FROM wnk_orders WHERE wnk_store_information.business_id=wnk_orders.business_id) as sale,business_hours,
+        (SELECT min(price) FROM wnk_commodities WHERE wnk_store_information.business_id=wnk_commodities.business_id) as min_price,cover_photo,positive_price,operate_status,
+            ROUND(
+            6378.138 * 2 * ASIN(
+                SQRT(
+                    POW(
+                        SIN(
+                            (
+                                #{param2,jdbcType=DOUBLE} * PI() / 180 - lat * PI() / 180
+                            ) / 2
+                        ),
+                        2
+                    ) + COS(#{param2,jdbcType=DOUBLE} * PI() / 180) * COS(lat * PI() / 180) * POW(
+                        SIN(
+                            (
+                                #{param3,jdbcType=DOUBLE} * PI() / 180 - longt * PI() / 180
+                            ) / 2
+                        ),
+                        2
+                    )
+                )
+            )
+        ) AS juli
+        FROM wnk_store_information
+        where business_type_id = #{param1,jdbcType=INTEGER} and state = 0 and is_lower = 0
+        <if test="sort_type == 1">
+            ORDER BY juli ASC
+        </if>
+        <if test="sort_type == 2">
+            ORDER BY sale DESC
+        </if>
+        <if test="sort_type == 3">
+            ORDER BY min_price ASC
+        </if>
+
+
+    </select>
+
+    <!--搜索商家-->
+    <select id="selectByStoreName" resultType="java.util.HashMap">
+        SELECT
+        id,business_id,store_name,address,store_describe,banners_photoid,contact_mobile,business_type_id,state,area,recommend_business_id,
+        (CASE WHEN state =0 THEN '启用' WHEN state = 1 THEN '停用' END) as state_str,state,business_level_id,recommend_qr_code,pay_qr_code,
+        (SELECT wnk_business_type.name FROM wnk_business_type WHERE wnk_store_information.business_type_id=wnk_business_type.id) as type_name,
+        (SELECT date_format(wnk_business_account.join_time, '%Y-%m-%d %H:%i:%S') FROM wnk_business_account WHERE wnk_store_information.business_id=wnk_business_account.id) as join_time,
+        (SELECT wnk_business_level.level_name FROM wnk_business_level WHERE wnk_store_information.business_level_id=wnk_business_level.id) as level_name,
+        (SELECT count(*) FROM wnk_orders WHERE wnk_store_information.business_id=wnk_orders.business_id) as sale,
+        (SELECT min(price) FROM wnk_commodities WHERE wnk_store_information.business_id=wnk_commodities.business_id) as min_price,cover_photo,
+            ROUND(
+            6378.138 * 2 * ASIN(
+                SQRT(
+                    POW(
+                        SIN(
+                            (
+                                #{param2,jdbcType=DOUBLE} * PI() / 180 - lat * PI() / 180
+                            ) / 2
+                        ),
+                        2
+                    ) + COS(#{param2,jdbcType=DOUBLE} * PI() / 180) * COS(lat * PI() / 180) * POW(
+                        SIN(
+                            (
+                                #{param3,jdbcType=DOUBLE} * PI() / 180 - longt * PI() / 180
+                            ) / 2
+                        ),
+                        2
+                    )
+                )
+            )
+        ) AS juli
+        FROM wnk_store_information
+        where store_name LIKE CONCAT('%',#{param1,jdbcType=VARCHAR},'%') and state = 0 ORDER BY juli ASC
+    </select>
+
+    <!--获取附近十家商户-->
+    <select id="selectNearbyBusiness" resultType="java.util.HashMap">
+        SELECT
+        id,business_id,store_name,address,store_describe,banners_photoid,contact_mobile,business_type_id,state,area,recommend_business_id,area,tese_label,fuwu_label,
+        (CASE WHEN state =0 THEN '启用' WHEN state = 1 THEN '停用' END) as state_str,state,business_level_id,recommend_qr_code,pay_qr_code,
+        (SELECT wnk_business_type.name FROM wnk_business_type WHERE wnk_store_information.business_type_id=wnk_business_type.id) as type_name,
+        (SELECT date_format(wnk_business_account.join_time, '%Y-%m-%d %H:%i:%S') FROM wnk_business_account WHERE wnk_store_information.business_id=wnk_business_account.id) as join_time,
+        (SELECT wnk_business_level.level_name FROM wnk_business_level WHERE wnk_store_information.business_level_id=wnk_business_level.id) as level_name,
+        (SELECT count(*) FROM wnk_orders WHERE wnk_store_information.business_id=wnk_orders.business_id) as sale,business_hours,
+        (SELECT min(price) FROM wnk_commodities WHERE wnk_store_information.business_id=wnk_commodities.business_id) as min_price,cover_photo,positive_price,operate_status,
+            ROUND(
+            6378.138 * 2 * ASIN(
+                SQRT(
+                    POW(
+                        SIN(
+                            (
+                                #{param1,jdbcType=DOUBLE} * PI() / 180 - lat * PI() / 180
+                            ) / 2
+                        ),
+                        2
+                    ) + COS(#{param1,jdbcType=DOUBLE} * PI() / 180) * COS(lat * PI() / 180) * POW(
+                        SIN(
+                            (
+                                #{param2,jdbcType=DOUBLE} * PI() / 180 - longt * PI() / 180
+                            ) / 2
+                        ),
+                        2
+                    )
+                )
+            )
+        ) AS juli
+        FROM wnk_store_information
+        where state = 0 and state = 0 and is_lower = 0 AND lat IS NOT NULL AND longt IS NOT NULL ORDER BY juli ASC limit 10
+    </select>
+    <!-- AND lat IS NOT NULL AND longt IS NOT NULL  -->
+
+    <!--模糊查询商户-->
+    <select id="fuzzyQueryBusiness" resultType="java.util.HashMap">
+        SELECT
+        id,business_id,store_name,address,store_describe,banners_photoid,contact_mobile,business_type_id,state,area,recommend_business_id,area,tese_label,fuwu_label,
+        (CASE WHEN state =0 THEN '启用' WHEN state = 1 THEN '停用' END) as state_str,state,business_level_id,recommend_qr_code,pay_qr_code,
+        (SELECT wnk_business_type.name FROM wnk_business_type WHERE wnk_store_information.business_type_id=wnk_business_type.id) as type_name,
+        (SELECT date_format(wnk_business_account.join_time, '%Y-%m-%d %H:%i:%S') FROM wnk_business_account WHERE wnk_store_information.business_id=wnk_business_account.id) as join_time,
+        (SELECT wnk_business_level.level_name FROM wnk_business_level WHERE wnk_store_information.business_level_id=wnk_business_level.id) as level_name,
+        (SELECT count(*) FROM wnk_orders WHERE wnk_store_information.business_id=wnk_orders.business_id) as sale,business_hours,
+        (SELECT min(price) FROM wnk_commodities WHERE wnk_store_information.business_id=wnk_commodities.business_id) as min_price,cover_photo,positive_price,operate_status,
+        ROUND(
+        6378.138 * 2 * ASIN(
+        SQRT(
+        POW(
+        SIN(
+        (
+        #{param1,jdbcType=DOUBLE} * PI() / 180 - lat * PI() / 180
+        ) / 2
+        ),
+        2
+        ) + COS(#{param1,jdbcType=DOUBLE} * PI() / 180) * COS(lat * PI() / 180) * POW(
+        SIN(
+        (
+        #{param2,jdbcType=DOUBLE} * PI() / 180 - longt * PI() / 180
+        ) / 2
+        ),
+        2
+        )
+        )
+        )
+        ) AS juli
+        FROM wnk_store_information
+        where state = 0 and is_lower = 0 and store_name LIKE CONCAT(CONCAT('%',#{fuzzy_store_name}),'%')
+        <if test="sort_type == 1">
+            ORDER BY juli ASC
+        </if>
+        <if test="sort_type == 2">
+            ORDER BY sale DESC
+        </if>
+        <if test="sort_type == 3">
+            ORDER BY min_price ASC
+        </if>
+    </select>
+    <!-- AND lat IS NOT NULL AND longt IS NOT NULL  -->
+
+    <!--获取推荐商户-->
+    <select id="selectRecommendBusiness" resultType="java.util.HashMap">
+        SELECT
+        id,business_id,store_name,address,store_describe,banners_photoid,contact_mobile,business_type_id,state,area,recommend_business_id,
+        (CASE WHEN state =0 THEN '启用' WHEN state = 1 THEN '停用' END) as state_str,state,business_level_id,recommend_qr_code,pay_qr_code,
+        (SELECT wnk_business_type.name FROM wnk_business_type WHERE wnk_store_information.business_type_id=wnk_business_type.id) as type_name,
+        (SELECT date_format(wnk_business_account.join_time, '%Y-%m-%d %H:%i:%S') FROM wnk_business_account WHERE wnk_store_information.business_id=wnk_business_account.id) as join_time,
+        (SELECT wnk_business_level.level_name FROM wnk_business_level WHERE wnk_store_information.business_level_id=wnk_business_level.id) as level_name,
+        (SELECT count(*) FROM wnk_orders WHERE wnk_store_information.business_id=wnk_orders.business_id) as sale,
+        (SELECT min(price) FROM wnk_commodities WHERE wnk_store_information.business_id=wnk_commodities.business_id) as min_price,cover_photo,
+            ROUND(
+            6378.138 * 2 * ASIN(
+                SQRT(
+                    POW(
+                        SIN(
+                            (
+                                40.0497810000 * PI() / 180 - lat * PI() / 180
+                            ) / 2
+                        ),
+                        2
+                    ) + COS(40.0497810000 * PI() / 180) * COS(lat * PI() / 180) * POW(
+                        SIN(
+                            (
+                                116.3424590000 * PI() / 180 - longt * PI() / 180
+                            ) / 2
+                        ),
+                        2
+                    )
+                )
+            )
+        ) AS juli
+        FROM wnk_store_information
+        where state = 0 ORDER BY juli  limit 4
+    </select>
+
+
+    <!--获取特别推荐商户-->
+    <select id="selectEspeciallyRecommendBusiness" resultType="java.util.HashMap">
+        SELECT
+        id,business_id,store_name,address,store_describe,banners_photoid,contact_mobile,business_type_id,state,area,recommend_business_id,
+        (CASE WHEN state =0 THEN '启用' WHEN state = 1 THEN '停用' END) as state_str,state,business_level_id,recommend_qr_code,pay_qr_code,
+        (SELECT wnk_business_type.name FROM wnk_business_type WHERE wnk_store_information.business_type_id=wnk_business_type.id) as type_name,
+        (SELECT date_format(wnk_business_account.join_time, '%Y-%m-%d %H:%i:%S') FROM wnk_business_account WHERE wnk_store_information.business_id=wnk_business_account.id) as join_time,
+        (SELECT wnk_business_level.level_name FROM wnk_business_level WHERE wnk_store_information.business_level_id=wnk_business_level.id) as level_name,
+        (SELECT count(*) FROM wnk_orders WHERE wnk_store_information.business_id=wnk_orders.business_id) as sale,
+        (SELECT min(price) FROM wnk_commodities WHERE wnk_store_information.business_id=wnk_commodities.business_id) as min_price,cover_photo,
+        ROUND(
+        6378.138 * 2 * ASIN(
+        SQRT(
+        POW(
+        SIN(
+        (
+        40.0497810000 * PI() / 180 - lat * PI() / 180
+        ) / 2
+        ),
+        2
+        ) + COS(40.0497810000 * PI() / 180) * COS(lat * PI() / 180) * POW(
+        SIN(
+        (
+        116.3424590000 * PI() / 180 - longt * PI() / 180
+        ) / 2
+        ),
+        2
+        )
+        )
+        )
+        ) AS juli
+        FROM wnk_store_information
+        where especially_recommend_state = 1 and is_lower = 0
+    </select>
+
+    <!--获取所有商户-->
+    <select id="selectAllBusiness" resultType="java.util.HashMap">
+        SELECT
+        *
+        FROM wnk_store_information
+    </select>
+
+    <!--更新商家二维码-->
+    <insert id="updateBusinessQrCode">
+        UPDATE wnk_store_information
+        SET recommend_qr_code = #{param1,jdbcType=VARCHAR},pay_qr_code = #{param2,jdbcType=VARCHAR}
+        WHERE business_id = #{param3,jdbcType=INTEGER}
+    </insert>
+
+    <!--添加商户信息-->
+    <insert id="insertBusinessInformation" parameterType="com.springmvc.entity.WnkStoreInformation" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_store_information(business_id,store_name,address,store_describe,contact_mobile,business_type_id,state,area,banners_photoid,recommend_business_id,business_level_id,recommend_qr_code,pay_qr_code)
+        VALUES (#{business_id,jdbcType=INTEGER},#{store_name,jdbcType=VARCHAR},#{address,jdbcType=VARCHAR},#{store_describe,jdbcType=VARCHAR}
+        ,#{contact_mobile,jdbcType=VARCHAR},#{business_type_id,jdbcType=INTEGER},#{state,jdbcType=INTEGER},#{area,jdbcType=VARCHAR},#{banners_photoid,jdbcType=CLOB},#{recommend_business_id,jdbcType=INTEGER},#{business_level_id,jdbcType=INTEGER},
+        #{recommend_qr_code,jdbcType=VARCHAR},#{pay_qr_code,jdbcType=VARCHAR})
+    </insert>
+
+
+    <!--后台更新商户信息-->
+    <insert id="adminUpdateStoreInformation" parameterType="com.springmvc.entity.WnkStoreInformation">
+        UPDATE wnk_store_information
+        SET
+            store_name = #{store_name,jdbcType=VARCHAR},
+            address = #{address,jdbcType=VARCHAR},
+            store_describe = #{store_describe,jdbcType=CLOB},
+            contact_mobile = #{contact_mobile,jdbcType=VARCHAR},
+            business_type_id = #{business_type_id,jdbcType=INTEGER},
+            state = #{state,jdbcType=INTEGER},
+            area = #{area,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--根据商家id查询商家推荐的商家-->
+    <select id="selectBusinessByRecommendBusinessId" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM wnk_store_information
+        where recommend_business_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--更新商家万能卡物料购买次数-->
+    <insert id="updateBusinessWnkBuyNumber" parameterType="com.springmvc.entity.WnkStoreInformation">
+        UPDATE wnk_store_information
+        SET wnk_yinka_buy_number = #{wnk_yinka_buy_number,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <update id="updateBusinessLabel" parameterType="string">
+        UPDATE wnk_store_information
+          SET
+            fuwu_label = #{fuwu_label},
+            tese_label = #{tese_label}
+        WHERE business_id=#{business_id}
+    </update>
+
+    <!--更新商家营业状态-->
+    <update id="updateBusinessOperateStatus" parameterType="int">
+        UPDATE wnk_store_information
+        SET
+            operate_status = #{operate_status}
+        WHERE business_id=#{business_id}
+    </update>
+
+    <!--根据商家ID 查询营业状态 -->
+    <select id="selectBusinessOperateStatus" parameterType="int" resultType="map">
+        SELECT operate_status FROM wnk_store_information WHERE business_id = #{business_id}
+    </select>
+
+</mapper>

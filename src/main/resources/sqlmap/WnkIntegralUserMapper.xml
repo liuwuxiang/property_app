@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkIntegralUserMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkIntegralUser" >
+        <id     column="id"          property="id"          jdbcType="INTEGER" />
+        <result column="user_id"     property="user_id"     jdbcType="INTEGER" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="integral"    property="integral"    jdbcType="DOUBLE" />
+    </resultMap>
+
+    <sql id="all">
+        id,user_id,business_id,integral
+    </sql>
+
+    <select id="getUserIntegral" parameterType="int" resultType="map">
+        SELECT <include refid="all"></include> FROM wnk_integral_user
+        WHERE business_id=#{business_id} AND user_id=#{user_id}
+    </select>
+
+    <!--获取某个用户的积分商家-->
+    <select id="selectBusinessByUserId" resultType="java.util.HashMap">
+        SELECT
+        business_id,integral,
+        (SELECT wnk_store_information.banners_photoid FROM wnk_store_information WHERE wnk_integral_user.business_id=wnk_store_information.business_id) as banners_photoid,
+        (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_integral_user.business_id=wnk_store_information.business_id) as store_name,
+        (SELECT wnk_store_information.store_describe FROM wnk_store_information WHERE wnk_integral_user.business_id=wnk_store_information.business_id) as store_describe,
+        (SELECT wnk_store_information.cover_photo FROM wnk_store_information WHERE wnk_integral_user.business_id=wnk_store_information.business_id) as cover_photo
+        FROM wnk_integral_user where user_id = #{param1,jdbcType=INTEGER} order by integral DESC
+    </select>
+
+    <insert id="addUserIntegral" parameterType="int">
+        INSERT INTO
+        wnk_integral_user
+        (user_id, business_id, integral)
+        VALUES
+        (#{user_id},#{business_id},0)
+    </insert>
+
+    <update id="updateIntegral" parameterType="int">
+        UPDATE wnk_integral_user
+        SET integral = integral - #{price}
+        WHERE user_id=#{user_id} AND business_id = #{business_id}
+    </update>
+
+    <update id="increaseUserIntegral" parameterType="map">
+        UPDATE wnk_integral_user
+        SET integral = integral + #{price,jdbcType=DOUBLE}
+        WHERE business_id=#{business_id,jdbcType=INTEGER} AND user_id = #{user_id,jdbcType=INTEGER}
+    </update>
+
+    <!--获取某个用户的商家积分总额-->
+    <select id="selectUserCountIntegralByUserId" resultType="java.lang.Integer">
+        SELECT
+        sum(integral)
+        FROM wnk_integral_user where user_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectIntegralBusinessAll" parameterType="int" resultType="map">
+        SELECT
+            distinct  (SELECT COUNT(ID) FROM wnk_integral_goods WHERE wnk_integral_goods.business_id=wsi.business_id ) AS goods_number,
+                      (SELECT sum(integral) FROM wnk_integral_user WHERE wnk_integral_user.business_id=wsi.business_id  AND wnk_integral_user.user_id=#{user_id} ) AS integral_number,
+            wsi.business_id,
+            wsi.cover_photo,
+            wsi.store_name
+        FROM
+            wnk_store_information AS wsi,
+            wnk_integral_goods    AS wig,
+            wnk_integral_user     AS wiu
+        WHERE
+            (SELECT COUNT(ID) FROM wnk_integral_goods WHERE wnk_integral_goods.business_id=wsi.business_id ) > 0
+        <if test='sort_list == "0"'>
+            ORDER BY integral_number ASC
+        </if>
+
+        <if test='sort_list == "1"'>
+            ORDER BY integral_number DESC
+        </if>
+
+        <if test='sort_list == "2"'>
+            ORDER BY goods_number ASC
+        </if>
+
+        <if test='sort_list == "3"'>
+            ORDER BY goods_number DESC
+        </if>
+
+        <if test='sort_list == "4"'>
+            ORDER BY integral_number ASC
+        </if>
+    </select>
+    <!--0积分数量升序 1 积分数量降序 2 商品数量升序 3 商品数量降序 4 默认-->
+
+    <select id="selectIntegralBusinessInfoByBusinessId" parameterType="int" resultType="map">
+        SELECT
+            distinct wsi.store_name,
+            (SELECT sum(integral) FROM wnk_integral_user WHERE wnk_integral_user.business_id=wsi.business_id  AND wnk_integral_user.user_id=#{user_id} ) AS integral_number
+        FROM
+            wnk_store_information AS wsi
+        WHERE wsi.business_id = #{business_id}
+    </select>
+
+    <select id="selectIntegralBusinessGoodsByBusinessId" parameterType="int" resultType="map">
+        SELECT
+            *,
+            (SELECT COUNT(id) FROM t_integral_order WHERE t_integral_order.goods_id=wig.id) as exchanged
+        FROM
+            wnk_integral_goods AS wig
+        WHERE wig.business_id = #{business_id}
+
+        <if test='type_sort == "0"'>
+            ORDER BY wig.price ASC
+        </if>
+        <if test='type_sort == "1"'>
+            ORDER BY wig.price DESC
+        </if>
+        <if test='type_sort == "2"'>
+            ORDER BY exchanged ASC
+        </if>
+        <if test='type_sort == "3"'>
+            ORDER BY exchanged DESC
+        </if>
+    </select>
+
+</mapper>

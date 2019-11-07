@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.OpenMemberCardWxPayOrderMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.OpenMemberCardWxPayOrder" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="order_no" property="order_no" jdbcType="VARCHAR" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+        <result column="create_time" property="create_time" jdbcType="TIMESTAMP" />
+        <result column="card_type_id" property="card_type_id" jdbcType="INTEGER" />
+        <result column="user_type" property="user_type" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,order_no,user_id,state,create_time,card_type_id,user_type
+    </sql>
+
+    <!--新增开卡微信支付订单信息-->
+    <insert id="insertOpenCardOrder" parameterType="com.springmvc.entity.OpenMemberCardWxPayOrder" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO open_member_card_wx_pay_order(order_no,user_id,state,create_time,card_type_id,user_type)
+        VALUES (#{order_no,jdbcType=VARCHAR},#{user_id,jdbcType=INTEGER},#{state,jdbcType=INTEGER},#{create_time,jdbcType=TIMESTAMP},#{card_type_id,jdbcType=INTEGER}
+        ,#{user_type,jdbcType=INTEGER})
+    </insert>
+
+    <!--通过订单号查询查询记录-->
+    <select id="selectRecordByOrderNo" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM open_member_card_wx_pay_order
+        where order_no = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--通过订单号修改支付状态-->
+    <insert id="updateStateByOrderNo" parameterType="com.springmvc.entity.OpenMemberCardWxPayOrder">
+        UPDATE open_member_card_wx_pay_order
+        SET state = #{param1,jdbcType=INTEGER}
+        WHERE order_no = #{param2,jdbcType=VARCHAR}
+    </insert>
+
+</mapper>

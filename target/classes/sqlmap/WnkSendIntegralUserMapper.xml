@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkSendIntegralUserMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkSendIntegralUser" >
+        <id     column="id"          property="id"          jdbcType="INTEGER" />
+        <result column="user_id"     property="user_id"     jdbcType="VARCHAR" />
+        <result column="business_id" property="business_id" jdbcType="VARCHAR" />
+        <result column="integral"    property="integral"    jdbcType="DOUBLE" />
+    </resultMap>
+
+    <sql id="all">
+        id,user_id,business_id,integral
+    </sql>
+
+    <select id="getUserIntegral" parameterType="int" resultType="map">
+        SELECT
+            <include refid="all"></include>
+        FROM
+            wnk_send_integral_user
+        WHERE
+            business_id=#{business_id} AND user_id=#{user_id}
+    </select>
+
+    <!--获取某个用户的积分商家-->
+    <select id="selectBusinessByUserId" resultType="java.util.HashMap">
+        SELECT
+        business_id,integral,
+        (SELECT wnk_store_information.banners_photoid FROM wnk_store_information WHERE wnk_send_integral_user.business_id=wnk_store_information.business_id) as banners_photoid,
+        (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_send_integral_user.business_id=wnk_store_information.business_id) as store_name,
+        (SELECT wnk_store_information.store_describe FROM wnk_store_information WHERE wnk_send_integral_user.business_id=wnk_store_information.business_id) as store_describe,
+        (SELECT wnk_store_information.cover_photo FROM wnk_store_information WHERE wnk_send_integral_user.business_id=wnk_store_information.business_id) as cover_photo
+        FROM wnk_send_integral_user where user_id = #{param1,jdbcType=INTEGER} order by integral DESC
+    </select>
+
+    <!--获取某个用户的赠送积分总额-->
+    <select id="selectUserCountIntegralByUserId" resultType="java.lang.Double">
+        SELECT
+        sum(integral)
+        FROM wnk_send_integral_user where user_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <insert id="addUserIntegral">
+        INSERT INTO
+        wnk_send_integral_user
+        (user_id, business_id, integral)
+        VALUES
+        (#{user_id},#{business_id},0)
+    </insert>
+
+    <update id="updateIntegral">
+        UPDATE wnk_send_integral_user
+        SET integral = integral - #{price}
+        WHERE user_id=#{user_id} AND business_id = #{business_id}
+    </update>
+
+
+    <update id="updateIntegralUp">
+        UPDATE wnk_send_integral_user
+        SET integral = integral + #{price}
+        WHERE user_id=#{user_id} AND business_id = #{business_id}
+    </update>
+
+    <update id="increaseUserIntegral">
+        UPDATE wnk_send_integral_user
+        SET integral = integral + #{price,jdbcType=DOUBLE}
+        WHERE business_id=#{business_id,jdbcType=INTEGER} AND user_id = #{user_id,jdbcType=INTEGER}
+    </update>
+
+
+
+</mapper>

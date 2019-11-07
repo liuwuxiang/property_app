@@ -1,0 +1,86 @@
+.h108 {
+    height: 1.08rem !important;
+}
+
+.footermenu {
+    position: fixed !important;
+    z-index: 9 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 1.08rem !important;
+    background: #fff !important;
+    border-top: 1px solid #eee !important;
+    display: flex !important;
+    display: -webkit-flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+}
+
+.footermenu .item {
+    display: block !important;
+    width: 1.86rem !important;
+    text-align: center !important;
+    height: .48rem !important;
+    padding-top: .6rem !important;
+    color: #8a8a8a !important;
+    font-size: .26rem !important;
+}
+
+.footermenu .item.sel {
+    color: #0b8ffe !important;
+}
+
+.footermenu .item.home {
+    background: url(/property_system/images/wx/icon/icon_home.svg) no-repeat top 0.1rem center !important;
+    -webkit-background-size: 0.5rem !important;
+    background-size: 0.5rem !important;
+}
+
+.footermenu .item.shop {
+    background: url(/property_system/images/wx/icon/icon_shop.svg) no-repeat top 0.1rem center !important;
+    -webkit-background-size: 0.5rem !important;
+    background-size: 0.5rem !important;
+}
+
+.footermenu .item.wy {
+    background: url(/property_system/images/wx/icon/icon_wy.svg) no-repeat top 0.1rem center !important;
+    -webkit-background-size: 0.5rem !important;
+    background-size: 0.5rem !important;
+}
+
+.footermenu .item.my {
+    background: url(/property_system/images/wx/icon/icon_mem.svg) no-repeat top 0.1rem center !important;
+    -webkit-background-size: 0.5rem !important;
+    background-size: 0.5rem !important;
+}
+
+.footermenu .item.my.sel {
+    background-image: url(/property_system/images/wx/icon/icon_mem_h.svg) !important;
+    -webkit-background-size: 0.5rem !important;
+    background-size: 0.5rem !important;
+}
+
+.footermenu .item.bus{
+    background:url(/property_system/images/wx/icon/icon_bus.svg) no-repeat top 0.1rem center;
+    -webkit-background-size:0.5rem;
+    background-size:0.5rem;
+}
+
+.footermenu .item.bus.sel{
+    background-image:url(/property_system/images/wx/icon/icon_bus_h.svg) !important;
+    -webkit-background-size: 0.5rem !important;
+    background-size: 0.5rem !important;
+}
+
+.footermenu .item.card_introduction {
+    background: url(/property_system/images/wx/card.png) no-repeat top 0.1rem center !important;
+    -webkit-background-size: 0.5rem !important;
+    background-size: 0.5rem !important;
+}
+
+.footermenu .item.card_introduction.sel {
+    background-image: url(/property_system/images/wx/card_sel.png) !important;
+    -webkit-background-size: 0.5rem !important;
+    background-size: 0.5rem !important;
+}

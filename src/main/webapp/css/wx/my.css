@@ -1,0 +1,312 @@
+
+body{
+	margin: 0 !important;
+	padding: 0 !important;
+	background: #F2F2F2 !important;
+}
+
+.top_div{
+	width: 100% !important;
+	height: 165px !important;
+	background: #1E91FB !important;
+	overflow: hidden !important;
+	text-align: center !important;
+}
+
+.header_img_div{
+	width: 30% !important;
+	height: 100% !important;
+	float: left !important;
+}
+
+.header_img_div img{
+	width: 80px !important;
+	height: 80px !important;
+	margin-top: 30px !important;
+	border-radius: 40px !important;
+}
+
+.user_message_div{
+	width: auto !important;
+	height: 100% !important;
+	float: left !important;
+}
+
+.nickname_div{
+	width: 100% !important;
+	height: 20px !important;
+	margin-top: 35px;
+}
+
+.nickname_div a{
+	display: block !important;
+	width: auto !important;
+	height: 20px !important;
+	line-height: 20px !important;
+	text-align: left !important;
+	color: white !important;
+	float: left !important;
+	font-size: 18px !important;
+}
+
+.nickname_div img{
+	width: auto !important;
+	height: 13px !important;
+	float: left !important;
+	margin-left: 10px !important;
+	margin-top: 2.5px;
+}
+
+.recommend_name{
+	display: block;
+	width: 100% !important;
+	height: 18px !important;
+	line-height: 18px !important;
+	margin-top: 4px !important;
+	text-align: left !important;
+	color: white !important;
+	font-size: 15px !important;
+}
+
+.member_level_name{
+	width: 100% !important;
+	height: 20px !important;
+	margin-top: 5px !important;
+	text-align: left !important;
+}
+
+.member_level_name img{
+	width: auto !important;
+	height: 15px !important;
+	margin-top: 2.5px !important;
+	float: left !important;
+}
+
+.member_level_name a{
+	width: auto !important;
+	height: 20px !important;
+	line-height: 20px !important;
+	float: left !important;
+	color: white !important;
+	font-size: 14px !important;
+	margin-left: 5px !important;
+}
+
+.between_div{
+	width: 100% !important;
+	height: 55px !important;
+	background: white !important;
+	overflow: hidden !important;
+}
+
+.integral_div{
+	width: 96% !important;
+	height: 80px !important;
+	background: white !important;
+	margin-left: 2% !important;
+	margin-top: -40px !important;
+	position: absolute !important;
+	border-radius: 8px !important;
+	border-color: #DCDCDC !important;
+	border-width: 1px !important;
+	box-shadow: 0px 8px 0px 0px #F5F5F5 !important;
+	text-align: center !important;
+}
+
+.option_div{
+	width: 100% !important;
+	height: auto !important;
+	background: white !important;
+}
+
+.xfjf_div{
+	width: 33.3% !important;
+	height: 60% !important;
+	margin-top: 16px !important;
+	float: left !important;
+}
+
+.tyjf_div{
+	width: 33.3% !important;
+	height: 60% !important;
+	margin-top: 16px !important;
+	float: left !important;
+}
+
+.card_div{
+	width: 33.3% !important;
+	height: 60% !important;
+	margin-top: 16px !important;
+	float: left !important;
+}
+
+.message_div{
+	width: 99% !important;
+	height: 42px !important;
+	margin-top: 3px !important;
+	float: left !important;
+}
+
+.line_div{
+	width: 1% !important;
+	height: 48px !important;
+	background: #C0C0C0 !important;
+	float: left !important;
+}
+
+.jf_balance_tag{
+	display: block !important;
+	width: auto !important;
+	height: 21px !important;
+	line-height: 21px !important;
+	font-size: 22px !important;
+	font-weight: bold !important;
+	text-align: center !important;
+	color: #363636 !important;
+}
+
+.jf_tag{
+	display: block !important;
+	width: auto !important;
+	height: 21px !important;
+	line-height: 21px !important;
+	font-size: 15px !important;
+	text-align: center !important;
+	color: #A9A9A9 !important;
+}
+
+.message_div img{
+	display: block !important;
+	text-align: center !important;
+	width: 32% !important;
+	height: auto !important;
+	margin-left: 35% !important;
+	margin-top: -15px !important;
+}
+
+.option_div ul{
+	width: 96% !important;
+	height: auto !important;
+	overflow: hidden !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	margin-left: 2% !important;
+}
+
+.option_div ul li{
+	width: 100% !important;
+	height: 50px !important;
+	list-style: none !important;
+	text-align: center !important;
+	cursor: pointer !important;
+	overflow: hidden !important;
+	border-bottom: solid 1px #EEEEEE !important;
+}
+
+.list_icon{
+	display: block !important;
+	width: auto !important;
+	height: 35px !important;
+	margin-top: 7.5px !important;
+	float: left !important;
+}
+
+.list_title{
+	display: block !important;
+	width: auto !important;
+	height: 35px !important;
+	line-height: 35px !important;
+	margin-top: 7.5px !important;
+	float: left !important;
+	margin-left: 10px !important;
+	font-size: 17px !important;
+	color: #363636 !important;
+}
+
+.list_tip_title{
+	display: block !important;
+	width: auto !important;
+	height: 35px !important;
+	line-height: 35px !important;
+	margin-top: 7.5px !important;
+	float: right !important;
+	font-size: 13px !important;
+	color: #9C9C9C !important;
+}
+
+.list_arrow{
+	display: block !important;
+	width: auto !important;
+	height: 20px !important;
+	margin-top: 15px !important;
+	float: right !important;
+}
+
+.profit_div{
+	width: 100% !important;
+	height: auto !important;
+	margin-top: 10px !important;
+	background: white !important;
+	overflow: hidden !important;
+}
+
+.profit_top_div{
+	width: 96% !important;
+	height: 30px !important;
+	margin-left: 2% !important;
+	margin-top: 5px !important;
+}
+
+.profit_top_div a{
+	display: block !important;
+	width: auto !important;
+	height: 30px !important;
+	line-height: 30px !important;
+	font-size: 17px !important;
+	float: left !important;
+	margin-right: 5px !important;
+	color: black !important;
+}
+
+.profit_click_button{
+	display: block !important;
+	width: 70px !important;
+	height: 25px !important;
+	margin-top: 2.5px !important;
+	float: left !important;
+	border: 0 !important;
+	-webkit-appearance: none !important;
+	border-radius: 14.5px !important;
+	margin-left: 10px !important;
+	color: white !important;
+	font-size: 13px !important;
+	background: #D5D5D5 !important;
+	line-height: 0 !important;
+}
+
+.active_profit_click_button{
+	background: #1E91FB !important;
+}
+
+/*以下为折线图样式*/
+.chart {
+	height: 200px;
+	margin: 0px;
+	padding: 0px;
+}
+h5 {
+	margin-top: 30px;
+	font-weight: bold;
+}
+h5:first-child {
+	margin-top: 15px;
+}
+
+.headr_arrow{
+	display: block !important;
+	width: auto !important;
+	height: 20px !important;
+	float: right !important;
+	margin-top: 49.5px !important;
+	margin-right: 2% !important;
+}

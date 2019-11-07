@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkOrderRefundRecordMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkOrderRefundRecord" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="refund_no" property="refund_no" jdbcType="VARCHAR" />
+        <result column="refund_number" property="refund_number" jdbcType="INTEGER" />
+        <result column="general_integral" property="general_integral" jdbcType="DOUBLE" />
+        <result column="order_no" property="order_no" jdbcType="VARCHAR" />
+        <result column="refund_date" property="refund_date" jdbcType="TIMESTAMP" />
+        <result column="coupon" property="coupon" jdbcType="INTEGER" />
+        <result column="cash" property="cash" jdbcType="DOUBLE" />
+        <result column="send_integral" property="send_integral" jdbcType="DOUBLE" />
+        <result column="refund_reason" property="refund_reason" jdbcType="CLOB" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+      refund_no,refund_number,general_integral,order_no,refund_date,coupon,cash,send_integral,
+      date_format(refund_date, '%Y-%m-%d %H:%i:%S') as refund_date_str,refund_reason
+    </sql>
+
+    <!--插入新记录-->
+    <insert id="insertNewRecord" parameterType="com.springmvc.entity.WnkOrderRefundRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_order_refund_record(refund_no,refund_number,general_integral,order_no,refund_date,coupon,send_integral,cash,refund_reason)
+        VALUES (#{refund_no,jdbcType=VARCHAR},#{refund_number,jdbcType=INTEGER},#{general_integral,jdbcType=DOUBLE}
+        ,#{order_no,jdbcType=VARCHAR},#{refund_date,jdbcType=TIMESTAMP},#{coupon,jdbcType=INTEGER},#{send_integral,jdbcType=DOUBLE},#{cash,jdbcType=DOUBLE}
+        ,#{refund_reason,jdbcType=CLOB})
+    </insert>
+
+    <!--查询某个订单的退款记录-->
+    <select id="selectByOrderNo" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM wnk_order_refund_record
+        where order_no = #{param1,jdbcType=VARCHAR} ORDER BY refund_date DESC
+    </select>
+
+    <!--查询某个订单的各项退款总和-->
+    <select id="selectRefundSumByOrderNo" resultType="java.util.Map">
+        SELECT
+        sum(refund_number) as refund_number_count,
+        sum(general_integral) as general_integral_count,
+        sum(coupon) as coupon_count,
+        sum(cash) as cash_count,
+        sum(send_integral) as send_integral_count
+        FROM wnk_order_refund_record
+        where order_no = #{param1,jdbcType=VARCHAR}
+    </select>
+
+
+
+</mapper>

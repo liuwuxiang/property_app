@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.UsersMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.Users" >
+        <id     column="id"                     property="id"                   jdbcType="INTEGER" />
+        <result column="mobile"                 property="mobile"               jdbcType="VARCHAR" />
+        <result column="login_pwd"              property="login_pwd"            jdbcType="VARCHAR" />
+        <result column="wx_unionid"             property="wx_unionid"           jdbcType="VARCHAR" />
+        <result column="nick_name"              property="nick_name"            jdbcType="VARCHAR" />
+        <result column="header"                 property="header"               jdbcType="VARCHAR" />
+        <result column="sex"                    property="sex"                  jdbcType="INTEGER" />
+        <result column="recommend_user_id"      property="recommend_user_id"    jdbcType="INTEGER" />
+        <result column="member_level_id"        property="member_level_id"      jdbcType="INTEGER" />
+        <result column="email"                  property="email"                jdbcType="VARCHAR" />
+        <result column="user_qrcode_url"        property="user_qrcode_url"      jdbcType="VARCHAR" />
+        <result column="pay_pwd"                property="pay_pwd"              jdbcType="VARCHAR" />
+        <result column="is_microfinance"        property="is_microfinance"      jdbcType="INTEGER" />
+        <result column="consumption_integral"   property="consumption_integral" jdbcType="DOUBLE" />
+        <result column="general_integral"       property="general_integral"     jdbcType="DOUBLE" />
+        <result column="register_time"          property="register_time"        jdbcType="TIMESTAMP" />
+        <result column="member_star"            property="member_star"          jdbcType="INTEGER" />
+        <result column="silver_coin_balance"    property="silver_coin_balance"  jdbcType="INTEGER" />
+        <result column="credit_number"          property="credit_number"        jdbcType="INTEGER" />
+        <result column="credit_date"            property="credit_date"          jdbcType="TIMESTAMP" />
+        <result column="member_card_level"      property="member_card_level"    jdbcType="INTEGER" />
+        <result column="wnk_qrcode"             property="wnk_qrcode"           jdbcType="VARCHAR" />
+        <result column="user_integral"          property="user_integral"        jdbcType="INTEGER" />
+        <result column="recommend_type"         property="recommend_type"       jdbcType="INTEGER" />
+        <result column="getui_appid"            property="getui_appid"          jdbcType="VARCHAR" />
+
+    </resultMap>
+    <sql id="Base_Column_List" >
+        mobile,member_card_level,user_integral,recommend_type,getui_appid
+    </sql>
+    <!--app专用字段-->
+    <sql id="Base_Column_List_APP" >
+        id,mobile,login_pwd,nick_name,header,sex,recommend_user_id,member_level_id,consumption_integral,general_integral,is_microfinance,member_star,silver_coin_balance,
+        wx_unionid,pay_pwd,email,user_qrcode_url,credit_number,date_format(credit_date, '%Y-%m-%d %H:%i:%S') as credit_date,member_card_level,wnk_qrcode,user_integral,recommend_type,getui_appid
+    </sql>
+
+    <!--更新用户积分商城积分-->
+    <insert id="updateUserIntegralShoppingIntegral" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET user_integral = #{user_integral,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--更新用户个推ID-->
+    <insert id="updateUserGeTuiAppId" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET getui_appid = #{getui_appid,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--更新用户推荐人id及推荐类别-->
+    <insert id="updateUserRecommendIdAndRecommendType">
+        UPDATE users
+        SET recommend_user_id = #{param1,jdbcType=INTEGER},recommend_type = #{param2,jdbcType=INTEGER}
+        WHERE id = #{param3,jdbcType=INTEGER}
+    </insert>
+
+    <!--更新用户二维码-->
+    <insert id="updateUserQrcode" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET user_qrcode_url = #{user_qrcode_url,jdbcType=VARCHAR},wnk_qrcode = #{wnk_qrcode,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--变更用户推荐人-->
+    <insert id="changeUserRecommend">
+        UPDATE users
+        SET recommend_user_id = #{param1,jdbcType=INTEGER},recommend_type = #{param2,jdbcType=INTEGER}
+        WHERE id = #{param3,jdbcType=INTEGER}
+    </insert>
+
+    <!--用户微信注册注册-->
+    <insert id="userWXRegister" parameterType="com.springmvc.entity.Users" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO users(wx_unionid,nick_name,header,member_level_id,register_time,credit_date)
+        VALUES (#{wx_unionid,jdbcType=VARCHAR},#{nick_name,jdbcType=VARCHAR},#{header,jdbcType=VARCHAR},#{member_level_id,jdbcType=INTEGER},#{register_time,jdbcType=TIMESTAMP},#{register_time,jdbcType=TIMESTAMP})
+    </insert>
+
+    <!--通过手机号以及登录密码查询用户-->
+    <select id="selectByMobileAndLoginPWD" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_APP" />
+        FROM users
+        where mobile = #{param1,jdbcType=VARCHAR} and login_pwd = #{param2,jdbcType=VARCHAR}
+    </select>
+
+    <!--通过Id查询会员-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_APP" />
+        FROM users
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--通过wx_unionid查询会员-->
+    <select id="selectByWxUnionid" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_APP" />
+        FROM users
+        where wx_unionid = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--通过手机号查询会员-->
+    <select id="selectByMobile" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_APP" />
+        FROM users
+        where mobile = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--用户手机号验证码注册-->
+    <insert id="userMobileRegister" parameterType="com.springmvc.entity.Users" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO users(mobile,login_pwd,nick_name,header,sex,recommend_user_id,member_level_id,user_qrcode_url,register_time,credit_date,recommend_type)
+        VALUES (#{mobile,jdbcType=VARCHAR},#{login_pwd,jdbcType=VARCHAR},#{nick_name,jdbcType=VARCHAR},#{header,jdbcType=VARCHAR},#{sex,jdbcType=INTEGER}
+        ,#{recommend_user_id,jdbcType=INTEGER},#{member_level_id,jdbcType=INTEGER},#{user_qrcode_url,jdbcType=VARCHAR},#{register_time,jdbcType=TIMESTAMP},#{register_time,jdbcType=TIMESTAMP},#{recommend_type,jdbcType=INTEGER})
+    </insert>
+
+    <!--通过用户id修改用户昵称-->
+    <insert id="updateUserNickName" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET nick_name = #{nick_name,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--通过用户id修改用户手机号-->
+    <insert id="updateUserMobile" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET mobile = #{mobile,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--通过用户id修改用户邮箱-->
+    <insert id="updateUserEmail" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET email = #{email,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--通过用户id修改用户性别-->
+    <insert id="updateUserSex" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET sex = #{sex,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--通过用户id修改用户头像-->
+    <insert id="updateUserHeader" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET header = #{header,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--修改登录密码-->
+    <insert id="updateLoginPwd" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET login_pwd = #{login_pwd,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--修改支付密码-->
+    <insert id="updatePayPwd" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET pay_pwd = #{pay_pwd,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--修改小额免密支付开关-->
+    <insert id="updateIsMicrofinance" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET is_microfinance = #{is_microfinance,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--通过推荐人id查询用户-->
+    <select id="selectUserByRecommendUserId" resultType="java.util.HashMap">
+        SELECT
+        nick_name,member_star,header,
+        (CASE WHEN mobile is null THEN '暂无' WHEN mobile = '' THEN '暂无' WHEN mobile is not null THEN mobile  END) as mobile,
+        date_format(register_time, '%Y-%m-%d %H:%i:%S') as register_time_str,
+        (SELECT member_levels.name FROM member_levels WHERE users.member_level_id=member_levels.id) as level_name,member_card_level
+        FROM users where recommend_user_id = #{param1,jdbcType=INTEGER} and recommend_type = 0
+    </select>
+
+    <!--根据用户id删除记录-->
+    <delete id="deleteRecordByUserId">
+        DELETE FROM users WHERE id = #{param1,jdbcType=INTEGER}
+    </delete>
+
+    <!--用户账号关联修改用户账号信息-->
+    <insert id="relationAccountUpdateInformation" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET wx_unionid = #{wx_unionid,jdbcType=VARCHAR},consumption_integral = #{consumption_integral,jdbcType=DOUBLE}
+        ,general_integral = #{general_integral,jdbcType=DOUBLE},silver_coin_balance = #{silver_coin_balance,jdbcType=INTEGER}
+        ,mobile = #{mobile,jdbcType=INTEGER},login_pwd = #{login_pwd,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--通过用户id查询并修改推荐人id-->
+    <insert id="selectUserUpdateRecommendUserId" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET recommend_user_id = #{param1,jdbcType=INTEGER}
+        WHERE recommend_user_id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <!--更新用户通用积分以及消费积分和银币余额-->
+    <insert id="updateUserTYAndXFAndSilverCoinBalance" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET consumption_integral = #{consumption_integral,jdbcType=DOUBLE},
+            general_integral     = #{general_integral,jdbcType=DOUBLE},
+            silver_coin_balance  = #{silver_coin_balance,jdbcType=INTEGER},
+            user_integral = #{user_integral,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--更新用户星级-->
+    <insert id="updateUserMemberStar" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET member_star = #{member_star,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--更新用户等级id-->
+    <insert id="updateUserMemberLevelId" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET member_level_id = #{member_level_id,jdbcType=INTEGER},silver_coin_balance = #{silver_coin_balance,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--查询用户最先推荐的前五位用户当前等级名称-->
+    <select id="selectUserRecommendBeforeFiveUsersLevelName" resultType="java.util.HashMap">
+        SELECT
+            (SELECT member_levels.name FROM member_levels WHERE users.member_level_id=member_levels.id) as level_name,member_card_level
+            FROM users
+        where recommend_user_id = #{param1,jdbcType=INTEGER} ORDER BY register_time LIMIT 5
+
+    </select>
+
+
+    <!--后台获取所有用户-->
+    <select id="getAllUsersAdmin" resultType="java.util.HashMap">
+        SELECT
+            id,
+            nick_name,
+            consumption_integral,
+            general_integral,
+            silver_coin_balance,
+            credit_number,
+            (CASE WHEN sex = 0 THEN '男' WHEN sex = 1 THEN '女' WHEN sex = 2 THEN '保密'  END) as sex,
+            (CASE WHEN mobile is null THEN '暂无' WHEN mobile = '' THEN '暂无' WHEN mobile is not null THEN mobile  END) as mobile,
+            date_format(register_time, '%Y-%m-%d %H:%i:%S') as register_time,
+            (SELECT member_levels.name FROM member_levels WHERE users.member_level_id=member_levels.id) as level_name,
+            (CASE WHEN member_card_level = '-1' THEN '未开卡' WHEN member_card_level = '0' THEN '银卡会员' WHEN member_card_level = '1' THEN '金卡会员'  END) as member_card_level
+            ,email,
+            (SELECT nick_name FROM users as u WHERE u.id=users.id) AS recommend_user_name
+        FROM users  ORDER BY register_time DESC
+    </select>
+
+    <!--根据条件查询搜索会员用户-->
+    <select id="adminSearchMemberByConditions" resultType="java.util.Map">
+        SELECT
+            id,
+            nick_name,
+            consumption_integral,
+            general_integral,
+            silver_coin_balance,
+            credit_number,
+            (CASE WHEN sex = 0 THEN '男' WHEN sex = 1 THEN '女' WHEN sex = 2 THEN '保密'  END) as sex,
+            (CASE WHEN mobile is null THEN '暂无' WHEN mobile = '' THEN '暂无' WHEN mobile is not null THEN mobile  END) as mobile,
+            date_format(register_time, '%Y-%m-%d %H:%i:%S') as register_time,
+            (SELECT member_levels.name FROM member_levels WHERE users.member_level_id=member_levels.id) as level_name,
+            (CASE WHEN member_card_level = '-1' THEN '未开卡' WHEN member_card_level = '0' THEN '银卡会员' WHEN member_card_level = '1' THEN '金卡会员'  END) as member_card_level
+            ,email,
+            (SELECT nick_name FROM users as u WHERE u.id=users.id) AS recommend_user_name
+        FROM users
+        WHERE 1 = 1
+        <if test="_parameter.mobile != null and ''!= _parameter.mobile">
+            AND mobile LIKE #{mobile}
+        </if>
+        <if test="_parameter.nick_name != null and ''!= _parameter.nick_name">
+            AND nick_name LIKE #{nick_name}
+        </if>
+        <if test="_parameter.sex != null">
+           AND sex = #{sex}
+        </if>
+        <if test="member_card_level != null">
+            AND users.member_card_level LIKE #{member_card_level}
+        </if>
+        <if test="_parameter.general_integral != null ">
+            AND general_integral = #{general_integral}
+        </if>
+        <if test="_parameter.silver_coin_balance != null ">
+            AND silver_coin_balance = #{silver_coin_balance}
+        </if>
+        <if test="_parameter.register_time != null and ''!= _parameter.register_time">
+            AND unix_timestamp(register_time) = unix_timestamp(#{register_time})
+        </if>
+        <if test="_parameter.recommend_user_name != null and ''!= _parameter.recommend_user_name">
+            AND nick_name LIKE #{recommend_user_name}
+        </if>
+        order by register_time DESC LIMIT #{start_index} , #{limit}
+    </select>
+
+    <!--更新用户微信Openid-->
+    <insert id="updateUserWXOpenId" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET wx_unionid = #{wx_unionid,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+
+    <!--更新用户会员卡等级-->
+    <insert id="updateMemberCardLevel" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET member_card_level = #{member_card_level,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--通过推荐人id查询推荐人推荐的各个等级的会员卡-->
+    <select id="selectByMemberCardByRecomendIdAndMemberCardLevel" resultType="java.util.HashMap">
+        SELECT
+        *
+        FROM users where recommend_user_id = #{param1,jdbcType=INTEGER} and member_card_level = #{param2,jdbcType=INTEGER}
+    </select>
+
+    <!--查询用户最先推荐的前五位用户当前会员卡等级是银卡或金卡的用户-->
+    <select id="selectUserRecommendBeforeFiveUsersMemberCardLevelYKOrJK" resultType="java.util.HashMap">
+        SELECT
+        (SELECT member_levels.name FROM member_levels WHERE users.member_level_id=member_levels.id) as level_name,member_card_level
+        FROM users
+        where recommend_user_id = #{param1,jdbcType=INTEGER} and (member_card_level = 0 or member_card_level = 1) LIMIT 5
+
+    </select>
+
+    <!--查询用户最先推荐的前五位用户当前会员卡等级是金卡的用户-->
+    <select id="selectUserRecommendBeforeFiveUsersMemberCardLevelJK" resultType="java.util.HashMap">
+        SELECT
+        (SELECT member_levels.name FROM member_levels WHERE users.member_level_id=member_levels.id) as level_name,member_card_level
+        FROM users
+        where recommend_user_id = #{param1,jdbcType=INTEGER} and member_card_level = 1 LIMIT 5
+
+    </select>
+
+    <!--更新用户积分-->
+    <update id="updateUserIntegralById" parameterType="Map">
+        UPDATE users
+        SET user_integral = user_integral - #{map.integral}
+        WHERE id = ${map.user_id}
+    </update>
+
+
+    <!--通过商家id查询商家推广的用户-->
+    <select id="selectUserByBusinessId" resultType="java.util.HashMap">
+        SELECT
+        nick_name,member_star,header,
+        (CASE WHEN mobile is null THEN '暂无' WHEN mobile = '' THEN '暂无' WHEN mobile is not null THEN mobile  END) as mobile,
+        date_format(register_time, '%Y-%m-%d %H:%i:%S') as register_time_str,
+        (SELECT member_levels.name FROM member_levels WHERE users.member_level_id=member_levels.id) as level_name,member_card_level
+        FROM users where recommend_user_id = #{param1,jdbcType=INTEGER} and recommend_type = 1
+    </select>
+
+    <!--更新用户信息 (后台管理员更新用户信息专用)-->
+    <update id="adminUpdateUserInfoById" parameterType="com.springmvc.entity.Users">
+        UPDATE users
+        SET
+            nick_name = #{nick_name},
+            header    = #{header},
+            sex       = #{sex},
+            email     = #{email}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

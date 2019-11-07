@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.IntegralGoodsMapper">
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.IntegralGoods">
+        <id     column="id"          property="id"          jdbcType="INTEGER"/>
+        <result column="name"        property="name"        jdbcType="VARCHAR"/>
+        <result column="price"       property="price"       jdbcType="DOUBLE"/>
+        <result column="trader"      property="trader"      jdbcType="VARCHAR"/>
+        <result column="detail"      property="detail"      jdbcType="LONGVARCHAR"/>
+        <result column="img"         property="img"         jdbcType="VARCHAR"/>
+        <result column="isRecommend" property="isRecommend" jdbcType="CHAR"/>
+        <result column="type"        property="type"        jdbcType="INTEGER"/>
+        <result column="synopsis"    property="synopsis"    jdbcType="VARCHAR"/>
+        <result column="is_checked"  property="is_checked"  jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="getAllIntegralGoods"   resultType="java.util.HashMap">
+        SELECT id,name,price,trader,detail,img, isRecommend,type,synopsis,
+            (CASE WHEN is_checked = 0 THEN '不推荐' WHEN is_checked = 1 THEN '推荐' END) as is_checked
+        FROM t_integral_goods
+    </select>
+
+    <select id="getRecommendGoodsInfo" resultType="java.util.HashMap">
+        SELECT
+            *,
+            (SELECT COUNT(id) FROM t_integral_order WHERE t_integral_order.goods_id=tig.id) as exchanged
+        FROM
+            t_integral_goods as tig
+        WHERE isRecommend = 0 AND is_checked = 1
+    </select>
+
+    <select id="getGoodsById"          resultType="com.springmvc.entity.IntegralGoods" parameterType="int">
+        SELECT * FROM t_integral_goods WHERE id=#{id}
+    </select>
+
+    <select id="getGoodsByTypeId"      resultType="java.util.HashMap">
+        SELECT * FROM t_integral_goods WHERE type = #{type_id} AND isRecommend=0
+    </select>
+
+
+    <insert id="addIntegralGoods" parameterType="com.springmvc.entity.IntegralGoods" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO t_integral_goods
+        (name, price, trader, detail, img, isRecommend,type,synopsis,is_checked)
+        VALUES
+        (#{name,jdbcType=VARCHAR},#{price,jdbcType=DOUBLE},#{trader,jdbcType=VARCHAR},
+         #{detail,jdbcType=LONGVARCHAR},#{img,jdbcType=VARCHAR},#{isRecommend,jdbcType=CHAR},
+         #{type,jdbcType=INTEGER},#{synopsis,jdbcType=CHAR},#{is_checked,jdbcType=INTEGER})
+    </insert>
+
+    <update id="updateIntegralGoods" parameterType="com.springmvc.entity.IntegralGoods">
+        UPDATE t_integral_goods
+        SET name=#{name},
+            price=#{price},
+            detail=#{detail},
+            img=#{img},
+            type=#{type},
+            synopsis=#{synopsis},
+            isRecommend=#{isRecommend},
+            is_checked=#{is_checked}
+        WHERE id=#{id}
+    </update>
+
+    <select id="getIntegralGoodsAll" parameterType="int" resultType="java.util.Map">
+        SELECT
+            *,
+            (SELECT COUNT(id) FROM t_integral_order WHERE t_integral_order.goods_id=tig.id) as exchanged
+        FROM
+            t_integral_goods as tig
+        <if test='type_sort == "0"'>
+            ORDER BY tig.price ASC
+        </if>
+        <if test='type_sort == "1"'>
+            ORDER BY tig.price DESC
+        </if>
+        <if test='type_sort == "2"'>
+            ORDER BY exchanged ASC
+        </if>
+        <if test='type_sort == "3"'>
+            ORDER BY exchanged DESC
+        </if>
+    </select>
+
+    <!--根据条件查询商品-->
+    <select id="adminSearchIntegralGoods" resultType="java.util.Map">
+        SELECT
+            id,name,price,trader,detail,img,type,synopsis,
+             isRecommend,
+            (CASE WHEN is_checked = 0 THEN '推荐' WHEN is_checked = 1 THEN '不推荐' END) as is_checked
+        FROM t_integral_goods
+        WHERE 1=1
+        <if test="_parameter.name != null and ''!= _parameter.name">
+            AND t_integral_goods.name LIKE #{name}
+        </if>
+        <if test="_parameter.price != null and ''!= _parameter.price">
+            AND price = #{price}
+        </if>
+        <if test="_parameter.trader != null and ''!= _parameter.trader">
+            AND trader LIKE #{trader}
+        </if>
+        <if test="_parameter.detail != null and ''!= _parameter.detail">
+            AND detail LIKE #{detail}
+        </if>
+        <if test="isRecommend != null">
+            AND isRecommend = #{isRecommend}
+        </if>
+        <if test="is_checked != null">
+            AND is_checked = #{is_checked}
+        </if>
+        order by id ASC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+
+
+</mapper>

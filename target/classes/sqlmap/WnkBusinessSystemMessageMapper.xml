@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessSystemMessageMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkBusinessSystemMessage" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="title" property="title" jdbcType="CLOB" />
+        <result column="content" property="content" jdbcType="CLOB" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="send_date" property="send_date" jdbcType="TIMESTAMP" />
+
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,title,content,business_id,date_format(send_date, '%Y-%m-%d %H:%i:%S') as send_date
+    </sql>
+
+    <!--新增系统消息-->
+    <insert id="insertSystemMessage" parameterType="com.springmvc.entity.WnkBusinessSystemMessage" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_business_system_message(title,content,business_id,send_date)
+        VALUES (#{title,jdbcType=CLOB},#{content,jdbcType=CLOB},#{business_id,jdbcType=INTEGER},#{send_date,jdbcType=TIMESTAMP})
+    </insert>
+
+    <!--查询某个商家的所有系统消息-->
+    <select id="selectBusinessAllMessage" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM wnk_business_system_message
+        where business_id = #{param1,jdbcType=INTEGER} ORDER BY wnk_business_system_message.send_date DESC
+
+    </select>
+
+
+
+</mapper>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.ExtensionMaterielMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.ExtensionMateriel" >
+        <id     column="id"               property="id"               jdbcType="INTEGER" />
+        <result column="name"             property="name"             jdbcType="VARCHAR" />
+        <result column="logo_photo_id"    property="logo_photo_id"    jdbcType="VARCHAR" />
+        <result column="background_photo" property="background_photo" jdbcType="VARCHAR" />
+        <result column="business_type_id" property="business_type_id" jdbcType="INTEGER" />
+        <result column="is_wnk"           property="is_wnk"           jdbcType="INTEGER" />
+        <result column="buy_number"       property="buy_number"       jdbcType="INTEGER" />
+        <result column="limit_times"      property="limit_times"      jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,name,logo_photo_id,background_photo,business_type_id,is_wnk,buy_number,limit_times
+    </sql>
+
+    <!--获取所有记录(排序方式不能修改,否则商家物料剩余情况的数据会出错)-->
+    <select id="selectAllRecord" resultType="java.util.HashMap">
+        SELECT
+        *
+        FROM extension_materiel ORDER BY id ASC
+    </select>
+
+    <!--通过套餐id查询物料-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM extension_materiel
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--查询万能卡物料信息-->
+    <select id="selectWnkInformation" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM extension_materiel
+        where is_wnk = 1
+    </select>
+
+    <!--后台查询物料信息-->
+    <select id="selectAdminWnkInformation" resultType="java.util.HashMap">
+        SELECT
+        id,name,logo_photo_id,background_photo,business_type_id,is_wnk,buy_number,
+        (CASE WHEN limit_times = 0 THEN '限制' WHEN limit_times = 1 THEN '不限制' END) as limit_times
+        FROM extension_materiel
+    </select>
+
+    <!--通过分类id查询物料信息-->
+    <select id="selectMatensionByTypeId" resultType="java.util.HashMap">
+        SELECT
+        *
+        FROM extension_materiel where business_type_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--根据条件查询物料管理信息-->
+    <select id="adminSearchExtensionMateriel" resultType="java.util.Map">
+        SELECT
+        id,name,logo_photo_id,background_photo,business_type_id,is_wnk,buy_number,
+        (CASE WHEN limit_times = 0 THEN '限制' WHEN limit_times = 1 THEN '不限制' END) as limit_times
+        FROM extension_materiel
+        WHERE 1=1
+        <if test="_parameter.name != null and ''!= _parameter.name">
+            AND name LIKE #{name}
+        </if>
+        <if test="_parameter.limit_times != null ">
+            AND limit_times = #{limit_times}
+        </if>
+        <if test="_parameter.buy_number != null and ''!= _parameter.buy_number">
+            AND buy_number = #{buy_number}
+        </if>
+        order by id DESC LIMIT #{start_index} , #{limit}
+    </select>
+
+    <!--通过物料id修改物料信息-->
+    <insert id="updateMaterielById" parameterType="com.springmvc.entity.ExtensionMateriel">
+        UPDATE extension_materiel
+        SET logo_photo_id = #{logo_photo_id,jdbcType=VARCHAR},background_photo = #{background_photo,jdbcType=VARCHAR}
+        ,buy_number = #{buy_number,jdbcType=INTEGER},limit_times = #{limit_times,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+</mapper>

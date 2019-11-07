@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkIntegralTypeMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkIntegralType" >
+        <id     column="id"          property="id"         jdbcType="INTEGER" />
+        <result column="name"        property="name"       jdbcType="VARCHAR" />
+        <result column="img"         property="img"        jdbcType="VARCHAR" />
+        <result column="is_checked"  property="is_checked" jdbcType="VARCHAR" />
+        <result column="business_id"  property="business_id" jdbcType="INTEGER" />
+    </resultMap>
+
+    <sql id="all">
+        id,name, img, is_checked,business_id
+    </sql>
+
+    <select id="getIntegralTypeAll" parameterType="int" resultMap="BaseResultMap">
+        SELECT <include refid="all"></include>
+        FROM wnk_integral_type WHERE business_id=#{business_id} ORDER BY id DESC
+    </select>
+
+    <!--获取所有积分商品分类-->
+    <select id="getAllIntegralType" parameterType="int" resultMap="BaseResultMap">
+        SELECT <include refid="all"></include>
+        FROM wnk_integral_type
+        WHERE is_checked=0 ORDER BY id ASC
+    </select>
+
+    <insert id="addWnkIntegralType" parameterType="com.springmvc.entity.WnkIntegralType">
+       INSERT INTO wnk_integral_type
+       (name, img, is_checked,business_id) VALUES
+      (#{name,jdbcType=VARCHAR},#{img,jdbcType=VARCHAR},#{is_checked,jdbcType=VARCHAR},#{business_id,jdbcType=INTEGER})
+   </insert>
+
+    <update id="editWnkIntegralType" parameterType="com.springmvc.entity.WnkIntegralType">
+        UPDATE wnk_integral_type
+        <trim prefix="set" suffixOverrides=",">
+            <if test="name != null">
+                name=#{name,jdbcType=VARCHAR},
+            </if>
+
+            <if test="img != null">
+                img=#{img,jdbcType=VARCHAR},
+            </if>
+
+            <if test="is_checked != null">
+                is_checked=#{is_checked,jdbcType=VARCHAR},
+            </if>
+        </trim>
+        WHERE id=#{id}
+    </update>
+
+    <select id="getIntegralTypeByTrue" parameterType="int" resultMap="BaseResultMap">
+        SELECT <include refid="all"></include>
+        FROM wnk_integral_type
+        WHERE business_id=#{business_id} AND is_checked=0 ORDER BY id ASC
+    </select>
+
+    <select id="getIntegralTypeByTrueToGoods" parameterType="int" resultType="map">
+        SELECT name AS label,id AS value
+        FROM wnk_integral_type
+        WHERE business_id=#{business_id} AND is_checked=0 ORDER BY id DESC
+    </select>
+
+    <select id="getIntegralTypeById" parameterType="int" resultType="map">
+        SELECT <include refid="all"></include> FROM wnk_integral_type WHERE business_id=#{business_id} AND id=#{id}
+    </select>
+
+    <select id="getGoodsByTypeIdAndWnk" parameterType="int" resultType="map">
+        SELECT * FROM wnk_integral_goods WHERE business_id=#{business_id} AND type=#{type_id} AND is_checked=0;
+    </select>
+
+
+
+</mapper>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.GeneralIntegralExpenditureMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.GeneralIntegralExpenditure" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="expenditure_date" property="expenditure_date" jdbcType="TIMESTAMP" />
+        <result column="expenditure_amount" property="expenditure_amount" jdbcType="DOUBLE" />
+        <result column="expenditure_after_balance" property="expenditure_after_balance" jdbcType="DOUBLE" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="expenditure_type" property="expenditure_type" jdbcType="INTEGER" />
+        <result column="withdraw_order_no" property="withdraw_order_no" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,name,expenditure_date,expenditure_amount,expenditure_after_balance,user_id,expenditure_type,withdraw_order_no
+    </sql>
+
+    <!--查询用户的消费明细-->
+    <select id="selectExpenditureByUser" resultType="java.util.HashMap">
+        SELECT
+        name,date_format(expenditure_date, '%Y-%m-%d %H:%i:%S') as expenditure_date,expenditure_amount
+        FROM general_integral_expenditure where user_id = #{param1,jdbcType=INTEGER} order by expenditure_date DESC
+    </select>
+
+    <!--查询用户的提现明细-->
+    <select id="selectWithdrawExpenditureByUser" resultType="java.util.HashMap">
+        SELECT
+            name,date_format(expenditure_date, '%Y-%m-%d %H:%i:%S') as expenditure_date,expenditure_amount,withdraw_order_no,expenditure_after_balance as balance
+        FROM general_integral_expenditure where user_id = #{param1,jdbcType=INTEGER} and expenditure_type = 1
+    </select>
+
+    <!--根据用户id查询记录并重新修改所属用户-->
+    <insert id="updateRecordUserId">
+        UPDATE general_integral_expenditure
+        SET user_id = #{param1,jdbcType=INTEGER}
+        WHERE user_id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <!--新增银币兑换支出记录-->
+    <insert id="insertExchangeSilverCoinRecord" parameterType="com.springmvc.entity.GeneralIntegralExpenditure" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO general_integral_expenditure(name,expenditure_date,expenditure_amount,expenditure_after_balance,user_id,expenditure_type)
+        VALUES (#{name,jdbcType=VARCHAR},#{expenditure_date,jdbcType=TIMESTAMP},#{expenditure_amount,jdbcType=DOUBLE}
+        ,#{expenditure_after_balance,jdbcType=INTEGER},#{user_id,jdbcType=INTEGER},#{expenditure_type,jdbcType=INTEGER})
+    </insert>
+
+    <!--根据id删除记录-->
+    <delete id="deleteRecordById">
+        DELETE FROM general_integral_expenditure WHERE id = #{param1,jdbcType=INTEGER}
+    </delete>
+
+    <!--新增提现支出记录-->
+    <insert id="insertWithdrawRecord" parameterType="com.springmvc.entity.GeneralIntegralExpenditure" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO general_integral_expenditure(name,expenditure_date,expenditure_amount,expenditure_after_balance,user_id,expenditure_type,withdraw_order_no)
+        VALUES (#{name,jdbcType=VARCHAR},#{expenditure_date,jdbcType=TIMESTAMP},#{expenditure_amount,jdbcType=DOUBLE}
+        ,#{expenditure_after_balance,jdbcType=DOUBLE},#{user_id,jdbcType=INTEGER},#{expenditure_type,jdbcType=INTEGER},#{withdraw_order_no,jdbcType=VARCHAR})
+    </insert>
+
+
+
+</mapper>

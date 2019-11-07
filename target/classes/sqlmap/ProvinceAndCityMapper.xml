@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.ProvinceAndCityMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.ProvinceAndCity" >
+        <id     column="id"             property="id"               jdbcType="INTEGER" />
+        <result column="name"           property="name"             jdbcType="VARCHAR" />
+        <result column="type"           property="type"             jdbcType="INTEGER" />
+        <result column="upper_level_id" property="upper_level_id"   jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,name
+    </sql>
+
+    <!--APP获取所有省份-->
+    <select id="selectAllProvince" resultType="java.util.HashMap">
+        SELECT
+        id as province_id,name
+        FROM province_and_city where type = 0
+    </select>
+
+    <!--APP通过省份id获取某个省份下的所有城市-->
+    <select id="selectProvinceAllCity" resultType="java.util.HashMap">
+        SELECT
+        id as city_id,name
+        FROM province_and_city where type = 1 and upper_level_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--通过Id查询记录-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM province_and_city
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--新增省份-->
+    <insert id="addProvince" parameterType="com.springmvc.entity.ProvinceAndCity" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO province_and_city(name,type)
+        VALUES (#{name,jdbcType=VARCHAR},0)
+    </insert>
+
+    <!--修改省份信息-->
+    <insert id="updateProvince" parameterType="com.springmvc.entity.ProvinceAndCity">
+        UPDATE province_and_city
+        SET name = #{name,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--通过名称查询省份记录-->
+    <select id="selectByName" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM province_and_city
+        where name = #{param1,jdbcType=VARCHAR} and type = 0
+    </select>
+
+    <!--通过名称及省份id查询城市记录-->
+    <select id="selectCityByNameAndProvinceId" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM province_and_city
+        where name = #{param1,jdbcType=VARCHAR} and type = 1 and upper_level_id = #{param2,jdbcType=INTEGER}
+    </select>
+
+    <!--修改城市信息-->
+    <insert id="updateCity" parameterType="com.springmvc.entity.ProvinceAndCity">
+        UPDATE province_and_city
+        SET name = #{name,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER} and type = 1
+    </insert>
+
+    <!--新增城市-->
+    <insert id="addCity" parameterType="com.springmvc.entity.ProvinceAndCity" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO province_and_city(name,type,upper_level_id)
+        VALUES (#{name,jdbcType=VARCHAR},1,#{upper_level_id,jdbcType=INTEGER})
+    </insert>
+
+    <!--根据条件查询所有省份-->
+    <select id="adminSearchProvinceAndCityByConditions" resultType="java.util.Map">
+        SELECT
+          id as province_id,name
+        FROM province_and_city
+        WHERE 1=1 AND type = 0
+
+        <if test="_parameter.name != null and ''!= _parameter.name">
+            AND name LIKE #{name}
+        </if>
+
+        order by province_id DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+</mapper>

@@ -1,0 +1,140 @@
+
+
+.container-main {}
+
+
+/*头部图片*/
+
+.detail-header {
+	height: 10rem;
+}
+
+.detail-header img {
+	width: 100%;
+	height: 100%;
+}
+
+
+/*简单描述*/
+
+.product-infos {
+	margin-top: -0.4rem;
+	background-color: #FFFFFF;
+	padding: 1rem 1rem 0.1rem;
+}
+
+.product-name {
+	margin-bottom: 9px;
+	font-size: 20px;
+	line-height: 20px;
+	color: #333;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.text-highlight {
+	margin-right: 4px;
+	color: #fc9153;
+}
+
+
+/*商家*/
+
+.shop-mod {
+	padding: 0.7rem 0;
+	padding-bottom: 0;
+	background: #f3f4f5;
+}
+
+.shop-meta {
+	display: flex;
+	position: relative;
+	padding: 1rem 1.01rem;
+	color: #333;
+	font-size: 0.9rem;
+	background: #fff;
+}
+
+.meta-name {
+	padding-right: 1rem;
+	white-space: nowrap;
+	color: #999;
+	line-height: 0.85rem;
+}
+
+.meta-body {
+	-webkit-box-flex: 1;
+    flex: 1;
+    line-height: 0.85rem;
+}
+
+/*内容*/
+.content{
+	background-color: #fff;
+	padding-bottom: 0.5rem;
+}
+
+/*商品详情*/
+.desc-main {
+	padding: 0 .85rem;
+	padding-top: 0;
+    margin-top: .8rem;
+    word-break: break-all;
+    word-wrap: break-word;
+    background-color: #FFFFFF;
+}
+.rich-txt{
+	font-size: 1rem;
+    line-height: 1.5;
+    padding-top: 1rem;
+ 
+}
+
+/*重要说明*/
+.important-tip{
+	position: relative;
+    margin: 1.15rem 0.8rem;
+    font-size: 0.7rem;
+    color: #666;
+    border: 1px dashed #999;
+    border-radius: 5px;
+    background-color: #fff;
+	margin-bottom: 3.333rem;
+}
+.hd {
+	position: absolute;
+    left: 50%;
+    top: 0;
+    color: #333;
+    padding: 0 0.5rem;
+    background-color: #fff;
+    transform: translate3d(-50%,-50%,0);
+}
+.bd{
+	padding: 1.1rem 6%;
+    line-height: 1.2rem
+}
+/*兑换*/
+.container-footer{
+	
+}
+.pay-bar{
+	
+	position:fixed; 
+	bottom:0; 
+	width:100%; 
+	height: 2.5rem; 
+	
+	font-size: 1rem; 
+	text-align: center;
+	line-height:2.5rem;
+	color: #fff;
+	background-color: #fc9153;
+}
+
+/* 无法兑换时候添加的css */
+.disabled{
+	color: #FFF;
+	background-color: #a1a1a1;
+}

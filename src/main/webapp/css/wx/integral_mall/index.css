@@ -1,0 +1,228 @@
+/* 顶部块*/
+.mui-card {
+    margin: 0 0 1rem 0;
+}
+
+/*底部块上外边距归零*/
+.mui-content > .mui-card:first-child {
+    margin-top: 0;
+}
+
+.mui-slider .mui-slider-group .mui-slider-item {
+    height: auto;
+}
+
+#header{
+    width: 2rem;
+    height: 2rem;
+    border-radius:50%;
+    overflow:hidden;
+}
+
+/*头像和用户名*/
+.head-font-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+/*用户等级名称*/
+#level_name{
+    font-size: 0.8rem;
+}
+
+#level_icon{
+    width: 0.8rem;
+    height: 0.8rem;
+}
+
+/*用户等级*/
+.head-font-level {
+    display: block;
+}
+
+/*横线*/
+.mui-card-footer:before,
+.mui-card-header:after {
+    background-color: transparent
+}
+
+/*积分*/
+.head-right {
+    font-size: 1rem;
+    margin-right: -25%;
+}
+.head-right > a {
+    color: #000;
+}
+
+#header-list{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/*--------------------- 商品分类 和	活动列表  通用样式 ------------------------*/
+
+ul {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+
+}
+
+li {
+
+    float: left;
+    /*li 之间的间隔 */
+    margin-left: 0.3rem;
+    margin-right: 0.3rem;
+}
+
+
+#goods-ul{
+    /*padding-left: 1.5rem;*/
+    margin : 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.div-li{
+    /*margin-left: 1rem;*/
+    display: flex;
+    min-width: 50%;
+    margin: 0;
+}
+
+.div-li > a >div{
+    text-align: center;
+    /*padding:auto;*/
+    line-height: 100%;
+}
+
+div span img {
+    width: 1.1rem;
+    height: 1.1rem;
+
+}
+
+/*--------------------- 商品分类 和	活动列表  通用样式 ------------------------------*/
+
+/*商品分类*/
+/*图片*/
+.media {
+    display: inline-block;
+    vertical-align: top;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-size: cover;
+    border-radius:50%;
+}
+
+/*图片大小*/
+.weizhi {
+    width: auto;
+    height: auto;
+
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.weizhi > img {
+    /*height: 100% !important;*/
+}
+
+.txt {
+    line-height: 1rem;
+    display: block;
+    color: #666;
+    margin-top: 0.2rem;
+    font-size: 0.8rem;
+}
+
+/*活动列表*/
+.row {
+    /*弹性布局*/
+    display: flex;
+    height: auto;
+}
+
+
+
+.goods {
+    margin-top: .13333rem;
+    font-size: 0.32rem;
+    line-height: .32rem;
+    width: 100%;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.goods img {
+    width: 8.5rem;
+    height: 8.5rem;
+}
+
+.info {
+    /*margin-left: 14%;*/
+    text-align: left;
+    width: 8.5rem;
+    height: 5.5rem;
+
+}
+
+
+.type {
+    /*margin-left: -4rem;*/
+}
+
+.name {
+    height: 1rem;
+    vertical-align: middle;
+    max-width: 5rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.customer-price {
+    margin-left: 0.2rem;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+
+.goods .info {
+    color: #989898;
+    padding: .10667rem 0 0;
+}
+
+
+.goods .info .type {
+    font-size: 1.03rem;
+    font-weight: 700;
+    color: #666;
+    line-height: normal
+}
+
+.goods .info .name {
+    display: table-cell;
+    vertical-align: middle;
+    font-weight: 400;
+    font-size: 0.32rem;
+}
+
+
+
+/*间隔*/
+.customer-level {
+    height: 0.2rem;
+    display: inline-block;
+    margin-top: 1.05333rem;
+    margin-bottom: .08rem;
+}
+
+
+
+.text-highlight {
+    color: #fc9153;
+    font-weight: 600;
+}

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessBalanceDetailMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkBusinessBalanceDetail" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="transaction_amount" property="transaction_amount" jdbcType="DOUBLE" />
+        <result column="join_time" property="join_time" jdbcType="TIMESTAMP" />
+        <result column="after_balance" property="after_balance" jdbcType="DOUBLE" />
+        <result column="type" property="type" jdbcType="INTEGER" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,business_id,name,transaction_amount,join_time,after_balance,type,state,
+        date_format(join_time, '%Y/%m/%d %H:%i:%S') as join_time_str,
+        (CASE WHEN state = 0 THEN '成功' WHEN state = 1 THEN '失败' WHEN state = 2 THEN '待审核' END) as state_str,
+        is_withdraw,withdraw_id
+    </sql>
+
+    <!--查询某个商家的交易记录-->
+    <select id="selectRecordByBusinessIdAndType" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM wnk_business_balance_detail
+        where business_id = #{param1,jdbcType=INTEGER} and type = #{param2,jdbcType=INTEGER}  order by join_time DESC
+    </select>
+
+    <!--按月份统计所有收入-->
+    <select id="countAmountByMonth" resultType="java.util.HashMap">
+        SELECT sum(transaction_amount) as count_amount,date_format(join_time, '%Y-%m') as year_month_str
+        FROM wnk_business_balance_detail  where type=0
+        GROUP BY year_month_str
+    </select>
+
+    <!--插入新纪录-->
+    <insert id="insertNewRecord" parameterType="com.springmvc.entity.WnkBusinessBalanceDetail" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_business_balance_detail(business_id,name,transaction_amount,join_time,after_balance,type,state)
+        VALUES (#{business_id,jdbcType=INTEGER},#{name,jdbcType=VARCHAR},#{transaction_amount,jdbcType=DOUBLE},#{join_time,jdbcType=TIMESTAMP}
+        ,#{after_balance,jdbcType=DOUBLE},#{type,jdbcType=INTEGER},#{state,jdbcType=INTEGER})
+    </insert>
+
+    <!--插入新纪录(提现订单专用)-->
+    <insert id="insertNewRecordWithdraw" parameterType="com.springmvc.entity.WnkBusinessBalanceDetail" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO
+            wnk_business_balance_detail
+        (business_id,name,transaction_amount,join_time,after_balance,type,state,is_withdraw,withdraw_id)
+        VALUES
+        (#{business_id,jdbcType=INTEGER},
+         #{name,jdbcType=VARCHAR},
+         #{transaction_amount,jdbcType=DOUBLE},
+         #{join_time,jdbcType=TIMESTAMP},
+         #{after_balance,jdbcType=DOUBLE},
+         #{type,jdbcType=INTEGER},
+         #{state,jdbcType=INTEGER},
+         #{is_withdraw,jdbcType=INTEGER},
+         #{withdraw_id,jdbcType=INTEGER})
+    </insert>
+
+    <!--根据id删除记录-->
+    <delete id="deleteRecordById">
+        DELETE FROM wnk_business_balance_detail WHERE id = #{param1,jdbcType=INTEGER}
+    </delete>
+
+    <!--根据商家ID查询商家今日总收入-->
+    <select id="selectTodayRevenueById" parameterType="int" resultType="map">
+        SELECT
+            SUM(transaction_amount) AS money
+        FROM wnk_business_balance_detail
+        WHERE business_id=#{business_id} AND TO_DAYS(join_time) = TO_DAYS(NOW());
+    </select>
+
+    <!--根据商家ID查询商家总收入和总收入条目数-->
+    <select id="selectRevenueTotalAndMoney" parameterType="int" resultType="map">
+        SELECT
+            COUNT(transaction_amount) AS total ,
+            SUM(transaction_amount) AS money
+        FROM wnk_business_balance_detail
+        WHERE business_id = #{business_id}
+
+    </select>
+
+    <update id="updateBusinessBalanceDetailState" parameterType="int">
+      UPDATE wnk_business_balance_detail
+      SET
+          state = #{type}
+      WHERE withdraw_id = #{Withdraw_id}
+    </update>
+
+</mapper>

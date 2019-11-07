@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.UserCollectionMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.UserCollection" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,user_id,business_id,
+        (SELECT wnk_store_information.banners_photoid FROM wnk_store_information WHERE user_collection.business_id=wnk_store_information.business_id) as banners_photoid,
+        (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE user_collection.business_id=wnk_store_information.business_id) as store_name,
+        (SELECT wnk_store_information.address FROM wnk_store_information WHERE user_collection.business_id=wnk_store_information.business_id) as store_address
+    </sql>
+
+    <!--查询某用户的所有收藏记录-->
+    <select id="selectCollectionByUserId" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM user_collection where user_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--新增收藏记录-->
+    <insert id="addCollection" parameterType="com.springmvc.entity.UserCollection" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO user_collection(user_id,business_id)
+        VALUES (#{user_id,jdbcType=INTEGER},#{business_id,jdbcType=INTEGER})
+    </insert>
+
+    <!--删除收藏记录-->
+    <delete id="deleteCollection">
+        DELETE FROM user_collection WHERE user_id = #{param1,jdbcType=INTEGER} and business_id = #{param2,jdbcType=INTEGER}
+    </delete>
+
+    <!--查询某用户对某商家的收藏记录-->
+    <select id="selectCollectionByUserIdAndBusinessId" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM user_collection where user_id = #{param1,jdbcType=INTEGER} and business_id = #{param2,jdbcType=INTEGER}
+    </select>
+
+
+</mapper>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkIntegralIncomeMapper" >
+
+    <insert id="addIntegralRecord" parameterType="map">
+        INSERT INTO wnk_integral_income
+        (name, income_date, income_amount, user_id, income_type, business_id)
+        VALUES
+        (
+            #{name,jdbcType=VARCHAR},
+            NOW(),
+            #{price,jdbcType=DOUBLE},
+            #{user_id,jdbcType=INTEGER},
+            #{type,jdbcType=INTEGER},
+            #{business_id,jdbcType=INTEGER}
+        );
+    </insert>
+
+    <select id="getIntegralCountById" parameterType="int" resultType="map">
+        SELECT
+            id,
+            name,
+            DATE_FORMAT(income_date,'%Y-%m-%d %H:%i:%s') AS income_date,
+            income_amount,
+            income_after_balance,
+            user_id,
+            income_type,
+            business_id
+        FROM wnk_integral_income
+        WHERE business_id=#{business_id} AND user_id=#{user_id} ORDER BY income_date DESC
+    </select>
+
+    <!--获取用户在商家处的积分明细(区分收入与支出)-->
+    <select id="getIntegralCountByIdAndType" parameterType="int" resultType="map">
+        SELECT
+        id,
+        name,
+        DATE_FORMAT(income_date,'%Y-%m-%d %H:%i:%s') AS income_date,
+        income_amount,
+        income_after_balance,
+        user_id,
+        income_type,
+        business_id
+        FROM wnk_integral_income
+        WHERE business_id=#{business_id} AND user_id=#{user_id} and income_type=#{income_type} ORDER BY income_date DESC
+    </select>
+
+
+
+</mapper>

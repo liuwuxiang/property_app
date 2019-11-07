@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessTagMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkBusinessTag" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+        <result column="type" property="type" jdbcType="INTEGER" />
+        <result column="last_id" property="last_id" jdbcType="INTEGER" />
+        <result column="photo_id" property="photo_id" jdbcType="VARCHAR" />
+        <result column="sort_index" property="sort_index" jdbcType="INTEGER" />
+        <result column="relation_business_type_id" property="relation_business_type_id" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,name,state,type,last_id,photo_id,
+        (CASE WHEN state = 0 THEN '停用' WHEN state = 1 THEN '启用' END) as state_str,sort_index,relation_business_type_id
+    </sql>
+
+    <!--查询所有一级标签-->
+    <select id="selectAllOneTag" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM wnk_business_tag WHERE type = 0 AND is_delete = 0 AND state=1 ORDER BY sort_index DESC
+    </select>
+
+    <!--查询某个一级标签下的所有二级标签-->
+    <select id="selectTwoTagByOneTagId" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM wnk_business_tag where last_id = #{param1,jdbcType=INTEGER} and state = 1 and is_delete = 0 order by sort_index DESC
+    </select>
+
+    <!--通过id查询记录-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_business_tag
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--通过商户分类id查询记录-->
+    <select id="selectByBusinessTypeId" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_business_tag
+        where relation_business_type_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--插入一级标签-->
+    <insert id="insertOneTag" parameterType="com.springmvc.entity.WnkBusinessTag" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_business_tag(name,state,type,photo_id,relation_business_type_id)
+        VALUES (#{name,jdbcType=VARCHAR},#{state,jdbcType=INTEGER},0,#{photo_id,jdbcType=VARCHAR},#{relation_business_type_id,jdbcType=INTEGER})
+    </insert>
+
+    <!--插入二级标签-->
+    <insert id="insertTwoTag" parameterType="com.springmvc.entity.WnkBusinessTag" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_business_tag(name,state,type,last_id,photo_id)
+        VALUES (#{name,jdbcType=VARCHAR},#{state,jdbcType=INTEGER},1,#{last_id,jdbcType=INTEGER},#{photo_id,jdbcType=VARCHAR})
+    </insert>
+
+    <!--修改一级标签内容-->
+    <insert id="updateOneTag">
+        UPDATE wnk_business_tag
+        SET name = #{name,jdbcType=VARCHAR},state = #{state,jdbcType=INTEGER},photo_id = #{photo_id,jdbcType=VARCHAR},relation_business_type_id = #{relation_business_type_id,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--更新标签序号-->
+    <insert id="updateTagSortIndex">
+        UPDATE wnk_business_tag
+        SET sort_index = #{param2,jdbcType=INTEGER}
+        WHERE id = #{param1,jdbcType=INTEGER}
+    </insert>
+
+    <!--查询所有二级标签-->
+    <select id="selectAllTowTag" resultType="map">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM wnk_business_tag where type = 1
+    </select>
+
+    <!--根据二级标签ID 查询一级标签ID-->
+    <select id="selectOneTagIdByTwoTagId" parameterType="int"  resultType="map">
+        SELECT * FROM wnk_business_tag WHERE id = #{towTag} AND type=1
+    </select>
+
+    <!--删除商户标签 - 逻辑删除-->
+    <update id="deleteBusinessTag" parameterType="int">
+        UPDATE wnk_business_tag
+        SET
+            is_delete = 1
+        WHERE id = #{business_type_id}
+    </update>
+
+    <!--后台查询所有商户一级标签(仅排除已删除的一级标签)-->
+    <select id="selectAdminAllOneTag" resultType="map">
+        SELECT
+            wbt.*,
+            (CASE WHEN wbt.state = 0 THEN '停用' WHEN wbt.state = 1 THEN '启用' END) as state_str,
+            wtype.name AS relation_type_name
+        FROM
+            wnk_business_tag AS wbt
+            LEFT JOIN wnk_business_type AS wtype
+                ON (wbt.relation_business_type_id = wtype.id)
+        WHERE
+            wbt.type = 0 AND wbt.is_delete = 0  ORDER BY wbt.sort_index DESC
+    </select>
+
+    <!--获取商家分类对应的商家标签-->
+    <select id="selectBusinessTagOneByBusinessTypeId" parameterType="int" resultType="map">
+        SELECT * FROM wnk_business_tag WHERE relation_business_type_id = #{business_type_id} AND type = 0
+    </select>
+
+    <!--根据条件查询标签管理信息-->
+    <select id="adminSearchBusinessTag" resultType="java.util.Map">
+        SELECT
+            wbt.*,
+            (CASE WHEN wbt.state = 0 THEN '停用' WHEN wbt.state = 1 THEN '启用' END) as state_str,
+            wtype.name AS relation_type_name
+        FROM
+            wnk_business_tag AS wbt
+            LEFT JOIN wnk_business_type AS wtype
+                ON (wbt.relation_business_type_id = wtype.id)
+        WHERE
+            wbt.type = 0 AND wbt.is_delete = 0
+        <if test="_parameter.name != null and ''!= _parameter.name">
+            AND wbt.name LIKE #{name}
+        </if>
+        <if test="_parameter.state_str != null ">
+            AND wbt.state = #{state_str}
+        </if>
+        <if test="_parameter.relation_type_name != null and ''!= _parameter.relation_type_name">
+            AND wtype.name LIKE #{relation_type_name}
+        </if>
+        ORDER BY wbt.sort_index DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+</mapper>

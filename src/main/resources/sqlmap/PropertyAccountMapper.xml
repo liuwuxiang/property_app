@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.PropertyAccountMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.PropertyAccount" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="residentials_id" property="residentials_id" jdbcType="INTEGER" />
+        <result column="primary_account_state" property="primary_account_state" jdbcType="INTEGER" />
+        <result column="account" property="account" jdbcType="VARCHAR" />
+        <result column="login_pwd" property="login_pwd" jdbcType="VARCHAR" />
+        <result column="contact_name" property="contact_name" jdbcType="VARCHAR" />
+        <result column="contact_mobile" property="contact_mobile" jdbcType="VARCHAR" />
+        <result column="create_time" property="create_time" jdbcType="TIMESTAMP" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,residentials_id,primary_account_state,account,login_pwd,contact_name,contact_mobile,create_time
+    </sql>
+
+    <!--查询某个物业的主账号信息-->
+    <select id="selectByResidentialsId" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM property_account
+        where residentials_id = #{param1,jdbcType=INTEGER} and primary_account_state = 1
+    </select>
+
+    <!--通过账号查询-->
+    <select id="selectByAccount" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM property_account
+        where account = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--添加物业主账号-->
+    <insert id="addPropertyPrimaryAccount" parameterType="com.springmvc.entity.PropertyAccount" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO property_account(residentials_id,primary_account_state,account,login_pwd,contact_name,contact_mobile,create_time)
+        VALUES (#{residentials_id,jdbcType=INTEGER},1,#{account,jdbcType=VARCHAR}
+        ,#{login_pwd,jdbcType=VARCHAR},#{contact_name,jdbcType=VARCHAR},#{contact_mobile,jdbcType=VARCHAR},#{create_time,jdbcType=TIMESTAMP})
+    </insert>
+
+    <!--修改账号姓名及电话-->
+    <insert id="updateNameAndMobile" parameterType="com.springmvc.entity.PropertyAccount">
+        UPDATE property_account
+        SET contact_name = #{contact_name,jdbcType=VARCHAR},contact_mobile = #{contact_mobile,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+
+</mapper>

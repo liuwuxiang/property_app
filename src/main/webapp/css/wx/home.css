@@ -1,0 +1,154 @@
+body{
+	background: white;
+}
+
+.mui-content{
+	background: white;
+}
+
+.course_type{
+	width: 97%;
+	height: auto;
+	background: white;
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+	background: #1E91FB;
+	margin-left: 1.5%;
+	margin-top: 10px;
+	border-radius: 20px;
+	padding-bottom: 5px;
+}
+
+.course_type li{
+	width: 33%;
+	height: 70px;
+	list-style: none;
+	text-align: center;
+	background: white;
+	cursor: pointer;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	float: left;
+	overflow: hidden;
+	background: #1E91FB;
+}
+
+.course_type li img{
+	height: 70%;
+	width: auto;
+}
+
+.course_type li a{
+	display: block;
+	height: 30%;
+	width: 100%;
+	font-size: 14px;
+	color: white;
+	line-height: 21px;
+}
+
+.block_div{
+	width: 97%;
+	height: auto;
+	background: white;
+	margin-top: 10px;
+	margin-left: 1.5%;
+	overflow: hidden;
+}
+
+.cbr_div{
+	width: 49%;
+	height: auto;
+	background: #1E91FB;
+	overflow: hidden;
+	text-align: right;
+	float: left;
+	border-radius: 5px;
+}
+
+.cbr_title{
+	display: block;
+	width: 94%;
+	height: 20px;
+	line-height: 20px;
+	margin-top: 5px;
+	margin-left: 3%;
+	font-size: 18px;
+	color: white;
+	text-align: left;
+}
+
+.cbr_tip{
+	display: block;
+	width: 94%;
+	height: auto;
+	margin-left: 3%;
+	margin-top: 5px;
+	line-height: 16px;
+	color: white;
+	font-size: 13px;
+	text-align: left;
+}
+
+.cbr_img{
+	width: auto;
+	height: 100px;
+	margin-top: 30px;
+	margin-right: 10px;
+	margin-bottom: 5px;
+}
+
+.right_div{
+	width: 50%;
+	height: 202px;
+	margin-left: 1%;
+	float: left;
+}
+
+.right_block_div{
+	width: 100%;
+	height: 100px;
+	background: lawngreen;
+	overflow: hidden;
+	text-align: right;
+	border-radius: 5px;
+}
+
+.right_text_div{
+	width: 50%;
+	height: 100%;
+	margin-left: 3%;
+	float: left;
+}
+
+.right_block_title{
+	display: block;
+	width: 100%;
+	height: 20px;
+	line-height: 20px;
+	margin-top: 5px;
+	font-size: 18px;
+	color: white;
+	text-align: left;
+}
+
+.right_block_tip{
+	display: block;
+	width: 100%;
+	height: auto;
+	margin-top: 5px;
+	line-height: 16px;
+	color: white;
+	font-size: 13px;
+	text-align: left;
+}
+
+.right_block_img{
+	display: block;
+	width: auto;
+	height: 55px;
+	float: right;
+	margin-right: 5px;
+	margin-top: 40px;
+}

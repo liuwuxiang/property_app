@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.SuggestionFeedbackMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.SuggestionFeedback" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="content" property="content" jdbcType="CLOB" />
+        <result column="photos" property="photos" jdbcType="CLOB" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="feedback_date" property="feedback_date" jdbcType="TIMESTAMP" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+        <result column="remark" property="remark" jdbcType="CLOB" />
+        <result column="user_type" property="user_type" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,content,photos,user_id,feedback_date,state,remark,user_type
+    </sql>
+
+    <!--新增反馈-->
+    <insert id="addFeedback" parameterType="com.springmvc.entity.SuggestionFeedback" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO suggestion_feedback(content,photos,user_id,user_type,feedback_date)
+        VALUES (#{content,jdbcType=VARCHAR},#{photos,jdbcType=VARCHAR},#{user_id,jdbcType=INTEGER},#{user_type,jdbcType=INTEGER},#{feedback_date,jdbcType=TIMESTAMP})
+    </insert>
+
+    <!--根据用户id查询记录并重新修改所属用户-->
+    <insert id="updateRecordUserId">
+        UPDATE suggestion_feedback
+        SET user_id = #{param1,jdbcType=INTEGER}
+        WHERE user_id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <!--后台查询所有反馈内容-->
+    <select id="selectAllAdmin" resultType="java.util.HashMap">
+        SELECT
+        id,content,date_format(feedback_date, '%Y-%m-%d %H:%i:%S') as feedback_date,remark,
+        (CASE WHEN state = 0 THEN '待处理' WHEN state = 1 THEN '处理中' WHEN state = 2 THEN '完成' END) as state,
+        (SELECT users.nick_name FROM users WHERE suggestion_feedback.user_id=users.id) as user_name,
+        (SELECT users.mobile FROM users WHERE suggestion_feedback.user_id=users.id) as user_mobile
+        FROM suggestion_feedback order by feedback_date DESC
+    </select>
+
+    <!--通过用户id查询记录-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM suggestion_feedback
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--修改反馈处理信息-->
+    <insert id="updateFeedDealMessage" parameterType="com.springmvc.entity.SuggestionFeedback">
+        UPDATE suggestion_feedback
+        SET state = #{state,jdbcType=INTEGER},remark = #{remark,jdbcType=CLOB}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <select id="selectNoHandleAll" resultType="map">
+        SELECT * FROM suggestion_feedback WHERE state = 0
+    </select>
+
+    <!--根据条件查询反馈信息-->
+    <select id="adminSearchSuggestionFeedByConditions" resultType="java.util.Map">
+        SELECT
+            sf.id,sf.content,date_format(sf.feedback_date, '%Y-%m-%d %H:%i:%S') as feedback_date,sf.remark,
+            (CASE WHEN sf.state = 0 THEN '待处理' WHEN sf.state = 1 THEN '处理中' WHEN sf.state = 2 THEN '完成' END) as state,
+            u.nick_name as user_name,u.mobile as user_mobile
+        FROM suggestion_feedback AS sf , users AS u
+
+        WHERE 1=1 AND sf.user_id=u.id
+
+        <if test="_parameter.user_name != null and ''!= _parameter.user_name">
+            AND u.nick_name LIKE #{user_name}
+        </if>
+
+        <if test="_parameter.user_mobile != null and ''!= _parameter.user_mobile">
+            AND u.mobile = #{user_mobile}
+        </if>
+
+        <if test="_parameter.content != null and ''!= _parameter.content">
+            AND sf.content LIKE #{content}
+        </if>
+
+        <if test="_parameter.feedback_date != null and ''!= _parameter.feedback_date">
+            AND unix_timestamp(sf.feedback_date) = unix_timestamp(#{feedback_date})
+        </if>
+
+        <if test="_parameter.state != null ">
+            AND sf.state = #{state}
+        </if>
+
+        <if test="_parameter.remark != null and ''!= _parameter.remark">
+            AND sf.remark = #{remark}
+        </if>
+        order by feedback_date DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+</mapper>

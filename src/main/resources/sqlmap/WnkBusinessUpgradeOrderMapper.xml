@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessUpgradeOrderMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkBusinessUpgradeOrder" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="order_no" property="order_no" jdbcType="VARCHAR" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+        <result column="create_time" property="create_time" jdbcType="TIMESTAMP" />
+        <result column="level_id" property="level_id" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,order_no,business_id,state,create_time,level_id
+    </sql>
+
+    <!--新增商家升级订单信息-->
+    <insert id="insertBusinessUpgradeOrder" parameterType="com.springmvc.entity.WnkBusinessUpgradeOrder" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_business_upgrade_order(order_no,business_id,state,create_time,level_id)
+        VALUES (#{order_no,jdbcType=VARCHAR},#{business_id,jdbcType=INTEGER},#{state,jdbcType=INTEGER},#{create_time,jdbcType=TIMESTAMP},#{level_id,jdbcType=INTEGER})
+    </insert>
+
+    <!--通过订单号查询查询记录-->
+    <select id="selectRecordByOrderNo" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_business_upgrade_order
+        where order_no = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--通过订单号修改支付状态-->
+    <insert id="updateStateByOrderNo" parameterType="com.springmvc.entity.WnkBusinessUpgradeOrder">
+        UPDATE wnk_business_upgrade_order
+        SET state = #{state,jdbcType=INTEGER}
+        WHERE order_no = #{order_no,jdbcType=VARCHAR}
+    </insert>
+
+</mapper>

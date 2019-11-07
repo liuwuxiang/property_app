@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.ResidentialsMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.Residentials" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="province_id" property="province_id" jdbcType="INTEGER" />
+        <result column="city_id" property="city_id" jdbcType="INTEGER" />
+        <result column="residential_name" property="residential_name" jdbcType="VARCHAR" />
+        <result column="create_time" property="create_time" jdbcType="TIMESTAMP" />
+        <result column="address" property="address" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,province_id,city_id,residential_name,create_time,address
+    </sql>
+
+    <!--APP获取某个城市下的所有小区-->
+    <select id="selectResidentialsByCityId" resultType="java.util.HashMap">
+        SELECT
+        id as residential_id,residential_name
+        FROM residentials where city_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--通过Id查询小区-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+          <include refid="Base_Column_List" />
+        FROM residentials
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--后台查询所有物业中心信息-->
+    <select id="selectAllAdmin" resultType="java.util.HashMap">
+        SELECT
+            id,residential_name,address,date_format(create_time, '%Y-%m-%d %H:%i:%S') as create_time,
+            (SELECT province_and_city.name FROM province_and_city WHERE residentials.province_id=province_and_city.id) as province_name,
+            (SELECT province_and_city.name FROM province_and_city WHERE residentials.city_id=province_and_city.id) as city_name,
+            (SELECT property_account.account FROM property_account WHERE residentials.id=property_account.residentials_id and property_account.primary_account_state = 1) as account,
+            (SELECT property_account.contact_name FROM property_account WHERE residentials.id=property_account.residentials_id and property_account.primary_account_state = 1) as contact_name,
+            (SELECT property_account.contact_mobile FROM property_account WHERE residentials.id=property_account.residentials_id and property_account.primary_account_state = 1) as contact_mobile
+        FROM residentials
+    </select>
+
+    <!--根据条件查询物业中心信息-->
+    <select id="adminSearchPropertyByConditions" resultType="java.util.Map">
+        SELECT
+            id,residential_name,address,date_format(create_time, '%Y-%m-%d %H:%i:%S') as create_time,
+            (SELECT province_and_city.name FROM province_and_city WHERE residentials.province_id=province_and_city.id) as province_name,
+            (SELECT province_and_city.name FROM province_and_city WHERE residentials.city_id=province_and_city.id) as city_name,
+            (SELECT property_account.account FROM property_account WHERE residentials.id=property_account.residentials_id and property_account.primary_account_state = 1) as account,
+            (SELECT property_account.contact_name FROM property_account WHERE residentials.id=property_account.residentials_id and property_account.primary_account_state = 1) as contact_name,
+            (SELECT property_account.contact_mobile FROM property_account WHERE residentials.id=property_account.residentials_id and property_account.primary_account_state = 1) as contact_mobile
+        FROM residentials
+        WHERE 1=1
+        <if test="_parameter.account != null and ''!= _parameter.account">
+            AND property_account.account = #{account}
+        </if>
+
+        <if test="_parameter.province_name != null and ''!= _parameter.province_name">
+            AND (SELECT province_and_city.name FROM province_and_city WHERE residentials.province_id=province_and_city.id) LIKE #{province_name}
+        </if>
+
+        <if test="_parameter.city_name != null and ''!= _parameter.city_name">
+           OR (SELECT province_and_city.name FROM province_and_city WHERE residentials.city_id=province_and_city.id) LIKE #{city_name}
+        </if>
+
+        <if test="_parameter.residential_name != null and ''!= _parameter.residential_name">
+            AND residential_name LIKE #{residential_name}
+        </if>
+
+        <if test="_parameter.address != null and ''!= _parameter.address">
+            AND address LIKE #{address}
+        </if>
+
+        <if test="_parameter.contact_name != null and ''!= _parameter.contact_name">
+            AND property_account.contact_name LIKE #{contact_name}
+        </if>
+
+        <if test="_parameter.contact_mobile != null and ''!= _parameter.contact_mobile">
+            AND property_account.contact_mobile = #{contact_mobile}
+        </if>
+
+        <if test="_parameter.create_time != null and ''!= _parameter.create_time">
+            AND unix_timestamp(create_time) = unix_timestamp(#{create_time})
+        </if>
+        order by create_time DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+    <!--添加物业-->
+    <insert id="addProperty" parameterType="com.springmvc.entity.Residentials" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO residentials(province_id,city_id,residential_name,create_time,address)
+        VALUES (#{province_id,jdbcType=INTEGER},#{city_id,jdbcType=INTEGER},#{residential_name,jdbcType=VARCHAR}
+        ,#{create_time,jdbcType=TIMESTAMP},#{address,jdbcType=VARCHAR})
+    </insert>
+
+    <!--修改物业信息-->
+    <insert id="updateResidentialsInformation" parameterType="com.springmvc.entity.Residentials">
+        UPDATE residentials
+        SET province_id = #{province_id,jdbcType=INTEGER},province_id = #{province_id,jdbcType=INTEGER},residential_name = #{residential_name,jdbcType=VARCHAR}
+        ,address = #{address,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+</mapper>

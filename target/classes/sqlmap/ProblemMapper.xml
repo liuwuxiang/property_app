@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.ProblemMapper" >
+
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.Problem" >
+        <id     column="id"            property="id"            jdbcType="INTEGER" />
+        <result column="title"         property="title"         jdbcType="VARCHAR" />
+        <result column="content"       property="content"       jdbcType="LONGVARCHAR" />
+        <result column="check"         property="check"         jdbcType="INTEGER" />
+        <result column="creation_time" property="creation_time" jdbcType="TIMESTAMP" />
+        <result column="type"          property="type"          jdbcType="INTEGER" />
+        <result column="open_way"      property="open_way"      jdbcType="INTEGER" />
+    </resultMap>
+
+    <!--新增-->
+    <insert id="addProblem" parameterType="com.springmvc.entity.Problem">
+        INSERT INTO t_problem
+        (id, title, content, `check`, creation_time,type,open_way)
+        VALUES
+        (#{id},#{title},#{content},#{check},NOW(),#{type},#{open_way})
+    </insert>
+
+    <!--编辑更新-->
+    <update id="editProblem" parameterType="com.springmvc.entity.Problem">
+        UPDATE t_problem
+        <trim prefix="set" suffixOverrides=",">
+            <if test="title != null">
+                title=#{title},
+            </if>
+
+            <if test="content != null">
+                content=#{content},
+            </if>
+
+            <if test="check != null">
+                `check`=#{check},
+            </if>
+            <if test="type != null">
+                `type`=#{type},
+            </if>
+            <if test="open_way != null">
+                `open_way`=#{open_way},
+            </if>
+        </trim>
+        WHERE id=#{id} AND is_del = 0
+    </update>
+
+    <!--根据记录ID查询常见问题信息-->
+    <select id="selectProblemById" parameterType="string" resultType="map">
+        SELECT
+            id,
+            title,
+            content,
+            type,
+            open_way,
+            (CASE WHEN `open_way` = 0 THEN '富文本' WHEN `open_way` = 1 THEN '链接' END) as open_way_str,
+            (CASE WHEN `check` = 0 THEN '启用' WHEN `check` = 1 THEN '停用' END) as state,
+            DATE_FORMAT(creation_time,'%Y年%m月%d日 %H:%i:%s') AS creation_time
+        FROM t_problem
+       WHERE id=#{problem_id} AND is_del=0
+    </select>
+
+    <!--查询获取所有的常见问题信息-->
+    <select id="selectProblemAll"  resultType="map">
+        SELECT
+            id,
+            title,
+            content,
+            type,
+            (CASE WHEN `open_way` = 0 THEN '富文本' WHEN `open_way` = 1 THEN '链接' WHEN `open_way` = 2 THEN '视频' END) as open_way_str,
+            (CASE WHEN `type` = 0 THEN '所有' WHEN `type` = 1 THEN '用户'  WHEN `type` = 2 THEN '商家' END) as type_str,
+            (CASE WHEN `check` = 0 THEN '启用' WHEN `check` = 1 THEN '停用' END) as state,
+            DATE_FORMAT(creation_time,'%Y年%m月%d日 %H:%i:%s') AS creation_time
+        FROM t_problem WHERE  is_del = 0
+    </select>
+
+    <!--查询所有已经启用的记录-->
+    <select id="selectProblemAllByTrue"  resultType="map">
+        SELECT
+            id,
+            title,
+            content,
+            type,
+            open_way,
+            (CASE WHEN `check` = 0 THEN '启用' WHEN `check` = 1 THEN '停用' END) as state,
+            DATE_FORMAT(creation_time,'%Y年%m月%d日 %H:%i:%s') AS creation_time
+        FROM t_problem
+        WHERE `check` = 0 AND is_del = 0 AND (type = 0 or type = 2)
+    </select>
+
+    <!--查询所有已经启用的记录-用户查询-->
+    <select id="selectProblemAllByTrueUser"  resultType="map">
+        SELECT
+        id,
+        title,
+        content,
+        type,
+        open_way,
+        (CASE WHEN `check` = 0 THEN '启用' WHEN `check` = 1 THEN '停用' END) as state,
+        DATE_FORMAT(creation_time,'%Y年%m月%d日 %H:%i:%s') AS creation_time
+        FROM t_problem
+        WHERE `check` = 0 AND is_del = 0  AND (type = 0 or type = 1)
+    </select>
+
+    <!--根据条件查询常见问题信息-->
+    <select id="adminSearchIntegralBusinessGoods" resultType="java.util.Map">
+        SELECT
+            id,
+            title,
+            content,
+            type,
+            (CASE WHEN `open_way` = 0 THEN '富文本' WHEN `open_way` = 1 THEN '链接' WHEN `open_way` = 2 THEN '视频' END) as open_way_str,
+            (CASE WHEN `type` = 0 THEN '所有' WHEN `type` = 1 THEN '用户'  WHEN `type` = 2 THEN '商家' END) as type_str,
+            (CASE WHEN `check` = 0 THEN '启用' WHEN `check` = 1 THEN '停用' END) as state,
+            DATE_FORMAT(creation_time,'%Y年%m月%d日 %H:%i:%s') AS creation_time
+        FROM t_problem
+        WHERE 1=1 AND is_del = 0
+        <if test="_parameter.title != null and ''!= _parameter.title">
+            AND title LIKE #{title}
+        </if>
+        <if test="_parameter.open_way_str != null ">
+            AND t_problem.open_way = #{open_way_str}
+        </if>
+        <if test="_parameter.content != null and ''!= _parameter.content">
+            AND content LIKE #{content}
+        </if>
+        <if test="_parameter.type_str != null">
+            AND t_problem.type = #{type_str}
+        </if>
+        <if test="_parameter.creation_time != null and ''!= _parameter.creation_time">
+            AND unix_timestamp(#{creation_time}) = unix_timestamp(creation_time)
+        </if>
+        order by creation_time DESC LIMIT #{start_index} , #{limit}
+    </select>
+
+    <!--删除常见问题 (逻辑删除)-->
+    <update id="deleteProblemById" parameterType="string" >
+        UPDATE t_problem
+        SET
+          is_del = 1
+        WHERE id = #{id}
+    </update>
+
+
+</mapper>

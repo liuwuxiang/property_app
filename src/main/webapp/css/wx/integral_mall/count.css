@@ -1,0 +1,136 @@
+* {
+	font-family: "微软雅黑";
+}
+
+.header {
+	font-size: 1rem;
+	padding-top: 1.5rem;
+	background-color: #fff;
+	width: auto;
+	height: auto;
+}
+
+.count-box {
+	border-radius: 50%;
+	color: #fff;
+	text-align: center;
+	font-size: 12px;
+	width: 7.5rem;
+	height: 7.5rem;
+	margin: 0 auto;
+	background-color: #fc9153;
+}
+
+.inner {
+	padding-top: 1.7rem;
+}
+
+.title {
+	font-size: 1.2rem;
+}
+
+.num {
+	display: block;
+	padding-top: 0.5rem;
+	font-size: 2rem;
+}
+
+.rule {
+	font-size: 0.95rem;
+	color: #B6B6CC;
+	float: right;
+	margin-top: -11rem;
+	margin-right: 0.8rem;
+}
+
+.tool-bar {
+	margin-top: 0.62rem;
+	text-align: center;
+	color: #6D6D72;
+}
+
+.fixed-title {
+	color: #6D6D72;
+	text-align: center;
+	min-width: 20rem;
+}
+
+.fixed-title span {
+	font-size: 1rem;
+	line-height: 1.8rem;
+}
+
+
+/*CSS伪类用法*/
+
+.fixed-title span:after,
+.fixed-title span:before {
+	background: #6D6D72;
+	content: "";
+	height: 0.08rem;
+	position: absolute;
+	top: 50%;
+	width: 33%;
+}
+
+/*调整背景横线的左右距离*/
+
+.fixed-title span:before {
+	left: 1rem;
+}
+
+.fixed-title span:after {
+	right: 1rem;
+}
+
+.main {
+	padding: 0 5%;
+	padding-top: 10rem;
+	width: 100%;
+	height: 100%;
+	background-color: #fff;
+}
+
+.count-list {
+	width: 100%;
+	height: 100%;
+	margin-top: -10rem;
+}
+
+ul {
+	list-style: none;
+	margin: 0 auto;
+	padding: 0;
+}
+
+li {
+	margin-top: 0.25rem;
+	float: left;
+	/*li 之间的间隔 */
+	margin-left: 10px;
+	text-align: center;
+	border-bottom-style: solid;
+	border-bottom-width: 0.05rem;
+}
+
+.count-item {
+	margin-left: auto;
+}
+
+.name {
+	font-size: 1rem;
+	float: left;
+	color: #000000;
+	font-weight: bold;
+}
+
+.meta {
+	float: left;
+}
+
+.nums {
+	float: right;
+	font-size: 0.8rem;
+	padding-left: 7rem;
+	color: #fc9153;
+}

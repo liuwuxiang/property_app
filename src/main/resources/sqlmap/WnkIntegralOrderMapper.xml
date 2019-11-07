@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkIntegralOrderMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkIntegralOrder" >
+        <id     column="id"            property="id"            jdbcType="INTEGER" />
+        <result column="order_id"      property="order_id"      jdbcType="INTEGER" />
+        <result column="goods_id"      property="goods_id"      jdbcType="INTEGER" />
+        <result column="user_id"       property="user_id"       jdbcType="INTEGER" />
+        <result column="business_id"   property="business_id"       jdbcType="INTEGER" />
+        <result column="price"         property="price"         jdbcType="INTEGER" />
+        <result column="status"        property="status"        jdbcType="INTEGER" />
+        <result column="username"      property="username"      jdbcType="VARCHAR" />
+        <result column="phone"         property="phone"         jdbcType="VARCHAR" />
+        <result column="creation_time" property="creation_time" jdbcType="TIMESTAMP" />
+        <result column="end_time"      property="end_time"      jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <select id="getIntegralOrderByBusinessId" resultType="map">
+        SELECT * FROM wnk_integral_order WHERE business_id = #{business_id}
+        <if test="status != null and status == 1">
+            AND status = 0
+        </if>
+
+        <if test="status != null and status == 2">
+            AND status = 1
+        </if> ORDER BY id DESC
+    </select>
+
+
+    <select id="getIntegralWnkOrderById" resultType="map" parameterType="int">
+        SELECT g.img,g.name AS goods_name,a.order_id,a.price,a.status,a.phone,a.business_id,date_format(a.creation_time, '%Y-%m-%d %H:%i:%S') as creation_time_str,
+        (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE a.business_id=wnk_store_information.business_id) as business_name
+         FROM wnk_integral_goods AS g LEFT JOIN
+        (
+        SELECT o.* FROM wnk_integral_user AS u
+        LEFT JOIN wnk_integral_order AS o
+        ON (u.user_id=o.user_id AND u.business_id=o.business_id)
+        ) AS a
+        ON (a.goods_id=g.id) WHERE a.user_id=#{user_id} AND a.business_id=#{business_id} ORDER BY a.creation_time DESC
+    </select>
+
+
+    <!--获取用户的所有商家积分商品订单-->
+    <select id="getIntegralWnkOrderByUserId" resultType="map" parameterType="int">
+        SELECT order_id,business_id,status,price,date_format(creation_time, '%Y-%m-%d %H:%i:%S') as creation_time_str,
+        (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_integral_order.business_id=wnk_store_information.business_id) as business_name,
+        (SELECT wnk_integral_goods.img FROM wnk_integral_goods WHERE wnk_integral_order.goods_id=wnk_integral_goods.id) as img,
+        (SELECT wnk_integral_goods.name FROM wnk_integral_goods WHERE wnk_integral_order.goods_id=wnk_integral_goods.id) as goods_name
+        from wnk_integral_order WHERE user_id=#{user_id} ORDER BY creation_time DESC
+    </select>
+
+    <!--获取用户的所有积分订单-->
+    <select id="getAllIntegralWnkOrderByUserId" resultType="map" parameterType="int">
+        SELECT g.img,g.name AS goods_name,a.order_id,a.price,a.status,a.phone,a.business_id,date_format(a.creation_time, '%Y-%m-%d %H:%i:%S') as creation_time_str,
+         (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE a.business_id=wnk_store_information.business_id) as business_name
+         FROM wnk_integral_goods AS g LEFT JOIN
+        (
+        SELECT o.* FROM wnk_integral_user AS u
+        LEFT JOIN wnk_integral_order AS o
+        ON (u.user_id=o.user_id)
+        ) AS a
+        ON (a.goods_id=g.id) WHERE a.user_id=#{user_id} ORDER BY a.creation_time DESC
+    </select>
+
+    <select id="getIntegralWnkOrderByGoodsId" resultType="map" parameterType="map">
+        SELECT g.img,a.order_id,a.price,a.status,a.username,a.phone,a.qrcode,date_format(a.creation_time, '%Y-%m-%d %H:%i:%S') as creation_time_str,
+         (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE a.business_id=wnk_store_information.business_id) as business_name
+         FROM wnk_integral_goods AS g LEFT JOIN
+            (
+                SELECT o.* FROM wnk_integral_user AS u
+                    LEFT JOIN wnk_integral_order AS o
+                        ON (u.user_id=o.user_id AND u.business_id=o.business_id)
+            ) AS a
+                ON (a.goods_id=g.id) WHERE a.user_id=#{user_id} AND a.business_id=#{business_id} AND a.order_id=#{order_id}
+    </select>
+
+
+    <insert id="addIntegralOrder" parameterType="com.springmvc.entity.WnkIntegralOrder" >
+        INSERT INTO wnk_integral_order
+        (order_id, goods_id, user_id, business_id, price, status, username, phone, creation_time, qrcode) VALUES
+        (#{order_id},#{goods_id},#{user_id},#{business_id},#{price},0,#{username},#{phone},NOW(),#{qrcode})
+    </insert>
+
+    <select id="getIntegralWnkOrderByOrderIdAndUserIdAndBusinessId" parameterType="map" resultType="map">
+        SELECT g.name AS goods_name ,o.username,o.phone,o.order_id,o.price,
+               DATE_FORMAT(o.creation_time,'%Y年%m月%d日 %H:%i:%s') AS creation_time,
+               IF(o.status=0,'已支付','已完成')  AS status,
+               DATE_FORMAT(o.end_time,'%Y年%m月%d日 %H:%i:%s') AS end_time
+        FROM wnk_integral_order AS o
+            LEFT JOIN wnk_integral_goods AS g ON (o.goods_id=g.id)
+              WHERE o.business_id=#{business_id} AND o.user_id =#{user_id} AND o.order_id=#{order_id}
+    </select>
+
+    <update id="updateIntegralOrderEndTime" parameterType="map" >
+        UPDATE wnk_integral_order
+        SET end_time = NOW(),
+            status = 1
+        WHERE business_id=#{business_id} AND user_id=#{user_id} AND order_id=#{order_id}
+    </update>
+
+
+</mapper>

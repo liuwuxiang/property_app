@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.UsersBankCardMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.UsersBankCard" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="bank_id" property="bank_id" jdbcType="INTEGER" />
+        <result column="bank_number" property="bank_number" jdbcType="VARCHAR" />
+        <result column="bank_card_name" property="bank_card_name" jdbcType="VARCHAR" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,bank_id,bank_number,bank_card_name,user_id
+    </sql>
+
+    <!--新增用户银行卡信息-->
+    <insert id="insertUserBankCard" parameterType="com.springmvc.entity.UsersBankCard" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO users_bank_card(bank_id,bank_number,bank_card_name,user_id)
+        VALUES (#{bank_id,jdbcType=INTEGER},#{bank_number,jdbcType=VARCHAR},#{bank_card_name,jdbcType=VARCHAR},#{user_id,jdbcType=INTEGER})
+    </insert>
+
+    <!--通过用户id查询记录-->
+    <select id="selectRecordByUserId" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM users_bank_card
+        where user_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--通过用户id修改银行卡信息-->
+    <insert id="updateBankCard" parameterType="com.springmvc.entity.UsersBankCard">
+        UPDATE users_bank_card
+        SET bank_id = #{bank_id,jdbcType=INTEGER},bank_number = #{bank_number,jdbcType=VARCHAR},bank_card_name = #{bank_card_name,jdbcType=VARCHAR}
+        WHERE user_id = #{user_id,jdbcType=INTEGER}
+    </insert>
+
+</mapper>

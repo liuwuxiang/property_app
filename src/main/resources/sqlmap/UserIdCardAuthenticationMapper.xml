@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.UserIdCardAuthenticationMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.UserIdCardAuthentication" >
+        <id     column="id"                             property="id"                           jdbcType="INTEGER" />
+        <result column="mobile"                         property="mobile"                       jdbcType="VARCHAR" />
+        <result column="real_name"                      property="real_name"                    jdbcType="VARCHAR" />
+        <result column="id_card_number"                 property="id_card_number"               jdbcType="VARCHAR" />
+        <result column="card_effective_deadline"        property="card_effective_deadline"      jdbcType="TIMESTAMP" />
+        <result column="handheld_identity_card_photo"   property="handheld_identity_card_photo" jdbcType="VARCHAR" />
+        <result column="user_id"                        property="user_id"                      jdbcType="INTEGER" />
+        <result column="submit_date"                    property="submit_date"                  jdbcType="TIMESTAMP" />
+        <result column="authentication_finish_date"     property="authentication_finish_date"   jdbcType="TIMESTAMP" />
+        <result column="state"                          property="state"                        jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List_APP" >
+        id,mobile,real_name,id_card_number,card_effective_deadline,handheld_identity_card_photo,user_id,submit_date,authentication_finish_date,state
+    </sql>
+
+    <!--通过用户id查询用户的身份证认证记录-->
+    <select id="selectAuthenticationByUserId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_APP" />
+        FROM user_id_card_authentication
+        where user_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--新增身份证认证信息-->
+    <insert id="addUserIdCardAuthentication" parameterType="com.springmvc.entity.UserIdCardAuthentication" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO user_id_card_authentication(mobile,real_name,id_card_number,card_effective_deadline,handheld_identity_card_photo,user_id
+        ,submit_date,state)
+        VALUES (#{mobile,jdbcType=VARCHAR},#{real_name,jdbcType=VARCHAR},#{id_card_number,jdbcType=VARCHAR},#{card_effective_deadline,jdbcType=TIMESTAMP}
+        ,#{handheld_identity_card_photo,jdbcType=VARCHAR},#{user_id,jdbcType=INTEGER},#{submit_date,jdbcType=TIMESTAMP},#{state,jdbcType=INTEGER})
+    </insert>
+
+
+    <!--修改身份证认证信息-->
+    <insert id="updateUserIdCardAuthentication" parameterType="com.springmvc.entity.UserIdCardAuthentication">
+        UPDATE user_id_card_authentication
+        SET mobile = #{mobile,jdbcType=VARCHAR},real_name = #{real_name,jdbcType=VARCHAR},id_card_number = #{id_card_number,jdbcType=VARCHAR}
+        ,card_effective_deadline = #{card_effective_deadline,jdbcType=TIMESTAMP},handheld_identity_card_photo = #{handheld_identity_card_photo,jdbcType=VARCHAR}
+        ,user_id = #{user_id,jdbcType=INTEGER},submit_date = #{submit_date,jdbcType=TIMESTAMP},state = #{state,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--根据用户id删除记录-->
+    <delete id="deleteRecordByUserId">
+        DELETE FROM user_id_card_authentication WHERE user_id = #{param1,jdbcType=INTEGER}
+    </delete>
+
+    <!--后台获取所有实名认证信息-->
+    <select id="getAllIdCardAuthenticationAdmin" resultType="java.util.HashMap">
+        SELECT
+        id,mobile,real_name,id_card_number,
+        date_format(card_effective_deadline, '%Y-%m-%d') as card_effective_deadline,
+        (CASE WHEN state = 0 THEN '待审核' WHEN state = 1 THEN '认证通过' WHEN state = 2 THEN '未通过'  END) as state,
+        date_format(submit_date, '%Y-%m-%d %H:%i:%S') as submit_date_str
+        FROM user_id_card_authentication ORDER BY submit_date DESC
+    </select>
+
+    <!--通过Id查询记录-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM user_id_card_authentication
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--修改认证状态-->
+    <insert id="updateState" parameterType="com.springmvc.entity.UserIdCardAuthentication">
+        UPDATE user_id_card_authentication
+        SET state = #{state,jdbcType=INTEGER},authentication_finish_date = #{authentication_finish_date,jdbcType=TIMESTAMP}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--通过条件查询实名认证信息-->
+    <select id="adminSearchRealNameCertificationByConditions" resultType="java.util.Map">
+        SELECT
+            id,mobile,real_name,id_card_number,
+            date_format(card_effective_deadline, '%Y-%m-%d') as card_effective_deadline,
+            (CASE WHEN state = 0 THEN '待审核' WHEN state = 1 THEN '认证通过' WHEN state = 2 THEN '未通过'  END) as state,
+            date_format(submit_date, '%Y-%m-%d %H:%i:%S') as submit_date_str
+        FROM user_id_card_authentication
+        WHERE 1=1
+
+        <if test="_parameter.mobile != null and ''!= _parameter.mobile">
+            AND mobile LIKE #{mobile}
+        </if>
+
+        <if test="_parameter.real_name != null and ''!= _parameter.real_name">
+            AND real_name LIKE #{real_name}
+        </if>
+
+        <if test="_parameter.id_card_number != null and ''!= _parameter.id_card_number">
+            AND id_card_number LIKE #{id_card_number}
+        </if>
+
+        <if test="_parameter.card_effective_deadline != null and ''!= _parameter.card_effective_deadline">
+            AND unix_timestamp(card_effective_deadline) = unix_timestamp(#{card_effective_deadline})
+        </if>
+
+        <if test="_parameter.state != null and ''!= _parameter.state">
+            AND state = #{state}
+        </if>
+
+        <if test="_parameter.submit_date_str != null and ''!= _parameter.submit_date_str">
+            AND unix_timestamp(submit_date) = unix_timestamp(#{submit_date_str})
+        </if>
+        order by submit_date DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+</mapper>

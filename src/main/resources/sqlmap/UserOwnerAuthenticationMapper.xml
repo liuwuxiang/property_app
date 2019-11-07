@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.UserOwnerAuthenticationMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.UserOwnerAuthentication" >
+        <id     column="id"                             property="id"                           jdbcType="INTEGER" />
+        <result column="buy_house_mobile"               property="buy_house_mobile"             jdbcType="VARCHAR" />
+        <result column="buy_house_name"                 property="buy_house_name"               jdbcType="VARCHAR" />
+        <result column="province_id"                    property="province_id"                  jdbcType="INTEGER" />
+        <result column="city_id"                        property="city_id"                      jdbcType="INTEGER" />
+        <result column="residential_id"                 property="residential_id"               jdbcType="INTEGER" />
+        <result column="residential_building_id"        property="residential_building_id"      jdbcType="INTEGER" />
+        <result column="residential_unit_id"            property="residential_unit_id"          jdbcType="INTEGER" />
+        <result column="house_number_id"                property="house_number_id"              jdbcType="INTEGER" />
+        <result column="user_id"                        property="user_id"                      jdbcType="INTEGER" />
+        <result column="submit_date"                    property="submit_date"                  jdbcType="TIMESTAMP" />
+        <result column="authentication_finish_date"     property="authentication_finish_date"   jdbcType="TIMESTAMP" />
+        <result column="state"                          property="state"                        jdbcType="INTEGER" />
+        <result column="type"                           property="type"                         jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List_APP" >
+        id,buy_house_mobile,buy_house_name,province_id,city_id,residential_id,residential_building_id,residential_unit_id,house_number_id,user_id
+        ,submit_date,authentication_finish_date,state
+    </sql>
+
+    <!--通过用户id查询用户的业主认证记录-->
+    <select id="selectAuthenticationByUserId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_APP" />
+        FROM user_owner_authentication
+        where user_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--新增业主认证信息-->
+    <insert id="addUserOwnerAuthentication" parameterType="com.springmvc.entity.UserOwnerAuthentication" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO user_owner_authentication(buy_house_mobile,buy_house_name,province_id,city_id,residential_id,residential_building_id,residential_unit_id,house_number_id,
+        user_id,submit_date,state)
+        VALUES (#{buy_house_mobile,jdbcType=VARCHAR},#{buy_house_name,jdbcType=VARCHAR},#{province_id,jdbcType=INTEGER}
+        ,#{city_id,jdbcType=INTEGER},#{residential_id,jdbcType=INTEGER},#{residential_building_id,jdbcType=INTEGER}
+        ,#{residential_unit_id,jdbcType=INTEGER},#{house_number_id,jdbcType=INTEGER},#{user_id,jdbcType=INTEGER}
+        ,#{submit_date,jdbcType=TIMESTAMP},#{state,jdbcType=INTEGER})
+    </insert>
+
+
+    <!--修改业主认证信息-->
+    <insert id="updateUserOwnerAuthentication" parameterType="com.springmvc.entity.UserOwnerAuthentication">
+        UPDATE user_owner_authentication
+        SET buy_house_mobile = #{buy_house_mobile,jdbcType=VARCHAR},buy_house_name = #{buy_house_name,jdbcType=VARCHAR}
+        ,province_id = #{province_id,jdbcType=INTEGER},city_id = #{city_id,jdbcType=INTEGER},residential_id = #{residential_id,jdbcType=INTEGER}
+        ,residential_building_id = #{residential_building_id,jdbcType=INTEGER},residential_unit_id = #{residential_unit_id,jdbcType=INTEGER}
+        ,house_number_id = #{house_number_id,jdbcType=INTEGER},user_id = #{user_id,jdbcType=INTEGER},submit_date = #{submit_date,jdbcType=TIMESTAMP}
+        ,state = #{state,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--通过用户id查询用户的业主认证信息返回Map-->
+    <select id="getOwnerAuthenticationInformation" resultType="java.util.HashMap">
+        SELECT
+        buy_house_mobile,buy_house_name,province_id,city_id,residential_id,residential_building_id,residential_unit_id,house_number_id,
+        (SELECT province_and_city.name FROM province_and_city WHERE user_owner_authentication.province_id=province_and_city.id) as province_name,
+        (SELECT province_and_city.name FROM province_and_city WHERE user_owner_authentication.city_id=province_and_city.id) as city_name,
+        (SELECT residentials.residential_name FROM residentials WHERE user_owner_authentication.residential_id=residentials.id) as residential_name,
+        (SELECT residential_building.building_number FROM residential_building WHERE user_owner_authentication.residential_building_id=residential_building.id) as building_number,
+        (SELECT residential_unit.unit_number FROM residential_unit WHERE user_owner_authentication.residential_unit_id=residential_unit.id) as unit_number,
+        (SELECT residential_houses_number.house_number FROM residential_houses_number WHERE user_owner_authentication.house_number_id=residential_houses_number.id) as house_number
+        FROM user_owner_authentication
+        where user_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+
+    <!--根据用户id删除记录-->
+    <delete id="deleteRecordByUserId">
+        DELETE FROM user_owner_authentication WHERE user_id = #{param1,jdbcType=INTEGER}
+    </delete>
+
+
+    <!--后台获取所有认证信息-->
+    <select id="getAllOwnerAuthenticationAdmin" resultType="java.util.HashMap">
+        SELECT
+        id,buy_house_mobile,buy_house_name,
+        (CASE WHEN state = 0 THEN '待审核' WHEN state = 1 THEN '认证通过' WHEN state = 2 THEN '未通过'  END) as state,
+        date_format(submit_date, '%Y-%m-%d %H:%i:%S') as submit_date_str,
+        (SELECT province_and_city.name FROM province_and_city WHERE user_owner_authentication.province_id=province_and_city.id) as province_name,
+        (SELECT province_and_city.name FROM province_and_city WHERE user_owner_authentication.city_id=province_and_city.id) as city_name,
+        (SELECT residentials.residential_name FROM residentials WHERE user_owner_authentication.residential_id=residentials.id) as residential_name,
+        (SELECT residential_building.building_number FROM residential_building WHERE user_owner_authentication.residential_building_id=residential_building.id) as residential_building,
+        (SELECT residential_unit.unit_number FROM residential_unit WHERE user_owner_authentication.residential_unit_id=residential_unit.id) as residential_unit,
+        (SELECT residential_houses_number.house_number FROM residential_houses_number WHERE user_owner_authentication.house_number_id=residential_houses_number.id) as residential_houses_number
+        FROM user_owner_authentication ORDER BY submit_date DESC
+    </select>
+
+
+    <!--通过Id查询记录-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM user_owner_authentication
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--修改认证状态-->
+    <insert id="updateState" parameterType="com.springmvc.entity.UserOwnerAuthentication">
+        UPDATE user_owner_authentication
+        SET state = #{state,jdbcType=INTEGER},authentication_finish_date = #{authentication_finish_date,jdbcType=TIMESTAMP}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--根据条件查询业主认证信息-->
+    <select id="adminSearchOwnerCertificationByConditions" resultType="java.util.Map">
+        SELECT
+            id,buy_house_mobile,buy_house_name,
+            (CASE WHEN state = 0 THEN '待审核' WHEN state = 1 THEN '认证通过' WHEN state = 2 THEN '审核未通过'  END) as state,
+            date_format(submit_date, '%Y-%m-%d %H:%i:%S') as submit_date_str,
+            (SELECT province_and_city.name FROM province_and_city WHERE user_owner_authentication.province_id=province_and_city.id) as province_name,
+            (SELECT province_and_city.name FROM province_and_city WHERE user_owner_authentication.city_id=province_and_city.id) as city_name,
+            (SELECT residentials.residential_name FROM residentials WHERE user_owner_authentication.residential_id=residentials.id) as residential_name,
+            (SELECT residential_building.building_number FROM residential_building WHERE user_owner_authentication.residential_building_id=residential_building.id) as residential_building,
+            (SELECT residential_unit.unit_number FROM residential_unit WHERE user_owner_authentication.residential_unit_id=residential_unit.id) as residential_unit,
+            (SELECT residential_houses_number.house_number FROM residential_houses_number WHERE user_owner_authentication.house_number_id=residential_houses_number.id) as house_number
+        FROM user_owner_authentication
+        WHERE 1=1
+        <if test="_parameter.buy_house_mobile != null and ''!= _parameter.buy_house_mobile">
+            AND buy_house_mobile LIKE #{buy_house_mobile}
+        </if>
+
+        <if test="_parameter.buy_house_name != null and ''!= _parameter.buy_house_name">
+            AND buy_house_name LIKE #{buy_house_name}
+        </if>
+
+        <if test="_parameter.city != null and ''!= _parameter.city">
+            AND province_and_city.name LIKE #{city}
+        </if>
+
+        <if test="_parameter.residential_name != null and ''!= _parameter.residential_name">
+            AND residential_name LIKE #{residential_name}
+        </if>
+
+        <if test="_parameter.house_number != null and ''!= _parameter.house_number">
+            AND house_number LIKE #{house_number}
+        </if>
+
+        <if test="_parameter.state != null ">
+            AND state = #{state}
+        </if>
+
+        <if test="_parameter.submit_date_str != null and ''!= _parameter.submit_date_str">
+            AND unix_timestamp(submit_date) = unix_timestamp(#{submit_date_str})
+        </if>
+        order by submit_date DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+</mapper>

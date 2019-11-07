@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.CodesMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.Codes" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="send_number" property="number" jdbcType="VARCHAR" />
+        <result column="send_type" property="send_type" jdbcType="INTEGER" />
+        <result column="code" property="code" jdbcType="VARCHAR" />
+        <result column="send_time" property="send_time" jdbcType="TIMESTAMP" />
+        <result column="make_type" property="make_type" jdbcType="INTEGER" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,send_number,send_type,code,send_time,make_type,state
+    </sql>
+    <!--新增手机短信验证码-->
+    <insert id="addMobileCode" parameterType="com.springmvc.entity.Codes">
+        INSERT  INTO codes(send_number,send_type,code,send_time,make_type)
+        VALUES (#{send_number,jdbcType=VARCHAR},1,#{code,jdbcType=VARCHAR},#{send_time,jdbcType=VARCHAR},#{make_type,jdbcType=INTEGER})
+    </insert>
+
+    <!--新增邮箱短信验证码-->
+    <insert id="addEmailCode" parameterType="com.springmvc.entity.Codes">
+        INSERT  INTO codes(send_number,send_type,code,send_time)
+        VALUES (#{send_number,jdbcType=VARCHAR},0,#{code,jdbcType=VARCHAR},#{send_time,jdbcType=VARCHAR})
+    </insert>
+
+    <!--通过手机号、验证码、类型查询手机验证码-->
+    <select id="selectMobileCode" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM codes where send_number = #{param1,jdbcType=VARCHAR} and send_type = 1 and code = #{param2,jdbcType=VARCHAR} and make_type = #{param3,jdbcType=INTEGER}
+    </select>
+
+    <!--通过邮箱号、验证码查询邮箱验证码-->
+    <select id="selectEmailCode" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM codes where send_number = #{param1,jdbcType=VARCHAR} and send_type = 0 and code = #{param2,jdbcType=VARCHAR}
+    </select>
+
+    <!--标记验证码为已使用-->
+    <insert id="updateCodesState">
+        UPDATE codes
+        SET state = 1
+        WHERE id = #{param1,jdbcType=INTEGER}
+    </insert>
+</mapper>

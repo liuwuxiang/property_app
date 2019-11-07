@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessTypeOpenCardMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkBusinessTypeOpenCard" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="business_type_id" property="business_type_id" jdbcType="INTEGER" />
+        <result column="open_card_time"  property="open_card_time" jdbcType="TIMESTAMP" />
+        <result column="card_end_time" property="card_end_time" jdbcType="TIMESTAMP" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="qrcode" property="qrcode" jdbcType="VARCHAR" />
+        <result column="type" property="business_id" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,user_id,business_type_id,open_card_time,card_end_time,business_id
+    </sql>
+
+    <!--插入开卡记录-->
+    <insert id="insertOpenCardRecord" parameterType="com.springmvc.entity.WnkBusinessTypeOpenCard" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_business_type_open_card
+        (user_id,business_type_id,open_card_time,card_end_time,business_id,qrcode,type)
+        VALUES
+        (#{user_id,jdbcType=INTEGER},
+         #{business_type_id,jdbcType=INTEGER},
+         #{open_card_time,jdbcType=TIMESTAMP},
+         #{card_end_time,jdbcType=TIMESTAMP},
+         #{business_id,jdbcType=INTEGER},
+         #{qrcode,jdbcType=VARCHAR},
+         #{type,jdbcType=INTEGER}
+        )
+    </insert>
+
+    <!--查询某用户在某商家处的开卡状态-->
+    <select id="selectOpenCardStateByUserIdAndBusinessId" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_business_type_open_card
+        where user_id = #{param1,jdbcType=INTEGER} and business_id = #{param2,jdbcType=INTEGER}
+    </select>
+
+    <!--更新用户卡片有效期-->
+    <insert id="updateCardEndTime">
+        UPDATE wnk_business_type_open_card
+        SET card_end_time = #{card_end_time,jdbcType=TIMESTAMP},qrcode = #{qrcode}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--获取用户的所有健身卡信息-->
+    <select id="selectOpenCardFitnessByUserId" parameterType="java.util.Map" resultType="map">
+        SELECT
+            wbtoc.id,
+            wbtoc.qrcode,
+            wsi.store_name,
+            wsi.business_id,
+            TO_DAYS(card_end_time) - TO_DAYS(NOW()) AS left_time,
+            ROUND(6378.138 * 2 * ASIN(SQRT(POW(SIN((#{lat} * PI() / 180 - wsi.lat * PI() / 180) / 2),2) +
+            COS(#{lat} * PI() / 180) * COS(wsi.lat * PI() / 180) * POW(SIN((#{longt} * PI() / 180 - wsi.longt * PI() / 180) / 2),2)))) AS removing
+        FROM
+            wnk_business_type_open_card AS wbtoc ,wnk_store_information AS wsi
+        WHERE user_id = #{user_id} AND type = 1 AND wbtoc.business_id=wsi.business_id;
+    </select>
+
+    <!--通过ID获取健身卡信息-->
+    <select id="selectFitnessCardInfoById" parameterType="int" resultType="map">
+        SELECT
+            wbtoc.id,
+            wbtoc.qrcode,
+            wsi.store_name,
+            wsi.business_id,
+            TO_DAYS(card_end_time) - TO_DAYS(NOW()) AS left_time
+        FROM
+            wnk_business_type_open_card AS wbtoc ,wnk_store_information AS wsi
+        WHERE user_id = #{user_id} AND wbtoc.id = #{card_id} AND type = 1 AND wbtoc.business_id=wsi.business_id;
+    </select>
+
+    <!--商家会员管理查询-->
+    <select id="selectBusinessVip" parameterType="int" resultType="map">
+        SELECT
+            wbtoc.card_end_time,
+            u.mobile,
+            u.nick_name,
+            u.sex,
+            u.header,
+            TO_DAYS(card_end_time) - TO_DAYS(NOW()) AS left_time,
+            (SELECT COUNT(wnk_business_fitness_record.id) FROM wnk_business_fitness_record WHERE use_type=1 AND wnk_business_fitness_record.user_id=wbtoc.user_id) AS cishu
+        FROM wnk_business_type_open_card AS wbtoc,
+            users                       AS u
+        WHERE wbtoc.user_id=u.id AND wbtoc.type=1 AND wbtoc.business_id=#{business_id}
+        <if test='gender == "0"'>
+            AND u.sex=#{gender}
+        </if>
+        <if test='gender == "1"'>
+            AND u.sex=#{gender}
+        </if>
+        ORDER BY
+
+        <if test='sort_type == "4"'>
+            wbtoc.card_end_time DESC
+        </if>
+
+        <if test='sort_type == "0"'>
+            wbtoc.card_end_time DESC
+        </if>
+
+        <if test='sort_type == "1"'>
+            wbtoc.card_end_time ASC
+        </if>
+
+        <if test='sort_type == "2"'>
+            (SELECT COUNT(wnk_business_fitness_record.id) FROM wnk_business_fitness_record WHERE use_type=1 AND wnk_business_fitness_record.user_id=wbtoc.user_id) DESC
+        </if>
+
+        <if test='sort_type == "3"'>
+            (SELECT COUNT(wnk_business_fitness_record.id) FROM wnk_business_fitness_record WHERE use_type=1 AND wnk_business_fitness_record.user_id=wbtoc.user_id) ASC
+        </if>
+    </select>
+
+    <!--商家会员管理查询 - 通过手机号码或者用户名-->
+    <select id="selectBusinessVipSearch" parameterType="string" resultType="map">
+        SELECT
+            wbtoc.card_end_time,
+            u.mobile,
+            u.nick_name,
+            u.sex,
+            u.header,
+            TO_DAYS(card_end_time) - TO_DAYS(NOW()) AS left_time,
+            (SELECT COUNT(wnk_business_fitness_record.id) FROM wnk_business_fitness_record WHERE use_type=1 AND wnk_business_fitness_record.user_id=wbtoc.user_id) AS cishu
+        FROM wnk_business_type_open_card AS wbtoc,
+            users                       AS u
+        WHERE wbtoc.user_id=u.id AND wbtoc.type=1 AND wbtoc.business_id=#{business_id} AND u.mobile LIKE #{content} OR u.nick_name LIKE #{content}
+    </select>
+
+    <select id="selectOpenCardStateGymByUserIdAndBusinessId" parameterType="int" resultType="com.springmvc.entity.WnkBusinessTypeOpenCard">
+        SELECT * FROM wnk_business_type_open_card WHERE user_id=#{user_id} AND business_id=#{business_id} AND type=1
+    </select>
+
+    <select id="selectUserGymCardInfoByUserId" parameterType="int" resultType="map">
+        SELECT
+            u.nick_name,
+            u.sex,
+            u.header,
+            date_format(card_end_time, '%Y-%m-%d %H:%i') as card_end_time,
+            date_format((SELECT use_time FROM wnk_business_fitness_record as wbfr WHERE wbfr.user_id = #{user_id} AND wbfr.business_id = #{business_id} AND use_type=1 order by use_time desc limit 0,1), '%Y-%m-%d %H:%i') as join_time
+        FROM wnk_business_type_open_card AS wbtoc ,
+            users                        AS u
+        WHERE
+            wbtoc.user_id = #{user_id} AND wbtoc.business_id = #{business_id} limit 0,1
+    </select>
+
+
+</mapper>

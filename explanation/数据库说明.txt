@@ -1,0 +1,106 @@
+物业App数据库：
+数据库名：property_system
+数据库表：
+1、users-用户表
+2、member_levels-会员等级表
+3、user_owner_authentication-用户业主认证记录   
+4、user_card_authentication-用户车主认证记录	
+5、user_id_card_authentication-用户身份证认证记录 
+6、province_and_city-省份及城市
+7、residentials-小区集合
+8、residential_building-小区栋数
+9、residential_unit-小区单元数
+10、residential_houses_number-小区房间号
+11、security_question-供用户选择的密保问题  
+12、user_security_question-用户的密保问题  
+13、user_receiving_address-用户收货地址   
+14、general_integral_income-用户通用积分收入详细记录  
+15、silver_coin_detailed-用户银币收支明细 
+16、suggestion_feedback-建议反馈记录表
+17、about_us-关于我们信息记录表
+18、login_sessionIds-用于记录登录后的sessionId，用于做登录验证
+19、consumption_integral_income-消费积分收入明细
+20、consumption_integral_expenditure-消费积分支出明细
+21、general_integral_expenditure-通用积分支出明细
+22、silver_coin_exchange-银币兑换记录
+23、withdraw_support_bank-提现支持的银行列表
+24、users_withdraw_order-用户提现订单
+25、my_membership_card-我的会员卡
+26、my_coupon-我的优惠券
+27、codes-验证码
+28、system_messages-系统消息
+29、users_credit-用户信用评级记录表
+30、users_certificates-用户证书
+31、backstage_menus-后台菜单
+32、admin_types-管理员类别
+33、admins-后台管理员
+34、credit_rating_standard-信用评级标准
+35、property_account-物业中心账号
+36、system_notice_message-通知消息
+37、recharge_order-充值订单
+38、users_bank_card-用户银行卡信息表
+39、open_member_card_wx_pay_order-会员开卡微信支付订单
+40、user_open_cards-用户开卡记录
+41、wnk_buy_meal-万能卡购买套餐
+42、wnk_business_account-万能卡商家账号
+43、wnk_commodity_types-万能卡商品分类
+44、wnk_commodities-万能卡商品
+45、wnk_orders-万能卡商城订单
+46、wnk_order_commodity-万能卡商城订单商品
+47、wnk_store_information-万能卡店铺信息
+48、wnk_business_balance_detail-万能卡商家余额明细
+49、wnk_business_type-万能卡商家分类
+50、wnk_qr_code_make_record-万能卡二维码使用记录(免费使用记录)
+51、wnk_business_withdraw_order-商家提现订单
+52、wnk_real_name_authentication-万能卡实名认证记录
+53、wnk_business_register-万能卡商家注册表
+54、wnk_commodity_specifications-万能卡商品规格
+55、integral_detail-积分商城积分明细表
+56、t_integral_goods : 积分商城-商品表
+57、t_integral_order : 积分商城-订单表
+58、t_integral_type  : 积分商城-商品类型表
+59、wnk_integral_goods  : 商家积分商城-商品表
+60、wnk_integral_order  : 商家积分商城-订单表
+61、wnk_integral_type   : 商家积分商城-商品类型表
+62、wnk_integral_user   : 商家积分商城-用户积分表
+63、wnk_business_tag   : 万能卡商家标签
+64、wnk_business_tag_choose_record   : 用于记录万能卡商家选择的标签
+65、t_problem : 常见问题
+66、user_collection-用于记录用户收藏记录
+67、wnk_business_level-万能卡商家等级表
+68、wnk_business_consumption_integral_detail-万能卡商家消费积分详细
+69、wnk_business_level_integral_detail-万能卡商家等级积分明细
+70、wnk_business_rose_detail-万能卡商家玫瑰(银币)明细
+71、wnk_business_bank_card-万能卡商家银行卡信息
+72、wnk_business_upgrade_order-万能卡商家等级升级订单
+73、wnk_business_recharge_order-万能卡商家充值订单
+74、wnk_business_recommend_user_record-商家推荐用户记录器(用于记录万能卡商家推荐用户记录(记录商家推荐了多少个，每条记录满3状态变更为已兑换，依次循环))
+75、user_scan_code_wx_pay-用户扫码微信支付
+76、extension_materiel-推广物料(用于供商家选择)
+77、my_materiel-商家购买的推广物料
+78、extension_materiel_buy_meal-推广物料套餐
+79、extension_materiel_meal_buy_wx_order-商户购买推广物料微信支付订单
+80、user_coupons-用户优惠券
+81、users_rose_detail-用户玫瑰(银币)明细
+82、wnk_business_label 用户特色内容/服务内容标签
+83、wnk_send_integral_user-商家赠送给用户的积分余额(用于记录用户在某个商家处“赠送积分”的余额)
+84、wnk_send_integral_detail_user-用户赠送积分余额明细
+85、doings_spread 推广活动表
+86、user_recommend_user_record-用户推荐用户记录器(用于记录万能卡商家推荐用户记录(记录商家推荐了多少个，每条记录满3状态变更为已兑换，依次循环))
+86、wnk_business_type_open_card-万能卡商家分类用户开卡记录(用于记录用户在需要用户单独开卡的万能卡分类商家处的开卡记录)
+87、user_open_business_member_card_wx_orders-用户向商家开卡微信支付订单
+88、doing_spread_user_read_record-推广消息用户已读记录
+89、wnk_business_system_message-万能卡商家系统消息表
+90、integral_help-积分帮助说明表(包含用户端平台积分、用户端商家积分、用户端赠送积分、商家端等级积分、商家端推广积分说明数据)
+91、wnk_maintain-系统维护员
+92、materiel_buy_record-物料购买记录；用于记录商家的物料购买次数
+93、wnk_app_update_version-万能卡app版本更新记录
+94、wnk_orders_two-2.0版本商品订单记录表
+95、wnk_order_commodity_two-2.0版本商品订单订单商品记录表
+96、wnk_order_refund_record-2.0版本商品订单退款记录
+97、wnk_order_make_record-2.0版本商品使用记录表
+98、wnk_order_refund_reason-2.0版本万能卡订单退款原因选项表
+99、user_recommend_change-用户推荐人变更记录表
+100、wnk_business_search_record-商家搜索记录，用于提取热门搜索商家
+101、user_search_history-用户搜索历史记录
+102、withdraw_setting 提现条件设置表

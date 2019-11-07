@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkOrdersTwoMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkOrdersTwo" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="order_no" property="order_no" jdbcType="VARCHAR" />
+        <result column="submit_time" property="submit_time" jdbcType="TIMESTAMP" />
+        <result column="pay_time" property="pay_time" jdbcType="TIMESTAMP" />
+        <result column="amount" property="amount" jdbcType="DOUBLE" />
+        <result column="pay_way" property="pay_way" jdbcType="INTEGER" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+        <result column="order_qrcode" property="order_qrcode" jdbcType="VARCHAR" />
+        <result column="general_integral" property="general_integral" jdbcType="DOUBLE" />
+        <result column="send_integral" property="send_integral" jdbcType="DOUBLE" />
+        <result column="coupon" property="coupon" jdbcType="INTEGER" />
+        <result column="cash_amount" property="cash_amount" jdbcType="DOUBLE" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,business_id,user_id,order_no,submit_time,pay_time,amount,pay_way,state,order_qrcode,general_integral,send_integral,coupon,cash_amount
+    </sql>
+
+    <!--插入新订单-->
+    <insert id="insertNewOrder" parameterType="com.springmvc.entity.WnkOrdersTwo" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_orders_two(business_id,user_id,order_no,submit_time,amount,pay_way,state,general_integral,send_integral,coupon,cash_amount,order_type)
+        VALUES (#{business_id,jdbcType=INTEGER},#{user_id,jdbcType=INTEGER},#{order_no,jdbcType=VARCHAR},#{submit_time,jdbcType=TIMESTAMP}
+        ,#{amount,jdbcType=DOUBLE},#{pay_way,jdbcType=INTEGER},#{state,jdbcType=INTEGER},#{general_integral,jdbcType=DOUBLE},#{send_integral,jdbcType=DOUBLE}
+        ,#{coupon,jdbcType=INTEGER},#{cash_amount,jdbcType=DOUBLE}
+        <if test="order_type != null" >
+            ,#{order_type}
+        </if>
+        <if test="order_type == null" >
+            ,0
+        </if>
+        )
+    </insert>
+
+    <!--更新订单支付时间-->
+    <insert id="updateOrderPayDateByOrderNo">
+        UPDATE wnk_orders_two
+        SET pay_time = #{param1,jdbcType=TIMESTAMP}
+        WHERE order_no = #{param2,jdbcType=VARCHAR}
+    </insert>
+
+    <!--更新订单支付状态-->
+    <insert id="updateOrderStateByOrderNo">
+        UPDATE wnk_orders_two
+        SET state = #{param1,jdbcType=INTEGER}
+        WHERE order_no = #{param2,jdbcType=VARCHAR}
+    </insert>
+
+    <!--更新订单二维码-->
+    <insert id="updateOrderQrCodeByOrderNo">
+        UPDATE wnk_orders_two
+        SET order_qrcode = #{param1,jdbcType=VARCHAR}
+        WHERE order_no = #{param2,jdbcType=VARCHAR}
+    </insert>
+
+    <!--通过订单号查询订单-->
+    <select id="selectByOrderNo" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_orders_two
+        where order_no = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--通过订单ID查询订单-->
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_orders_two
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--通过Id查询订单-->
+    <select id="selectByIdReturnMap" resultType="java.util.HashMap">
+        SELECT
+        order_qrcode,
+        business_id,
+        date_format(submit_time, '%Y/%m/%d %H:%i:%S') as submit_time_str,
+        date_format(pay_time, '%Y/%m/%d %H:%i:%S') as pay_time_str,
+        (CASE WHEN pay_way = 0 THEN '聚合支付' WHEN pay_way = 1 THEN '微信支付' WHEN pay_way = 2 THEN '支付吧支付'  END) as pay_way_str,
+        order_no,
+        amount,
+        state,
+        general_integral,
+        send_integral,
+        coupon,
+        cash_amount,
+        (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_orders_two.business_id=wnk_store_information.business_id) as business_name
+        FROM wnk_orders_two
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--用户获取消费订单-->
+    <select id="userSelectUserOrder" resultType="java.util.HashMap">
+        SELECT
+            id,
+            order_no,
+            date_format(submit_time, '%Y/%m/%d %H:%i:%S') as submit_time_str,
+            date_format(submit_time, '%m') as day,
+            amount,
+            order_type,
+            (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_orders_two.business_id=wnk_store_information.business_id) as business_name
+        FROM
+            wnk_orders_two
+        where
+            user_id = #{param1,jdbcType=INTEGER} and state = #{param2,jdbcType=INTEGER}  order by submit_time DESC
+    </select>
+
+    <!--查询某个商家的订单通过商家id以及状态-->
+    <!--<select id="selectOrderByBusinessIdAndState" resultType="java.util.HashMap">-->
+        <!--SELECT-->
+        <!--id,order_no,date_format(submit_time, '%Y/%m/%d %H:%i:%S') as submit_time_str,date_format(submit_time, '%m') as day,amount-->
+        <!--FROM wnk_orders_two-->
+        <!--where business_id = #{param1,jdbcType=INTEGER} and state = #{param2,jdbcType=INTEGER}  order by submit_time DESC-->
+    <!--</select>-->
+    <select id="selectOrderByBusinessIdAndState" resultType="java.util.HashMap">
+        SELECT
+            wo.id,
+            wo.order_no,
+            date_format(submit_time, '%Y/%m/%d %H:%i:%S') as submit_time_str,
+            date_format(submit_time, '%m') as day,amount,
+            worr.refund_no,
+            wo.order_type
+        FROM wnk_orders_two as wo left join wnk_order_refund_record worr on (worr.order_no = wo.order_no)
+        where business_id = #{param1,jdbcType=INTEGER} and state = #{param2,jdbcType=INTEGER}  order by submit_time DESC
+    </select>
+
+    <!--按用户查询消费用户数量(查询消费用户总数列表)-->
+    <select id="selectUserNumberByBusinessId" resultType="java.util.HashMap">
+        SELECT count(*) as user_count FROM wnk_orders_two where business_id = #{param1,jdbcType=INTEGER} and state = #{param2,jdbcType=INTEGER} group by user_id
+    </select>
+
+    <!--查看用户在对应商家当日购买的商品数量-->
+    <select id="selectUserToDaysBusinessOrderNumber" parameterType="int" resultType="map">
+        SELECT
+            SUM(woc.buy_number) AS number
+        FROM
+            wnk_orders_two          AS wo,
+            wnk_order_commodity_two AS woc
+        WHERE
+            wo.user_id = #{user_id} AND wo.business_id = #{business_id} AND wo.id = woc.order_id AND
+            TO_DAYS(wo.submit_time) =  TO_DAYS(now())
+        LIMIT 0,1
+    </select>
+
+    <select id="selectHotelBusinessNotConfirm" resultType="com.springmvc.entity.WnkOrdersTwo">
+        SELECT
+            *
+        FROM
+            wnk_orders_two
+        WHERE
+            state = 3
+    </select>
+
+</mapper>

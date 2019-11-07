@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.CreditRatingStandardMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.CreditRatingStandard" >
+        <id     column="id"                 property="id"               jdbcType="INTEGER" />
+        <result column="clasp_object"       property="clasp_object"     jdbcType="INTEGER" />
+        <result column="clasp_type_name"    property="clasp_type_name"  jdbcType="VARCHAR" />
+        <result column="clasp_value"        property="clasp_value"      jdbcType="INTEGER" />
+        <result column="state"              property="state"            jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,clasp_type_name,clasp_value,
+        (CASE WHEN clasp_object = 0 THEN '会员' WHEN clasp_object = 1 THEN '物业' END) as clasp_object,
+        (CASE WHEN state = 0 THEN '停用' WHEN state = 1 THEN '启用' END) as state
+    </sql>
+
+    <!--获取所有扣信标准-->
+    <select id="selectAll" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM credit_rating_standard
+    </select>
+
+    <!--通过Id查询记录-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM credit_rating_standard
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--修改评级标准信息-->
+    <insert id="updateInformation" parameterType="com.springmvc.entity.CreditRatingStandard">
+        UPDATE credit_rating_standard
+        SET clasp_value = #{clasp_value,jdbcType=INTEGER},state = #{state,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--根据扣信标准查询所有信用评级信息-->
+    <select id="adminSearchCreditRatingByConditions" resultType="java.util.Map">
+        SELECT
+            id,clasp_type_name,clasp_value,
+            (CASE WHEN clasp_object = 0 THEN '会员' WHEN clasp_object = 1 THEN '物业' END) as clasp_object,
+            (CASE WHEN state = 0 THEN '停用' WHEN state = 1 THEN '启用' END) as state
+        FROM credit_rating_standard
+        WHERE 1=1
+
+        <if test="_parameter.clasp_type_name != null and ''!= _parameter.clasp_type_name">
+            AND clasp_type_name LIKE #{clasp_type_name}
+        </if>
+
+        <if test="_parameter.clasp_value != null and ''!= _parameter.clasp_value">
+            AND clasp_value = #{clasp_value}
+        </if>
+
+        <if test="_parameter.clasp_object != null and ''!= _parameter.clasp_object">
+            AND clasp_object = #{clasp_object}
+        </if>
+
+        <if test="state != null">
+            AND credit_rating_standard.state = #{state}
+        </if>
+        order by id DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+</mapper>

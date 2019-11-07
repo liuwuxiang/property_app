@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.UserScanCodeWxPayMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.UserScanCodeWxPay" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="order_no" property="order_no" jdbcType="VARCHAR" />
+        <result column="create_date" property="create_date" jdbcType="TIMESTAMP" />
+        <result column="pay_amount" property="pay_amount" jdbcType="DOUBLE" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,user_id,business_id,order_no,create_date,pay_amount,state
+    </sql>
+
+    <!--新增扫码支付订单信息-->
+    <insert id="insertBusinessUpgradeOrder" parameterType="com.springmvc.entity.UserScanCodeWxPay" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO user_scan_code_wx_pay(user_id,business_id,order_no,create_date,pay_amount,state)
+        VALUES (#{user_id,jdbcType=INTEGER},#{business_id,jdbcType=INTEGER},#{order_no,jdbcType=VARCHAR}
+        ,#{create_date,jdbcType=TIMESTAMP},#{pay_amount,jdbcType=DOUBLE},#{state,jdbcType=INTEGER})
+    </insert>
+
+    <!--通过订单号查询查询记录-->
+    <select id="selectRecordByOrderNo" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM user_scan_code_wx_pay
+        where order_no = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--通过订单号修改支付状态-->
+    <insert id="updateStateByOrderNo" parameterType="com.springmvc.entity.UserScanCodeWxPay">
+        UPDATE user_scan_code_wx_pay
+        SET state = #{state,jdbcType=INTEGER}
+        WHERE order_no = #{order_no,jdbcType=VARCHAR}
+    </insert>
+
+</mapper>

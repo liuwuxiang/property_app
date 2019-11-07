@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkCommoditiesMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkCommodities" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="commodity_describe" property="commodity_describe" jdbcType="CLOB" />
+        <result column="price" property="price" jdbcType="DOUBLE" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+        <result column="photo" property="photo" jdbcType="VARCHAR" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="type_id" property="type_id" jdbcType="INTEGER" />
+        <result column="join_time" property="join_time" jdbcType="TIMESTAMP" />
+        <result column="sales_volume" property="sales_volume" jdbcType="INTEGER" />
+        <result column="is_make_wnk" property="is_make_wnk" jdbcType="INTEGER" />
+        <result column="goods_tag" property="goods_tag" jdbcType="VARCHAR" />
+        <result column="delete_state" property="delete_state" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,name,commodity_describe,price,state,photo,business_id,type_id,join_time,(CASE WHEN state = 0 THEN '上架' WHEN state = 1 THEN '下架' WHEN state = 2 THEN '删除'  END) as state_str,sales_volume,is_make_wnk,goods_tag,delete_state
+    </sql>
+
+    <!--查询某个分类下的商品-->
+    <select id="selectAllCommodityByTypeId" resultType="java.util.HashMap">
+        SELECT
+        id,name,commodity_describe,state,photo,business_id,type_id,join_time,(CASE WHEN state = 0 THEN '上架' WHEN state = 1 THEN '下架' WHEN state = 2 THEN '删除'  END) as state_str,sales_volume,
+        (SELECT sum(buy_number) FROM wnk_order_commodity WHERE wnk_commodities.id=wnk_order_commodity.commodity_id) as sael_number,is_make_wnk,
+        (SELECT min(price) as price from wnk_commodity_specifications where wnk_commodity_specifications.commodity_id = wnk_commodities.id) as price,
+        goods_tag
+        FROM wnk_commodities
+        where type_id = #{param1,jdbcType=INTEGER} and (state = 0 or state = 1) and delete_state = 0 order by price
+    </select>
+
+    <!--通过商品名称进行模糊查询商家-->
+    <select id="selectBusinessByFuzzCommodityName" resultType="java.util.HashMap">
+        SELECT
+        business_id,price as min_price,
+        (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) as store_name,
+        (SELECT wnk_store_information.store_describe FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) as store_describe,
+        (SELECT wnk_store_information.banners_photoid FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) as banners_photoid,
+        (SELECT wnk_store_information.area FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) as area,
+        (SELECT wnk_store_information.tese_label FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) as tese_label,
+        (SELECT wnk_store_information.fuwu_label FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) as fuwu_label,
+        (SELECT count(*) FROM wnk_orders WHERE wnk_commodities.business_id=wnk_orders.business_id) as sale,
+        (SELECT wnk_store_information.business_hours FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) as business_hours,
+        (SELECT wnk_store_information.cover_photo FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) as cover_photo,
+        (SELECT wnk_store_information.positive_price FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) as positive_price,
+        (SELECT wnk_store_information.operate_status FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) as operate_status,
+        (SELECT wnk_store_information.state FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) as business_state,
+        (SELECT wnk_store_information.business_type_id FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) as business_type_id,
+        ROUND(
+        6378.138 * 2 * ASIN(
+        SQRT(
+        POW(
+        SIN(
+        (
+        #{param1,jdbcType=DOUBLE} * PI() / 180 - (SELECT wnk_store_information.lat FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) * PI() / 180
+        ) / 2
+        ),
+        2
+        ) + COS(#{param1,jdbcType=DOUBLE} * PI() / 180) * COS((SELECT wnk_store_information.lat FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) * PI() / 180) * POW(
+        SIN(
+        (
+        #{param2,jdbcType=DOUBLE} * PI() / 180 - (SELECT wnk_store_information.longt FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) * PI() / 180
+        ) / 2
+        ),
+        2
+        )
+        )
+        )
+        ) AS juli
+        FROM wnk_commodities
+        where name LIKE CONCAT(CONCAT('%',#{fuzz_commodity_name}),'%') and state = 0
+        and (SELECT wnk_store_information.is_lower FROM wnk_store_information WHERE wnk_commodities.business_id=wnk_store_information.business_id) = 0
+        and delete_state = 0
+        group by business_id
+    </select>
+
+    <!--用户端查询某个分类下的商品-->
+    <select id="userSelectAllCommodityByTypeId" resultType="java.util.HashMap">
+        SELECT
+            id,
+            name,
+            commodity_describe,
+            state,photo,business_id,
+            type_id,join_time,
+            (CASE WHEN state = 0 THEN '上架' WHEN state = 1 THEN '下架' WHEN state = 2 THEN '删除'  END) as state_str,sales_volume,
+            (SELECT sum(buy_number) FROM wnk_order_commodity WHERE wnk_commodities.id=wnk_order_commodity.commodity_id) as sael_number,
+            is_make_wnk,
+            (SELECT min(price) as price from wnk_commodity_specifications where wnk_commodity_specifications.commodity_id = wnk_commodities.id) as price,
+            goods_tag
+        FROM wnk_commodities
+        where type_id = #{param1,jdbcType=INTEGER} and state = 0 and delete_state = 0 order by price
+    </select>
+
+
+    <!--通过Id查询商品-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_commodities
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--添加商品-->
+    <insert id="addCommodity" parameterType="com.springmvc.entity.WnkCommodities" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_commodities
+        (name,commodity_describe,price,state,photo,business_id,type_id,join_time,is_make_wnk,goods_tag)
+        VALUES
+        (#{name,jdbcType=VARCHAR},#{commodity_describe,jdbcType=CLOB},
+         #{price,jdbcType=DOUBLE},#{state,jdbcType=INTEGER},
+         #{photo,jdbcType=VARCHAR},#{business_id,jdbcType=INTEGER},
+         #{type_id,jdbcType=INTEGER},#{join_time,jdbcType=TIMESTAMP},
+         #{is_make_wnk,jdbcType=INTEGER},#{goods_tag}
+        )
+    </insert>
+
+    <!--更新商品标签-->
+    <insert id="updateCommodityTag" parameterType="com.springmvc.entity.WnkCommodities">
+        UPDATE wnk_commodities
+        SET
+        goods_tag = #{goods_tag,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--根据分类ID修改商品删除状态-->
+    <insert id="updateDeleteStateByTypeId">
+        UPDATE wnk_commodities
+        SET
+        delete_state = #{param1,jdbcType=INTEGER}
+        WHERE type_id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <!--根据商品ID修改商品删除状态-->
+    <insert id="updateDeleteStateByCommodityId">
+        UPDATE wnk_commodities
+        SET
+        delete_state = #{param1,jdbcType=INTEGER}
+        WHERE id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <!--修改商品信息-->
+    <insert id="updateCommodity" parameterType="com.springmvc.entity.WnkCommodities">
+        UPDATE wnk_commodities
+        SET
+            name        = #{name,jdbcType=VARCHAR},
+            commodity_describe = #{commodity_describe,jdbcType=CLOB},
+            price       = #{price,jdbcType=DOUBLE},
+            photo       = #{photo,jdbcType=VARCHAR},
+            type_id     = #{type_id,jdbcType=INTEGER},
+            state       = #{state,jdbcType=INTEGER},
+            is_make_wnk = #{is_make_wnk,jdbcType=INTEGER},
+            goods_tag   = #{goods_tag,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--将某个分类下的所有商品状态设置为删除-->
+    <insert id="deleteCommodity">
+        UPDATE wnk_commodities
+        SET state = 2
+        WHERE type_id = #{param1,jdbcType=INTEGER}
+    </insert>
+
+    <!--根据商家ID查询商家商品总量-->
+    <select id="selectCommodityTotalById" parameterType="int" resultType="java.lang.Integer">
+        SELECT
+            COUNT(name) AS CommodityTotal
+        FROM wnk_commodities
+        WHERE business_id = #{business_id} AND delete_state = 0
+    </select>
+
+    <!--查询商家所有商品信息-->
+    <select id="selectCommoditiesInfoAllById" parameterType="int" resultType="map">
+        SELECT
+            *
+        FROM
+         wnk_commodities
+        WHERE business_id=#{business_id}
+        ORDER BY id
+    </select>
+
+    <select id="selectCommoditiesInfoAllExcludeDelAndUnderById" parameterType="int" resultType="map" >
+        SELECT
+            *
+        FROM
+            wnk_commodities
+        WHERE
+            business_id=#{business_id} AND delete_state = 0 AND state = 0
+        ORDER BY id
+    </select>
+
+
+    <!--查询商家商品中最高的消费赠送比例-->
+    <select id="selectCommoditiesSpecificationsServiceMaxGiftNounByBusinessId" parameterType="int" resultType="map">
+        SELECT
+            MAX(gift_noun) AS max_gift_noun
+        FROM
+            wnk_commodities AS wc,
+            wnk_commodity_specifications AS wcs
+        WHERE
+            wc.id = wcs.commodity_id AND wc.business_id = #{business_id}
+    </select>
+
+</mapper>

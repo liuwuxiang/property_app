@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.UsersCreditMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.UsersCredit" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="credit_name" property="credit_name" jdbcType="VARCHAR" />
+        <result column="credit_date" property="credit_date" jdbcType="TIMESTAMP" />
+        <result column="credit_value" property="credit_value" jdbcType="INTEGER" />
+        <result column="make_type" property="make_type" jdbcType="INTEGER" />
+        <result column="type" property="type" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,user_id,credit_name,credit_value,type,
+        date_format(credit_date, '%Y-%m-%d %H:%i:%S') as credit_date
+    </sql>
+
+    <!--查询某个用户的评级记录-->
+    <select id="selectUserCreditRecord" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM users_credit where user_id = #{param1,jdbcType=INTEGER} ORDER BY credit_date DESC
+    </select>
+
+</mapper>

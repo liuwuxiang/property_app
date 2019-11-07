@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.ResidentialBuildingMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.ResidentialBuilding" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="residential_id" property="residential_id" jdbcType="INTEGER" />
+        <result column="building_number" property="building_number" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,building_number
+    </sql>
+
+    <!--APP获取某个小区下的所有栋号-->
+    <select id="selectAllBuildingByResidentialId" resultType="java.util.HashMap">
+        SELECT
+        id as build_id,building_number
+        FROM residential_building where residential_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+</mapper>

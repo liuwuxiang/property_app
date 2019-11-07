@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessWithdrawOrderMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkBusinessWithdrawOrder" >
+        <id     column="id"                      property="id" jdbcType="INTEGER" />
+        <result column="rmb_count_amount"        property="rmb_count_amount"        jdbcType="DOUBLE" />
+        <result column="real_payment_rmb_amount" property="real_payment_rmb_amount" jdbcType="DOUBLE" />
+        <result column="back_name"               property="back_name"               jdbcType="VARCHAR" />
+        <result column="back_code"               property="back_code"               jdbcType="VARCHAR" />
+        <result column="bank_card_number"        property="bank_card_number"        jdbcType="VARCHAR" />
+        <result column="bank_card_name"          property="bank_card_name"          jdbcType="VARCHAR" />
+        <result column="formality_rate"          property="formality_rate"          jdbcType="INTEGER" />
+        <result column="service_charge_amount"   property="service_charge_amount"   jdbcType="DOUBLE" />
+        <result column="apply_date"              property="apply_date"              jdbcType="TIMESTAMP" />
+        <result column="loan_date"               property="loan_date"               jdbcType="TIMESTAMP" />
+        <result column="business_id"             property="business_id"             jdbcType="INTEGER" />
+        <result column="state"                   property="state"                   jdbcType="INTEGER" />
+        <result column="remark"                  property="remark"                  jdbcType="CLOB" />
+        <result column="order_no"                property="order_no"                jdbcType="VARCHAR" />
+        <result column="out_trade_no"            property="out_trade_no"            jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,rmb_count_amount,real_payment_rmb_amount,back_name,back_code,bank_card_number,bank_card_name,formality_rate
+        ,service_charge_amount,apply_date,loan_date,business_id,state,remark,order_no,out_trade_no
+    </sql>
+
+    <!--新增提现记录-->
+    <insert id="insertWithdrawRecord" parameterType="com.springmvc.entity.WnkBusinessWithdrawOrder" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_business_withdraw_order(rmb_count_amount,real_payment_rmb_amount,back_name,back_code,bank_card_number,
+        bank_card_name,formality_rate,service_charge_amount,apply_date,business_id,state,order_no)
+        VALUES (#{rmb_count_amount,jdbcType=DOUBLE},#{real_payment_rmb_amount,jdbcType=DOUBLE}
+        ,#{back_name,jdbcType=VARCHAR},#{back_code,jdbcType=VARCHAR},#{bank_card_number,jdbcType=VARCHAR},#{bank_card_name,jdbcType=VARCHAR}
+        ,#{formality_rate,jdbcType=INTEGER},#{service_charge_amount,jdbcType=DOUBLE},#{apply_date,jdbcType=TIMESTAMP},#{business_id,jdbcType=INTEGER}
+        ,#{state,jdbcType=INTEGER},#{order_no,jdbcType=VARCHAR})
+    </insert>
+
+
+    <!--后台查询所有提现订单-->
+    <select id="selectAllAdmin" resultType="java.util.HashMap">
+        SELECT
+        id,bank_card_name,back_name,bank_card_number,rmb_count_amount,service_charge_amount,real_payment_rmb_amount,
+        (CASE WHEN state = 0 THEN '待审核' WHEN state = 1 THEN '打款中' WHEN state = 2 THEN '审核失败' WHEN state = 3 THEN '打款失败' WHEN state = 4 THEN '已打款' END) as state,
+        date_format(apply_date, '%Y-%m-%d %H:%i:%S') as apply_date,
+        date_format(loan_date, '%Y-%m-%d %H:%i:%S') as loan_date
+        FROM wnk_business_withdraw_order order by apply_date DESC
+    </select>
+
+    <!--通过Id查询订单-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_business_withdraw_order
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--更新提现状态为拒绝提现-->
+    <insert id="updateStateNoCan">
+        UPDATE wnk_business_withdraw_order
+        SET state = 2,loan_date = #{param1,jdbcType=TIMESTAMP}
+        WHERE id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <!--放款成功更新信息-->
+    <insert id="updateStateFKSuccess">
+        UPDATE wnk_business_withdraw_order
+        SET out_trade_no = #{out_trade_no,jdbcType=TIMESTAMP},state = #{state,jdbcType=INTEGER},loan_date = #{loan_date,jdbcType=TIMESTAMP}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--将记录设置为已提现-->
+    <insert id="updatealReadyPresented">
+        UPDATE wnk_business_withdraw_order
+        SET state = 4,loan_date = #{param1,jdbcType=TIMESTAMP}
+        WHERE id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <!--根据id删除记录-->
+    <delete id="deleteRecordById">
+        DELETE FROM wnk_business_withdraw_order WHERE id = #{param1,jdbcType=INTEGER}
+    </delete>
+
+
+    <!--查询某个商家的提现记录-->
+    <select id="selectRecordByBusinessId" resultType="java.util.HashMap">
+        SELECT
+        date_format(apply_date, '%Y/%m/%d %H:%i:%S') as apply_date_str,rmb_count_amount,
+        (CASE WHEN state = 0 THEN '待审核' WHEN state = 1 THEN '打款中' WHEN state = 2 THEN '审核失败' WHEN state = 3 THEN '打款中' WHEN state = 4 THEN '已打款'  END) as state_str
+        FROM wnk_business_withdraw_order
+        where business_id = #{param1,jdbcType=INTEGER} order by apply_date DESC
+    </select>
+
+    <!--根据商家ID和订单记录ID查询提现订单信息-->
+    <select id="selectWithdrawInfoById" resultType="java.util.HashMap" parameterType="int">
+        SELECT
+            order_no,out_trade_no,back_name,bank_card_number,bank_card_name,
+            rmb_count_amount,service_charge_amount,real_payment_rmb_amount,
+            (CASE WHEN state = 0 THEN '待审核' WHEN state = 1 THEN '打款中' WHEN state = 2 THEN '审核失败' WHEN state = 3 THEN '打款中' WHEN state = 4 THEN '已打款'  END) as state_str,
+            DATE_FORMAT(apply_date, '%Y/%m/%d %H:%i:%S') as apply_date_str,
+            DATE_FORMAT(loan_date, '%Y/%m/%d %H:%i:%S')  as loan_date_str,
+            remark
+        FROM wnk_business_withdraw_order
+        WHERE business_id = #{business_id} AND id = #{withdraw_id}
+    </select>
+
+    <!--根据条件查询商家订单信息-->
+    <select id="adminSearchBusinessWithdrawOrdersInfoByConditions" parameterType="map" resultType="java.util.HashMap">
+        SELECT
+            id,bank_card_name,back_name,bank_card_number,rmb_count_amount,service_charge_amount,real_payment_rmb_amount,
+            (CASE WHEN state = 0 THEN '待审核' WHEN state = 1 THEN '打款中' WHEN state = 2 THEN '审核失败' WHEN state = 3 THEN '打款失败' WHEN state = 4 THEN '已打款' END) as state,
+            date_format(apply_date, '%Y-%m-%d %H:%i:%S') as apply_date,
+            date_format(loan_date, '%Y-%m-%d %H:%i:%S') as loan_date
+        FROM wnk_business_withdraw_order
+        WHERE  1=1
+        <if test="_parameter.bank_card_name != null and ''!= _parameter.bank_card_name">
+            AND bank_card_name LIKE #{bank_card_name}
+        </if>
+        <if test="_parameter.back_name != null and ''!= _parameter.back_name">
+            AND back_name LIKE #{back_name}
+        </if>
+        <if test="_parameter.bank_card_number != null and ''!= _parameter.bank_card_number">
+            AND bank_card_number LIKE #{bank_card_number}
+        </if>
+        <if test="_parameter.rmb_count_amount != null and ''!= _parameter.rmb_count_amount">
+            AND rmb_count_amount LIKE #{rmb_count_amount}
+        </if>
+        <if test="_parameter.service_charge_amount != null and ''!= _parameter.service_charge_amount">
+            AND service_charge_amount LIKE #{service_charge_amount}
+        </if>
+        <if test="_parameter.real_payment_rmb_amount != null and ''!= _parameter.real_payment_rmb_amount">
+            AND real_payment_rmb_amount LIKE #{real_payment_rmb_amount}
+        </if>
+        <if test="_parameter.order_state != null">
+            AND state = #{order_state}
+        </if>
+        <if test="_parameter.start_time != null and ''!= _parameter.start_time">
+            AND unix_timestamp(apply_date) = unix_timestamp(#{start_time})
+        </if>
+        <if test="_parameter.shop_time != null and ''!= _parameter.shop_time">
+            AND unix_timestamp(loan_date) = unix_timestamp(#{shop_time})
+        </if>
+        order by apply_date DESC LIMIT #{start_index} , #{limit}
+    </select>
+
+</mapper>

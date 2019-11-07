@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkQrCodeMakeRecordMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkQrCodeMakeRecord" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="business_type_id" property="business_type_id" jdbcType="INTEGER" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="make_time" property="make_time" jdbcType="TIMESTAMP" />
+        <result column="order_no" property="order_no" jdbcType="VARCHAR" />
+        <result column="make_number" property="make_number" jdbcType="INTEGER" />
+        <result column="commodity_id" property="commodity_id" jdbcType="INTEGER" />
+        <result column="order_qrcode" property="order_qrcode" jdbcType="VARCHAR" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+        <result column="line_order_date" property="line_order_date" jdbcType="TIMESTAMP" />
+        <result column="guige_id" property="guige_id" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,business_id,user_id,make_time,order_no,make_number,commodity_id,order_qrcode,state,line_order_date
+    </sql>
+
+    <!--新增使用记录-->
+    <insert id="insertMakeRecord" parameterType="com.springmvc.entity.WnkQrCodeMakeRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_qr_code_make_record(business_id,user_id,business_type_id,order_no,make_number,commodity_id,order_qrcode,state,line_order_date,guige_id)
+        VALUES (#{business_id,jdbcType=INTEGER},#{user_id,jdbcType=INTEGER},#{business_type_id,jdbcType=INTEGER},#{order_no,jdbcType=VARCHAR},#{make_number,jdbcType=INTEGER}
+        ,#{commodity_id,jdbcType=INTEGER},#{order_qrcode,jdbcType=VARCHAR},#{state,jdbcType=INTEGER},#{line_order_date,jdbcType=TIMESTAMP},#{guige_id,jdbcType=INTEGER})
+    </insert>
+
+    <!--查询当月使用次数-->
+    <select id="selectCurrentMakeNumberReturnList" resultType="java.util.HashMap">
+        select make_number from wnk_qr_code_make_record where date_format(line_order_date,'%Y')=date_format(now(),'%Y') and user_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--商家查询使用次数-->
+    <select id="selectCurrentMakeNumberReturnListByBusinessId" resultType="java.util.HashMap">
+        select make_number from wnk_qr_code_make_record where business_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--查询当月使用次数-->
+    <select id="selectCurrentMakeNumber" resultType="java.lang.Integer">
+        select sum(make_number) from wnk_qr_code_make_record where date_format(line_order_date,'%Y-%m')=date_format(now(),'%Y-%m') and user_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--查询某个商家的订单-->
+    <select id="selectByBusinessId" resultType="java.util.HashMap">
+        SELECT
+        id,business_id,date_format(make_time, '%Y/%m/%d %H:%i:%S') as make_time_str,user_id,order_no,date_format(line_order_date, '%Y/%m/%d %H:%i:%S') as line_order_date_str,
+        date_format(make_time, '%m') as day,make_number,
+        (SELECT wnk_commodities.name FROM wnk_commodities WHERE wnk_qr_code_make_record.commodity_id=wnk_commodities.id) as commodity_name,
+        (CASE WHEN state =0 THEN '待使用' WHEN state = 1 THEN '已使用' END) as state_str,guige_id
+        FROM wnk_qr_code_make_record
+        where business_id = #{param1,jdbcType=INTEGER}  order by make_time DESC
+    </select>
+
+    <!--按用户查询消费用户数量(查询消费用户总数列表)-->
+    <select id="selectUserNumberByBusinessId" resultType="java.util.HashMap">
+        SELECT count(*) as user_count FROM wnk_qr_code_make_record where business_id = #{param1,jdbcType=INTEGER} group by user_id
+    </select>
+
+    <!--通过Id查询订单-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_qr_code_make_record
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--通过订单号查询订单-->
+    <select id="selectByOrderNo" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_qr_code_make_record
+        where order_no = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--查询某个用户的订单-->
+    <select id="selectByUserId" resultType="java.util.HashMap">
+        SELECT
+        id,business_id,date_format(make_time, '%Y/%m/%d %H:%i:%S') as make_time_str,date_format(line_order_date, '%Y/%m/%d %H:%i:%S') as line_order_date_str,order_no,
+        date_format(line_order_date, '%m') as day,make_number,
+         (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_qr_code_make_record.business_id=wnk_store_information.business_id) as business_name,
+         (SELECT wnk_business_type.name FROM wnk_business_type WHERE wnk_qr_code_make_record.business_type_id=wnk_business_type.id) as business_type_name,
+         (SELECT wnk_commodities.name FROM wnk_commodities WHERE wnk_qr_code_make_record.commodity_id=wnk_commodities.id) as commodity_name,
+         (CASE WHEN state =0 THEN '待使用' WHEN state = 1 THEN '已使用' END) as state_str,
+         (SELECT wnk_commodity_specifications.specifications_name FROM wnk_commodity_specifications WHERE wnk_qr_code_make_record.guige_id=wnk_commodity_specifications.id) as specifications_name
+        FROM wnk_qr_code_make_record
+        where user_id = #{param1,jdbcType=INTEGER}  order by state
+    </select>
+
+    <!--通过订单号更新订单状态-->
+    <insert id="updateOrderStateByOrderNo">
+        UPDATE wnk_qr_code_make_record
+        SET state = #{param1,jdbcType=INTEGER}
+        WHERE order_no = #{param2,jdbcType=VARCHAR}
+    </insert>
+
+
+</mapper>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkOrderRefundReasonMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkOrderRefundReason" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="reason" property="reason" jdbcType="CLOB" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,reason,state
+    </sql>
+
+    <!--查询所有已启用的记录-->
+    <select id="selectQYRecord" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM wnk_order_refund_reason
+        where state = 1
+    </select>
+
+</mapper>

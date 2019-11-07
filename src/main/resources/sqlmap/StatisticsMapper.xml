@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.StatisticsMapper" >
+
+    <!--查询建议反馈统计信息-->
+    <select id="selectSuggestStatisticsInfo" resultType="map">
+        SELECT
+            (SELECT COUNT(id) FROM suggestion_feedback WHERE user_type = 0) AS total_number_user,
+            (SELECT COUNT(id) FROM suggestion_feedback WHERE state = 0 AND user_type = 0) AS wait_number_user,
+            (SELECT COUNT(id) FROM suggestion_feedback WHERE state = 1 AND user_type = 0) AS processing_number_user,
+            (SELECT COUNT(id) FROM suggestion_feedback WHERE state = 2 AND user_type = 0) AS complete_number_user,
+
+            (SELECT COUNT(id) FROM suggestion_feedback WHERE user_type = 1) AS total_number_business,
+            (SELECT COUNT(id) FROM suggestion_feedback WHERE state = 0 AND user_type = 1) AS wait_number_business,
+            (SELECT COUNT(id) FROM suggestion_feedback WHERE state = 1 AND user_type = 1) AS processing_number_business,
+            (SELECT COUNT(id) FROM suggestion_feedback WHERE state = 2 AND user_type = 1) AS complete_number_business
+        FROM suggestion_feedback LIMIT 0,1;
+    </select>
+
+    <!--用户统计信息-->
+    <select id="selectUserStatisticsInfo" resultType="map">
+        SELECT
+            (SELECT COUNT(id) FROM users) AS user_total_number,
+            (SELECT COUNT(id) FROM users WHERE TO_DAYS(register_time) = TO_DAYS(NOW())) AS today_user_number,
+            (SELECT COUNT(id) FROM users WHERE member_card_level = 0) AS silver_user_number,
+            (SELECT COUNT(id) FROM users WHERE member_card_level = 1) AS gold_user_number
+        FROM users LIMIT 0,1;
+    </select>
+
+    <!--用户统计信息-->
+    <select id="selectBusinessStatisticsInfo" resultType="map">
+        SELECT
+            (SELECT COUNT(id) FROM wnk_business_account) AS business_total_number,
+            (SELECT COUNT(id) FROM wnk_business_account WHERE TO_DAYS(join_time) = TO_DAYS(NOW())) AS business_today_number
+        FROM wnk_business_account LIMIT 0,1;
+    </select>
+
+    <!--根据商家等级获取当前等级商户数量-->
+    <select id="StatisticsLevelNumber" resultType="map">
+        SELECT
+            (SELECT COUNT(id) FROM wnk_business_account WHERE business_type_id = #{level_id}) AS Level_umber
+        FROM wnk_store_information LIMIT 0,1
+    </select>
+
+    <!-- 玫瑰兑换 - 商家 -->
+    <select id="selectBusinessRoseDetailStatisticsInfo" resultType="map">
+        SELECT
+          (SELECT SUM(integral_number) FROM wnk_business_rose_detail WHERE transactions_type = 1) AS business_rose_sum_number,
+          (SELECT SUM(integral_number) FROM wnk_business_rose_detail WHERE transactions_type = 1 AND TO_DAYS(transactions_date) = TO_DAYS(NOW())) AS business_rose_today_sum_number,
+          (SELECT COUNT(id) FROM wnk_business_rose_detail WHERE transactions_type = 1) AS business_rose_total_number,
+          (SELECT COUNT(id) FROM wnk_business_rose_detail WHERE transactions_type = 1  AND TO_DAYS(transactions_date) = TO_DAYS(NOW())) AS business_rose_today_total_number
+        FROM wnk_business_rose_detail LIMIT 0,1;
+    </select>
+
+    <!-- 玫瑰兑换 - 用户 -->
+    <select id="selectUserRoseDetailStatisticsInfo" resultType="map">
+        SELECT
+          (SELECT SUM(integral_number) FROM users_rose_detail WHERE transactions_type = 1) AS user_rose_sum_number,
+          (SELECT SUM(integral_number) FROM users_rose_detail WHERE transactions_type = 1 AND TO_DAYS(transactions_date) = TO_DAYS(NOW())) AS user_rose_today_sum_number,
+          (SELECT COUNT(id) FROM users_rose_detail WHERE transactions_type = 1) AS user_rose_total_number,
+          (SELECT COUNT(id) FROM users_rose_detail WHERE transactions_type = 1  AND TO_DAYS(transactions_date) = TO_DAYS(NOW())) AS user_rose_today_total_number
+        FROM users_rose_detail LIMIT 0,1;
+    </select>
+
+    <!-- 充值统计 - 商家 -->
+    <select id="selectBusinessBalanceStatisticsInfo" resultType="map">
+        SELECT
+            (SELECT SUM(CAST(amount AS DECIMAL(18,2))) FROM wnk_business_recharge_order WHERE state = 1) AS business_balance_sum_number,
+            (SELECT SUM(CAST(amount AS DECIMAL(18,2))) FROM wnk_business_recharge_order WHERE state = 1 AND TO_DAYS(create_time) = TO_DAYS(NOW())) AS business_balance_today_sum_number,
+            (SELECT COUNT(id) FROM wnk_business_recharge_order WHERE state = 1) AS business_balance_total_number,
+            (SELECT COUNT(id) FROM wnk_business_recharge_order WHERE state = 1 AND TO_DAYS(create_time) = TO_DAYS(NOW())) AS business_balance_today_total_number
+        FROM wnk_business_recharge_order LIMIT 0,1;
+    </select>
+
+    <!-- 充值统计 - 商家 -->
+    <select id="selectUserBalanceStatisticsInfo" resultType="map">
+        SELECT
+            (SELECT SUM(CAST(recharge_amount AS DECIMAL(18,2))) FROM recharge_order WHERE state = 2) AS user_balance_sum_number,
+            (SELECT SUM(CAST(recharge_amount AS DECIMAL(18,2))) FROM recharge_order WHERE state = 2 AND TO_DAYS(recharge_time) = TO_DAYS(NOW())) AS user_balance_today_sum_number,
+            (SELECT COUNT(id) FROM recharge_order WHERE state = 2) AS user_balance_total_number,
+            (SELECT COUNT(id) FROM recharge_order WHERE state = 2 AND TO_DAYS(recharge_time) = TO_DAYS(NOW())) AS user_balance_today_total_number
+        FROM recharge_order LIMIT 0,1;
+    </select>
+
+    <!-- 提现统计 - 用户 -->
+    <select id="selectUserWithdrawStatisticsInfo" resultType="map">
+        SELECT
+            (SELECT SUM(CAST(rmb_count_amount AS DECIMAL(18,2))) FROM users_withdraw_order) AS user_withdraw_sum_number,
+            (SELECT SUM(CAST(rmb_count_amount AS DECIMAL(18,2))) FROM users_withdraw_order WHERE TO_DAYS(apply_date) = TO_DAYS(NOW())) AS user_withdraw_today_sum_number,
+            (SELECT COUNT(id) FROM users_withdraw_order ) AS user_withdraw_order_sum_number,
+            (SELECT COUNT(id) FROM users_withdraw_order WHERE TO_DAYS(apply_date) = TO_DAYS(NOW())) AS user_withdraw_today_order_sum_number,
+            (SELECT SUM(CAST(rmb_count_amount AS DECIMAL(18,2))) FROM users_withdraw_order WHERE state != 0) AS user_withdraw_disposedOf_number,
+            (SELECT SUM(CAST(rmb_count_amount AS DECIMAL(18,2))) FROM users_withdraw_order WHERE state  = 0) AS user_withdraw_untreated_number,
+            (SELECT COUNT(id) FROM users_withdraw_order WHERE state != 0) AS user_withdraw_disposedOf_order_number,
+            (SELECT COUNT(id) FROM users_withdraw_order WHERE state  = 0) AS user_withdraw_untreated_order_number
+        FROM users_withdraw_order LIMIT 0,1
+    </select>
+
+    <!-- 提现统计 - 商家 -->
+    <select id="selectBusinessWithdrawStatisticsInfo" resultType="map">
+        SELECT
+            (SELECT SUM(CAST(rmb_count_amount AS DECIMAL(18,2))) FROM wnk_business_withdraw_order) AS business_withdraw_sum_number,
+            (SELECT SUM(CAST(rmb_count_amount AS DECIMAL(18,2))) FROM wnk_business_withdraw_order WHERE TO_DAYS(apply_date) = TO_DAYS(NOW())) AS business_withdraw_today_sum_number,
+            (SELECT COUNT(id) FROM wnk_business_withdraw_order ) AS business_withdraw_order_sum_number,
+            (SELECT COUNT(id) FROM wnk_business_withdraw_order WHERE TO_DAYS(apply_date) = TO_DAYS(NOW())) AS business_withdraw_today_order_sum_number,
+            (SELECT SUM(CAST(rmb_count_amount AS DECIMAL(18,2))) FROM wnk_business_withdraw_order WHERE state != 0) AS business_withdraw_disposedOf_number,
+            (SELECT SUM(CAST(rmb_count_amount AS DECIMAL(18,2))) FROM wnk_business_withdraw_order WHERE state  = 0) AS business_withdraw_untreated_number,
+            (SELECT COUNT(id) FROM wnk_business_withdraw_order WHERE state != 0) AS business_withdraw_disposedOf_order_number,
+            (SELECT COUNT(id) FROM wnk_business_withdraw_order WHERE state  = 0) AS business_withdraw_untreated_order_number
+        FROM wnk_business_withdraw_order LIMIT 0,1
+    </select>
+
+    <!--商品订单记录 - 商家-->
+    <select id="selectOrdersStatisticsInfo" resultType="map">
+        SELECT
+            (SELECT COUNT(id) FROM wnk_orders_two) AS wnk_order_totle_number,
+            (SELECT COUNT(id) FROM wnk_orders_two WHERE state = 2) AS wnk_order_complete_number,
+            (SELECT COUNT(id) FROM wnk_orders_two WHERE state = 1) AS wnk_order_Tobeused_number,
+            (SELECT COUNT(id) FROM wnk_orders_two WHERE state = 0) AS wnk_order_Tobepaid_number
+        FROM wnk_orders_two LIMIT 0,1
+    </select>
+
+</mapper>

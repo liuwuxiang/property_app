@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessLevelIntegralDetailMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkBusinessLevelIntegralDetail" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="integral_number" property="integral_number" jdbcType="INTEGER" />
+        <result column="transactions_date" property="transactions_date" jdbcType="TIMESTAMP" />
+        <result column="transactions_type" property="transactions_type" jdbcType="INTEGER" />
+        <result column="integral_type" property="integral_type" jdbcType="INTEGER" />
+        <result column="pay_type" property="pay_type" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,business_id,name,integral_number,transactions_type,date_format(transactions_date, '%Y-%m-%d %H:%i:%S') as transactions_date,
+        (SELECT users.mobile FROM users WHERE wnk_business_level_integral_detail.user_id=users.id) as user_mobile,integral_type,pay_type
+    </sql>
+
+    <!--查询某商家的交易记录-->
+    <select id="selectRecordByBusinessId" resultType="java.util.HashMap">
+        SELECT
+          <include refid="Base_Column_List" />
+        FROM
+          wnk_business_level_integral_detail
+        where
+          business_id = #{param1,jdbcType=INTEGER} and transactions_type = #{param2,jdbcType=INTEGER}
+        order by
+          transactions_date DESC
+    </select>
+
+    <!--插入新纪录-->
+    <insert id="insertNewRecord" parameterType="com.springmvc.entity.WnkBusinessConsumptionIntegralDetail" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO
+            wnk_business_level_integral_detail
+            (business_id,name,integral_number,transactions_date,transactions_type,user_id)
+        VALUES
+            (
+                #{business_id,jdbcType=INTEGER},
+                #{name,jdbcType=VARCHAR},
+                #{integral_number,jdbcType=DOUBLE},
+                #{transactions_date,jdbcType=TIMESTAMP},
+                #{transactions_type,jdbcType=INTEGER},
+                #{user_id,jdbcType=INTEGER}
+            )
+    </insert>
+
+    <!--插入用户消费扣积分新纪录-->
+    <insert id="insertNewRecordUserXF" parameterType="com.springmvc.entity.WnkBusinessConsumptionIntegralDetail" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO
+            wnk_business_level_integral_detail
+            (business_id,name,integral_number,transactions_date,transactions_type,user_id,pay_type)
+            VALUES
+            (#{business_id,jdbcType=INTEGER},
+             #{name,jdbcType=VARCHAR},
+             #{integral_number,jdbcType=DOUBLE},
+             #{transactions_date,jdbcType=TIMESTAMP},
+             #{transactions_type,jdbcType=INTEGER},
+             #{user_id,jdbcType=INTEGER},
+             #{pay_type,jdbcType=INTEGER}
+            )
+    </insert>
+
+    <!--插入赠送新记录-->
+    <insert id="insertSendNewRecord" parameterType="com.springmvc.entity.WnkBusinessConsumptionIntegralDetail" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO
+            wnk_business_level_integral_detail
+            (business_id,name,integral_number,transactions_date,transactions_type,user_id,integral_type)
+             VALUES
+            (
+                #{business_id,jdbcType=INTEGER},
+                #{name,jdbcType=VARCHAR},
+                #{integral_number,jdbcType=DOUBLE},
+                #{transactions_date,jdbcType=TIMESTAMP},
+                #{transactions_type,jdbcType=INTEGER},
+                #{user_id,jdbcType=INTEGER},
+                #{integral_type,jdbcType=INTEGER}
+            )
+    </insert>
+
+
+
+</mapper>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessRegisterMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkBusinessRegister" >
+        <id     column="id"                     property="id"                       jdbcType="INTEGER" />
+        <result column="store_name"             property="store_name"               jdbcType="VARCHAR" />
+        <result column="type_id"                property="type_id"                  jdbcType="INTEGER" />
+        <result column="area"                   property="area"                     jdbcType="VARCHAR" />
+        <result column="address"                property="address"                  jdbcType="VARCHAR" />
+        <result column="login_account"          property="login_account"            jdbcType="VARCHAR" />
+        <result column="contact_name"           property="contact_name"             jdbcType="VARCHAR" />
+        <result column="contact_mobile"         property="contact_mobile"           jdbcType="VARCHAR" />
+        <result column="miaoshu"                property="miaoshu"                  jdbcType="CLOB" />
+        <result column="yingye_zhizhao_photo"   property="yingye_zhizhao_photo"     jdbcType="VARCHAR" />
+        <result column="mentou_photo"           property="mentou_photo"             jdbcType="VARCHAR" />
+        <result column="state"                  property="state"                    jdbcType="INTEGER" />
+        <result column="submit_date"            property="submit_date"              jdbcType="TIMESTAMP" />
+        <result column="recommend_business_id"  property="recommend_business_id"    jdbcType="INTEGER" />
+        <result column="legal_person_id_card"   property="legal_person_id_card"     jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,store_name,type_id,area,address,login_account,contact_name,contact_mobile,miaoshu,yingye_zhizhao_photo,mentou_photo,state,submit_date,recommend_business_id,legal_person_id_card
+    </sql>
+
+    <!--添加商户-->
+    <insert id="insertBusinessRegister" parameterType="com.springmvc.entity.WnkBusinessRegister" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_business_register(store_name,type_id,area,address,login_account,contact_name,contact_mobile,miaoshu,yingye_zhizhao_photo,mentou_photo,submit_date,recommend_business_id,legal_person_id_card)
+        VALUES (#{store_name,jdbcType=VARCHAR},#{type_id,jdbcType=INTEGER},#{area,jdbcType=VARCHAR},#{address,jdbcType=VARCHAR},#{login_account,jdbcType=VARCHAR}
+        ,#{contact_name,jdbcType=VARCHAR},#{contact_mobile,jdbcType=VARCHAR},#{miaoshu,jdbcType=CLOB},#{yingye_zhizhao_photo,jdbcType=VARCHAR}
+        ,#{mentou_photo,jdbcType=VARCHAR},#{submit_date,jdbcType=TIMESTAMP},#{recommend_business_id,jdbcType=INTEGER},#{legal_person_id_card,jdbcType=INTEGER})
+    </insert>
+
+
+    <!--通过手机号查询商家注册商家信息-->
+    <select id="selectByMobile" resultType="java.util.HashMap">
+        SELECT
+        *
+        FROM wnk_business_register
+        where (state = 0 or state = 1) and login_account = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--获取所有待审核的商家信息-->
+    <select id="getAllNoAuditedBusiness" resultType="java.util.HashMap">
+        SELECT
+        id,store_name,
+        (SELECT wnk_business_type.name FROM wnk_business_type WHERE wnk_business_register.type_id=wnk_business_type.id) as business_type_name,
+        contact_name,contact_mobile,
+        (CASE WHEN state = 0 THEN '待审核' WHEN state = 1 THEN '审核通过' WHEN state = 2 THEN '审核未通过'  END) as state_str,
+        date_format(submit_date, '%Y-%m-%d %H:%i:%S') as submit_date_str
+        FROM wnk_business_register
+        where state = 0  order by submit_date DESC
+    </select>
+
+    <!--通过id查询记录-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_business_register
+        where id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--根据条件查询待审核商家信息-->
+    <select id="adminSearchNoAuditedWnkBusiness" resultType="java.util.Map">
+        SELECT
+            wbr.id,
+            wbr.store_name,
+            wbt.name AS business_type_name,
+            wbr.contact_name,
+            wbr.contact_mobile,
+            (CASE WHEN wbr.state = 0 THEN '待审核'  WHEN wbr.state = 1 THEN '审核通过' WHEN wbr.state = 2 THEN '审核未通过' END)  AS state_str,
+            DATE_FORMAT(wbr.submit_date, ' %Y-%m-%d %H:%i:%S') AS submit_date_str
+        FROM
+            wnk_business_register AS wbr,
+            wnk_business_type     AS wbt
+        WHERE wbr.state = 0 AND wbr.type_id = wbt.id
+        <if test="_parameter.store_name != null and ''!= _parameter.store_name">
+            AND wbr.store_name LIKE #{store_name}
+        </if>
+        <if test="wnk_business_type != null">
+            AND  wbt.id = #{wnk_business_type}
+        </if>
+        <if test="_parameter.contact_name != null and ''!= _parameter.contact_name">
+            AND wbr.contact_name LIKE #{contact_name}
+        </if>
+        <if test="_parameter.contact_mobile != null and ''!= _parameter.contact_mobile">
+            AND wbr.contact_mobile = #{contact_mobile}
+        </if>
+        <if test="state_str != null">
+            AND  wbr.state = #{state_str}
+        </if>
+        <if test="_parameter.submit_date_str != null and ''!= _parameter.submit_date_str">
+            AND unix_timestamp(wbr.submit_date) = unix_timestamp(#{submit_date_str})
+        </if>
+        order by submit_date DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+
+    <!--更新申请信息-->
+    <insert id="updateInformation">
+        UPDATE wnk_business_register
+        SET store_name = #{store_name,jdbcType=VARCHAR},type_id = #{type_id,jdbcType=INTEGER},area = #{area,jdbcType=VARCHAR}
+        ,address = #{address,jdbcType=VARCHAR},login_account = #{login_account,jdbcType=VARCHAR},contact_name = #{contact_name,jdbcType=VARCHAR}
+        ,contact_mobile = #{contact_mobile,jdbcType=VARCHAR},miaoshu = #{miaoshu,jdbcType=CLOB},state = #{state,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+
+
+
+</mapper>

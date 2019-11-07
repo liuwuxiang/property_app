@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessTagChooseRecordMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkBusinessTagChooseRecord" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="one_tag_id" property="one_tag_id" jdbcType="INTEGER" />
+        <result column="two_tag_id" property="two_tag_id" jdbcType="INTEGER" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id,business_id,one_tag_id,two_tag_id,
+        (SELECT wnk_store_information.banners_photoid FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as banners_photoid,
+        (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as store_name,
+        (SELECT wnk_store_information.store_describe FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as store_describe,
+        (SELECT count(*) FROM wnk_orders WHERE wnk_business_tag_choose_record.business_id=wnk_orders.business_id) as sale,
+        (SELECT min(price) FROM wnk_commodities WHERE wnk_business_tag_choose_record.business_id=wnk_commodities.business_id) as min_price
+    </sql>
+
+    <!--查询某个级别下的所有商家-->
+    <select id="selectByTagId" resultType="java.util.HashMap">
+        SELECT
+        id,business_id,one_tag_id,two_tag_id,
+        (SELECT wnk_store_information.banners_photoid FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as banners_photoid,
+        (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as store_name,
+        (SELECT wnk_store_information.store_describe FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as store_describe,
+        (SELECT wnk_store_information.business_type_id FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as business_type_id,
+        (SELECT wnk_store_information.area FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as area,
+        (SELECT wnk_store_information.tese_label FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as tese_label,
+        (SELECT wnk_store_information.fuwu_label FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as fuwu_label,
+        (SELECT wnk_store_information.business_hours FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as business_hours,
+        (SELECT wnk_store_information.cover_photo FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as cover_photo,
+        (SELECT wnk_store_information.positive_price FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as positive_price,
+        (SELECT wnk_store_information.operate_status FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as operate_status,
+        (SELECT count(*) FROM wnk_orders WHERE wnk_business_tag_choose_record.business_id=wnk_orders.business_id) as sale,
+        (SELECT min(price) FROM wnk_commodities WHERE wnk_business_tag_choose_record.business_id=wnk_commodities.business_id) as min_price,
+        (SELECT
+         ROUND(
+            6378.138 * 2 * ASIN(
+                SQRT(
+                    POW(
+                        SIN(
+                            (
+                                #{param2,jdbcType=INTEGER} * PI() / 180 - wnk_store_information.lat * PI() / 180
+                            ) / 2
+                        ),
+                        2
+                    ) + COS(#{param2,jdbcType=INTEGER} * PI() / 180) * COS(wnk_store_information.lat * PI() / 180) * POW(
+                        SIN(
+                            (
+                                #{param3,jdbcType=INTEGER} * PI() / 180 - wnk_store_information.longt * PI() / 180
+                            ) / 2
+                        ),
+                        2
+                    )
+                )
+            )
+        ) AS juli
+         FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as juli
+        FROM wnk_business_tag_choose_record  where
+        (one_tag_id = #{param1,jdbcType=INTEGER} or two_tag_id = #{param1,jdbcType=INTEGER})
+        and
+        (SELECT state from wnk_store_information where wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) = 0
+        and
+        (SELECT wnk_store_information.is_lower FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) = 0
+        group by wnk_business_tag_choose_record.business_id
+        <if test="sort_type == 1">
+            ORDER BY juli ASC
+        </if>
+        <if test="sort_type == 2">
+            ORDER BY sale DESC
+        </if>
+        <if test="sort_type == 3">
+            ORDER BY min_price ASC
+        </if>
+
+    </select>
+
+    <!--查询某个一级级别下的所有推荐商家-->
+    <select id="selectRecommendByTagOneId" resultType="java.util.HashMap">
+        SELECT
+        id,business_id,one_tag_id,two_tag_id,
+        (SELECT wnk_store_information.banners_photoid FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as banners_photoid,
+        (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as store_name,
+        (SELECT wnk_store_information.store_describe FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as store_describe,
+        (SELECT wnk_store_information.business_type_id FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as business_type_id,
+        (SELECT count(*) FROM wnk_orders WHERE wnk_business_tag_choose_record.business_id=wnk_orders.business_id) as sale,
+        (SELECT wnk_store_information.area FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as area,
+        (SELECT wnk_store_information.tese_label FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as tese_label,
+        (SELECT wnk_store_information.fuwu_label FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as fuwu_label,
+        (SELECT wnk_store_information.business_hours FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as business_hours,
+        (SELECT wnk_store_information.cover_photo FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as cover_photo,
+        (SELECT wnk_store_information.positive_price FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as positive_price,
+        (SELECT wnk_store_information.operate_status FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as operate_status,
+        (SELECT min(price) FROM wnk_commodities WHERE wnk_business_tag_choose_record.business_id=wnk_commodities.business_id) as min_price,
+
+        (SELECT
+        ROUND(
+        6378.138 * 2 * ASIN(
+        SQRT(
+        POW(
+        SIN(
+        (
+        #{param2,jdbcType=INTEGER} * PI() / 180 - wnk_store_information.lat * PI() / 180
+        ) / 2
+        ),
+        2
+        ) + COS(#{param2,jdbcType=INTEGER} * PI() / 180) * COS(wnk_store_information.lat * PI() / 180) * POW(
+        SIN(
+        (
+        #{param3,jdbcType=INTEGER} * PI() / 180 - wnk_store_information.longt * PI() / 180
+        ) / 2
+        ),
+        2
+        )
+        )
+        )
+        ) AS juli
+        FROM wnk_store_information WHERE wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) as juli
+        FROM wnk_business_tag_choose_record where one_tag_id = #{param1,jdbcType=INTEGER} and (SELECT recommend_state from wnk_store_information where wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) = 1
+        and (SELECT state from wnk_store_information where wnk_business_tag_choose_record.business_id=wnk_store_information.business_id) = 0
+        group by wnk_business_tag_choose_record.business_id
+        ORDER BY juli ASC
+
+    </select>
+
+    <select id="selectTowByBusinessId" parameterType="int" resultType="map">
+        SELECT wbtc.*,wbt.name FROM
+            wnk_business_tag_choose_record AS wbtc,
+            wnk_business_tag               AS wbt
+        WHERE business_id  = #{business_id} AND wbtc.two_tag_id = wbt.id
+    </select>
+
+    <select id="selectByTwoTagId" parameterType="int" resultType="com.springmvc.entity.WnkBusinessTagChooseRecord">
+        SELECT * FROM wnk_business_tag_choose_record WHERE business_id = #{business_id} AND two_tag_id = #{towTag}
+    </select>
+
+
+    <delete id="deleteBusinessTag" parameterType="int">
+        DELETE  FROM wnk_business_tag_choose_record WHERE business_id=#{business_id} AND two_tag_id = #{twoTagId}
+    </delete>
+
+    <insert id="insertBusinessTag" parameterType="int">
+        INSERT INTO wnk_business_tag_choose_record
+        (business_id, one_tag_id, two_tag_id)
+        VALUES
+        (#{business_id},#{one_tag_id},#{two_tag_id})
+    </insert>
+
+    <update id="updateBusinessTagById" parameterType="int">
+        UPDATE wnk_business_tag_choose_record
+          SET
+              one_tag_id = #{last_id},
+              two_tag_id = #{towTag}
+        WHERE
+            business_id = #{business_id}
+    </update>
+
+    <!--根据商家id查询记录-->
+    <select id="selectByBusinessId" resultType="java.util.HashMap">
+        SELECT * FROM wnk_business_tag_choose_record WHERE business_id = #{param1,jdbcType=VARCHAR}
+
+    </select>
+
+
+    <delete id="deleteBusinessOneTag" parameterType="int">
+        DELETE FROM wnk_business_tag_choose_record WHERE business_id = #{business_id}
+    </delete>
+
+
+</mapper>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessTypeManagementHotelMapper">
+
+    <insert id="insertHotelManagement" parameterType="com.springmvc.entity.WnkBusinessTypeManagementHotel">
+        INSERT INTO wnk_business_type_management_hotel
+        (commodities_id, business_id, time_stamp,inventory_num)
+        VALUES
+        (#{commodities_id}, #{business_id}, #{time_stamp}, #{inventory_num})
+    </insert>
+
+    <update id="updateHotelManagement" parameterType="com.springmvc.entity.WnkBusinessTypeManagementHotel">
+        UPDATE wnk_business_type_management_hotel
+        SET
+            inventory_num = #{inventory_num}
+        WHERE
+            business_id = #{business_id} AND commodities_id = #{commodities_id} AND time_stamp = #{time_stamp}
+    </update>
+
+    <select id="selectHotelManagement" parameterType="com.springmvc.entity.WnkBusinessTypeManagementHotel"
+            resultType="com.springmvc.entity.WnkBusinessTypeManagementHotel">
+        SELECT
+            id,business_id,commodities_id,time_stamp,inventory_num
+        FROM
+            wnk_business_type_management_hotel
+        WHERE business_id=#{business_id} AND commodities_id = #{commodities_id} AND time_stamp = #{time_stamp}
+    </select>
+
+    <!--查询商家对应商品是否有房态管理信息-->
+    <select id="selectHotelManagementByBusinessIdAndCommodityId" parameterType="int" resultType="map">
+        SELECT
+            *
+        FROM
+            wnk_business_type_management_hotel
+        WHERE
+            business_id = #{businessId} AND commodities_id = #{commodityId}
+    </select>
+
+    <!--商家修改商品信息的时候要把房态管理的信息一并修改-->
+    <update id="updateHotelManagementByBusinessIdAndCCommodityId" parameterType="int">
+      UPDATE
+          wnk_business_type_management_hotel
+      SET
+          inventory_num = #{inventory}
+      WHERE
+          business_id = #{businessId} AND commodities_id = #{commodityId}
+    </update>
+
+
+
+</mapper>

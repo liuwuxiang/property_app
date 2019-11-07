@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.CarouselImgMapper" >
+
+    <!--获取所有轮播图信息-->
+    <select id="selectCarouselInfoAll"  resultType="java.util.Map">
+        SELECT
+          id,img_url,url,
+          (CASE WHEN position = 0 THEN '全部' WHEN position = 1 THEN '首页' WHEN position = 2 THEN '附近' WHEN position = 3 THEN '平台积分商城' WHEN position = 4 THEN '商家积分商城' END) AS position,
+          (CASE WHEN is_checked = 0 THEN '启用'   WHEN is_checked = 1 THEN '禁用' END) AS is_checked
+        FROM carousel_img
+    </select>
+
+    <!--根据ID获取轮播图信息-->
+    <select id="selectCarouselInfoById" parameterType="string" resultType="java.util.Map">
+        SELECT * FROM carousel_img WHERE id = #{carousel_id}
+    </select>
+
+    <!--根据条件查询轮播图管理-->
+    <select id="adminSearchCarouselImg" resultType="java.util.Map">
+        SELECT
+          id,img_url,url,
+          (CASE WHEN position = 0 THEN '全部' WHEN position = 1 THEN '首页' WHEN position = 2 THEN '附近' WHEN position = 3 THEN '平台积分商城' WHEN position = 4 THEN '商家积分商城' END) AS position,
+          (CASE WHEN is_checked = 0 THEN '启用'   WHEN is_checked = 1 THEN '禁用' END) AS is_checked
+        FROM carousel_img
+        WHERE 1=1
+        <if test="_parameter.url != null and ''!= _parameter.url">
+            AND url LIKE #{url}
+        </if>
+        <if test="_parameter.position != null">
+            AND position = #{position}
+        </if>
+        <if test="_parameter.is_checked != null ">
+            AND is_checked = #{is_checked}
+        </if>
+        order by id ASC LIMIT #{start_index} , #{limit}
+    </select>
+
+    <!--修改轮播图信息-->
+    <update id="updateCarouselInfoById" parameterType="com.springmvc.entity.CarouselImg">
+        UPDATE carousel_img
+        <trim prefix="set" suffixOverrides=",">
+            <if test="img_url != null">
+                img_url=#{img_url},
+            </if>
+
+            <if test="url != null">
+                url=#{url},
+            </if>
+
+            <if test="position != null">
+                position=#{position},
+            </if>
+
+            <if test="is_checked != null">
+                is_checked=#{is_checked},
+            </if>
+        </trim>
+        WHERE id=#{id}
+    </update>
+
+    <!--新增轮播图信息且返回主键ID-->
+    <insert id="insertCarouselInfo"     parameterType="com.springmvc.entity.CarouselImg" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO carousel_img
+        (img_url, position, is_checked, url)
+        VALUES
+        (#{img_url},#{position},#{is_checked},#{url})
+    </insert>
+
+</mapper>

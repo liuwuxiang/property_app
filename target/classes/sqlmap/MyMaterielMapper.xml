@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.MyMaterielMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.MyMateriel" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="materiel_id" property="materiel_id" jdbcType="INTEGER" />
+        <result column="surplus_number" property="surplus_number" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,business_id,materiel_id,surplus_number,
+        (SELECT extension_materiel.name FROM extension_materiel WHERE my_materiel.materiel_id=extension_materiel.id) as materiel_name,
+        (SELECT extension_materiel.logo_photo_id FROM extension_materiel WHERE my_materiel.materiel_id=extension_materiel.id) as logo_photo_id,
+        (SELECT extension_materiel.background_photo FROM extension_materiel WHERE my_materiel.materiel_id=extension_materiel.id) as background_photo,
+        (SELECT extension_materiel.business_type_id FROM extension_materiel WHERE my_materiel.materiel_id=extension_materiel.id) as business_type_id,
+        (SELECT extension_materiel.is_wnk FROM extension_materiel WHERE my_materiel.materiel_id=extension_materiel.id) as is_wnk
+    </sql>
+
+    <!--获取某商家的所有物料-->
+    <select id="selectAllRecordByUserId" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM my_materiel where business_id = #{param1,jdbcType=INTEGER}
+    </select>
+
+    <!--通过物料id以及商家id查询-->
+    <select id="selectByMaterielIdAndBusinessId" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM my_materiel where business_id = #{param1,jdbcType=INTEGER} and materiel_id = #{param2,jdbcType=INTEGER}
+    </select>
+
+    <!--新增物料套餐购买信息-->
+    <insert id="insertMaterielBuyRecord" parameterType="com.springmvc.entity.MyMateriel" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO my_materiel(business_id,materiel_id,surplus_number)
+        VALUES (#{business_id,jdbcType=INTEGER},#{materiel_id,jdbcType=INTEGER},#{surplus_number,jdbcType=INTEGER})
+    </insert>
+
+    <!--更新商家物料剩余量-->
+    <insert id="updateSurplusNumber">
+        UPDATE my_materiel
+        SET surplus_number = #{surplus_number,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <update id="backMaterielNumber" parameterType="int" >
+
+        UPDATE my_materiel
+        SET
+            surplus_number = surplus_number - #{back_number}
+        WHERE business_id = #{business_id} AND materiel_id = #{materiel_id}
+
+    </update>
+
+</mapper>

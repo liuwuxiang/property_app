@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.SystemNoticeMessageMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.SystemNoticeMessage" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="title" property="title" jdbcType="CLOB" />
+        <result column="content" property="content" jdbcType="CLOB" />
+        <result column="receiving_object" property="receiving_object" jdbcType="INTEGER" />
+        <result column="send_time" property="send_time" jdbcType="TIMESTAMP" />
+        <result column="read_status" property="read_status" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,title,content,date_format(send_time, '%Y-%m-%d %H:%i:%S') as send_time,
+        (CASE WHEN receiving_object = 0 THEN '物业中心' WHEN receiving_object = 1 THEN '所有会员' WHEN receiving_object = 2 THEN '普通会员'
+          WHEN receiving_object = 3 THEN '铂金会员' WHEN receiving_object = 4 THEN '钻石会员' END) as receiving_object,read_status
+    </sql>
+
+    <!--后台查询所有通知消息-->
+    <select id="selectAllAdmin" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM system_notice_message order by send_time DESC
+    </select>
+
+    <!--根据条件查询通知消息-->
+    <select id="adminSearchMessageByConditions" resultType="java.util.Map">
+        SELECT
+            id,title,content,date_format(send_time, '%Y-%m-%d %H:%i:%S') as send_time,
+            (CASE WHEN receiving_object = 0 THEN '物业中心' WHEN receiving_object = 1 THEN '所有会员' WHEN receiving_object = 2 THEN '普通会员'
+            WHEN receiving_object = 3 THEN '铂金会员' WHEN receiving_object = 4 THEN '钻石会员' END) as receiving_object,read_status
+        FROM system_notice_message
+        WHERE 1=1
+        <if test="_parameter.receiving_object != null ">
+            AND receiving_object = #{receiving_object}
+        </if>
+
+        <if test="_parameter.title != null and ''!= _parameter.title">
+            AND title LIKE #{title}
+        </if>
+
+        <if test="_parameter.content != null and ''!= _parameter.content">
+            AND content LIKE #{content}
+        </if>
+
+        <if test="_parameter.send_time != null and ''!= _parameter.send_time">
+            AND unix_timestamp(send_time) = unix_timestamp(#{send_time})
+        </if>
+        order by send_time DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+    <!--新增消息-->
+    <insert id="addNotice" parameterType="com.springmvc.entity.SystemNoticeMessage" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO system_notice_message(title,content,receiving_object,send_time)
+        VALUES (#{title,jdbcType=CLOB},#{content,jdbcType=CLOB},#{receiving_object,jdbcType=INTEGER},#{send_time,jdbcType=TIMESTAMP})
+    </insert>
+
+
+</mapper>

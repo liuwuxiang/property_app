@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.SilverCoinExchangeMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.SilverCoinExchange" >
+        <id     column="id"                      property="id" jdbcType="INTEGER" />
+        <result column="silver_coin_number"      property="silver_coin_number"      jdbcType="INTEGER" />
+        <result column="consume_integral_number" property="consume_integral_number" jdbcType="INTEGER" />
+        <result column="type"                    property="type"                    jdbcType="INTEGER" />
+        <result column="exchange_date"           property="exchange_date"           jdbcType="TIMESTAMP" />
+        <result column="order_no"                property="order_no"                jdbcType="VARCHAR" />
+        <result column="user_id"                 property="user_id"                 jdbcType="INTEGER" />
+        <result column="expenditure_id"          property="expenditure_id"          jdbcType="INTEGER" />
+        <result column="silver_coin_detail_id"   property="silver_coin_detail_id"   jdbcType="INTEGER" />
+
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,consume_integral_number,type,exchange_date,order_no,user_id,expenditure_id,silver_coin_detail_id
+    </sql>
+
+    <!--新增兑换记录-->
+    <insert id="insertExchangeRecord" parameterType="com.springmvc.entity.SilverCoinExchange" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO silver_coin_exchange(silver_coin_number,consume_integral_number,type,exchange_date,order_no,user_id,expenditure_id,silver_coin_detail_id)
+        VALUES (#{silver_coin_number,jdbcType=INTEGER},#{consume_integral_number,jdbcType=INTEGER},#{type,jdbcType=INTEGER},#{exchange_date,jdbcType=TIMESTAMP}
+        ,#{order_no,jdbcType=VARCHAR},#{user_id,jdbcType=INTEGER},#{expenditure_id,jdbcType=INTEGER},#{silver_coin_detail_id,jdbcType=INTEGER})
+    </insert>
+
+    <!--根据用户id查询记录并重新修改所属用户-->
+    <insert id="updateRecordUserId">
+        UPDATE silver_coin_exchange
+        SET user_id = #{param1,jdbcType=INTEGER}
+        WHERE user_id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+    <!--后台查询所有兑换记录-->
+    <select id="selectAllAdmin" resultType="java.util.HashMap">
+        SELECT
+            sce.id,u.mobile as user_mobile,sce.consume_integral_number,sce.silver_coin_number,
+            (CASE WHEN sce.type = 0 THEN '消费积分' WHEN sce.type = 1 THEN '通用积分' END) as type,
+            date_format(sce.exchange_date, '%Y-%m-%d %H:%i:%S') as exchange_date
+        FROM silver_coin_exchange AS sce ,users AS u
+        WHERE  sce.user_id=u.id
+        order by exchange_date DESC
+    </select>
+
+    <!--根据条件查询银币兑换记录-->
+    <select id="adminSearchSilverCoinExchangeByConditions" resultType="java.util.Map">
+         SELECT
+            sce.id,u.mobile as user_mobile,sce.consume_integral_number,sce.silver_coin_number,
+            (CASE WHEN sce.type = 0 THEN '消费积分' WHEN sce.type = 1 THEN '通用积分' END) as type,
+            date_format(sce.exchange_date, '%Y-%m-%d %H:%i:%S') as exchange_date
+        FROM silver_coin_exchange AS sce ,users AS u
+        WHERE 1=1 AND sce.user_id=u.id
+        <if test="_parameter.user_mobile != null and ''!= _parameter.user_mobile">
+            AND u.mobile LIKE #{user_mobile}
+        </if>
+        <if test="_parameter.consume_integral_number != null and ''!= _parameter.consume_integral_number">
+            AND sce.consume_integral_number LIKE #{consume_integral_number}
+        </if>
+        <if test="_parameter.silver_coin_number != null and ''!= _parameter.silver_coin_number">
+            AND sce.silver_coin_number LIKE #{silver_coin_number}
+        </if>
+        <if test="_parameter.type != null ">
+            AND sce.type = #{type}
+        </if>
+        <if test="_parameter.exchange_date != null and ''!= _parameter.exchange_date">
+            AND unix_timestamp(exchange_date) = unix_timestamp(#{exchange_date})
+        </if>
+        order by exchange_date DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+
+</mapper>

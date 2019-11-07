@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.DoingSpreadUserReadRecordMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.DoingSpreadUserReadRecord" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="message_id" property="message_id" jdbcType="INTEGER" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,message_id,user_id
+    </sql>
+
+    <!--插入记录-->
+    <insert id="insertNewOrder" parameterType="com.springmvc.entity.DoingSpreadUserReadRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO doing_spread_user_read_record(message_id,user_id)
+        VALUES (#{message_id,jdbcType=INTEGER},#{user_id,jdbcType=INTEGER})
+    </insert>
+
+    <!--通过用户id以及消息id查询记录-->
+    <select id="selectByUserIdAndMessageId" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM doing_spread_user_read_record
+        where user_id = #{param1,jdbcType=INTEGER} and message_id = #{param2,jdbcType=INTEGER}
+    </select>
+
+</mapper>

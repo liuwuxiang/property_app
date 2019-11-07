@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessTypeQuickInputMapper" >
+
+
+    <select id="selectBusinessTypeQuickInputByBusinessTypeId" parameterType="int" resultType="map" >
+        SELECT
+            *
+        FROM
+            wnk_business_type_quick_input
+        WHERE
+            business_type_id = #{businessTypeId} AND is_del = 0 AND is_checked = 0
+    </select>
+
+    <select id="selectAdminBusinessTypeQuickInputInfoAll" resultType="map">
+        SELECT
+            wbtqi.*,
+            wbt.name AS business_type_name,
+            (CASE WHEN wbtqi.is_checked = 0 THEN '启用' WHEN  wbtqi.is_checked = 1 THEN '禁用' END) AS is_checked_str
+        FROM
+            wnk_business_type_quick_input AS wbtqi ,
+            wnk_business_type             AS wbt
+        WHERE
+            wbtqi.is_del = 0 AND wbtqi.business_type_id = wbt.id
+    </select>
+
+    <!--通过ID查询所有快速输入信息-->
+    <select id="selectBusinessTypeQuickInputInfoById" parameterType="int" resultType="map">
+        SELECT
+            *
+        FROM
+            wnk_business_type_quick_input
+        WHERE
+            is_del = 0  AND is_checked = 0 AND id = #{quickId}
+    </select>
+
+    <!--根据条件查询所有快速输入信息-->
+    <select id="adminSearchBusinessTypeQuickInput" resultType="java.util.Map">
+        SELECT
+            wbtqi.*,
+            wbt.name AS business_type_name,
+            (CASE WHEN wbtqi.is_checked = 0 THEN '启用' WHEN  wbtqi.is_checked = 1 THEN '禁用' END) AS is_checked_str
+        FROM
+            wnk_business_type_quick_input AS wbtqi ,
+            wnk_business_type             AS wbt
+        WHERE
+            1=1 AND
+            wbtqi.is_del = 0 AND wbtqi.business_type_id = wbt.id
+        <if test="_parameter.name != null and ''!= _parameter.name">
+            AND wbtqi.name LIKE #{name}
+        </if>
+        <if test="_parameter.business_type_name != null and ''!= _parameter.business_type_name">
+            AND wbt.name LIKE #{business_type_name}
+        </if>
+    </select>
+
+    <!--新增快速输入-->
+    <insert id="insertBusinessTypeQuickInput" parameterType="com.springmvc.entity.WnkBusinessTypeQuickInput" >
+        INSERT INTO wnk_business_type_quick_input (name, business_type_id) VALUES (#{name},#{business_type_id})
+    </insert>
+
+    <!--更新快速输入-->
+    <update id="updateBusinessTypeQuickInput" parameterType="com.springmvc.entity.WnkBusinessTypeQuickInput" >
+        UPDATE
+            wnk_business_type_quick_input
+        SET
+            name = #{name},
+            business_type_id = #{business_type_id}
+        WHERE
+            id = #{id}
+    </update>
+
+</mapper>

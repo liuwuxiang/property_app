@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.UserCouponsMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.UserCoupons" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="materiel_id" property="materiel_id" jdbcType="INTEGER" />
+        <result column="surplus_number" property="surplus_number" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,user_id,materiel_id,surplus_number,
+        (SELECT extension_materiel.name FROM extension_materiel WHERE user_coupons.materiel_id=extension_materiel.id) as materiel_name,
+        (SELECT extension_materiel.logo_photo_id FROM extension_materiel WHERE user_coupons.materiel_id=extension_materiel.id) as logo_photo_id,
+        (SELECT extension_materiel.background_photo FROM extension_materiel WHERE user_coupons.materiel_id=extension_materiel.id) as background_photo,
+        (SELECT extension_materiel.business_type_id FROM extension_materiel WHERE user_coupons.materiel_id=extension_materiel.id) as business_type_id,
+        (SELECT extension_materiel.is_wnk FROM extension_materiel WHERE user_coupons.materiel_id=extension_materiel.id) as is_wnk
+    </sql>
+
+    <!--获取某用户的所有物料(优惠券)-->
+    <select id="selectAllRecordByUserId" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM user_coupons where user_id = #{param1,jdbcType=INTEGER} and surplus_number > 0
+    </select>
+
+    <!--通过物料id以及用户id查询-->
+    <select id="selectByMaterielIdAndUserId" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM user_coupons where user_id = #{param1,jdbcType=INTEGER} and materiel_id = #{param2,jdbcType=INTEGER}
+    </select>
+
+
+    <!--通过商家分类id以及用户id查询用户优惠券信息-->
+    <select id="selectByBusinessTypeIdAndUserId" resultMap="BaseResultMap">
+        SELECT surplus_number,id from  user_coupons where materiel_id = #{param1,jdbcType=INTEGER} and user_id = #{param2,jdbcType=INTEGER}
+    </select>
+
+    <!--新增物料收入信息-->
+    <insert id="insertMaterielBuyRecord" parameterType="com.springmvc.entity.MyMateriel" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO user_coupons(user_id,materiel_id,surplus_number)
+        VALUES (#{user_id,jdbcType=INTEGER},#{materiel_id,jdbcType=INTEGER},#{surplus_number,jdbcType=INTEGER})
+    </insert>
+
+    <!--更新用户物料剩余量-->
+    <insert id="updateSurplusNumber">
+        UPDATE user_coupons
+        SET surplus_number = #{surplus_number,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--更新用户物料剩余量-->
+    <insert id="updateSurplusNumberByCS">
+        UPDATE user_coupons
+        SET surplus_number = #{param1,jdbcType=INTEGER}
+        WHERE id = #{param2,jdbcType=INTEGER}
+    </insert>
+
+
+</mapper>

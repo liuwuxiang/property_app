@@ -1,0 +1,205 @@
+.shopping_information_div{
+    width: 100%;
+    height: auto;
+}
+
+/*.shopping_information_div ul{*/
+    /*width: 100%;*/
+    /*height: auto;*/
+    /*overflow: hidden;*/
+    /*padding: 0;*/
+    /*margin: 0;*/
+    /*margin-top: 3px;*/
+/*}*/
+
+/*.shopping_information_div ul li{*/
+    /*width: 100%;*/
+    /*height: auto;*/
+    /*list-style: none;*/
+    /*text-align: center;*/
+    /*cursor: pointer;*/
+    /*overflow: hidden;*/
+    /*background: #F5F5F5;*/
+    /*background: white;*/
+    /*margin-top: 1px;*/
+/*}*/
+
+.li_shopping_information_div{
+    width: 100%;
+    height: auto;
+    /*background: red;*/
+    margin-bottom: 5px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.shopping_photo{
+    display: block;
+    width: 25%;
+    height: 80px;
+    margin-left: 1%;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    float: left;
+}
+
+.shopping_detail_div{
+    width: 72%;
+    height: 80px;
+    overflow: hidden;
+    float: left;
+    /*background: blue;*/
+    margin-left: 1%;
+    margin-top: 3px;
+}
+
+.shopping_name_tag{
+    display: block;
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    text-align: left;
+    color: #000000;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+}
+
+.shopping_price_tag{
+    display: block;
+    width: 50%;
+    height: 30px;
+    line-height: 30px;
+    margin-top: 15px;
+    font-size: 18px;
+    text-align: left;
+    color: #00CED1;
+    float: left;
+}
+
+.shopping_buy_button{
+    display: block !important;
+    float: right !important;
+    width: 25% !important;
+    height: 35px !important;
+    margin-top: 14px !important;
+    border: 0 !important;
+    -webkit-appearance: none !important;
+    border-radius: 8px !important;
+    color: white !important;
+    font-size: 15px !important;
+    background: #FF8C00 !important;
+    line-height: 0 !important;
+    margin-right: 1px;
+}
+
+.business_information_div{
+    width: 100%;
+    height: auto;
+    /*background: red;*/
+    display: none;
+}
+
+
+
+
+/*商品列表样式开始*/
+.mui-row.mui-fullscreen>[class*="mui-col-"] {
+    height: 100%;
+}
+
+.mui-col-xs-3,
+.mui-col-xs-9 {
+    overflow-y: auto;
+    height: 100%;
+}
+
+.mui-segmented-control .mui-control-item {
+    line-height: 50px;
+    width: 100%;
+}
+
+.mui-control-content {
+    display: block;
+}
+
+.mui-segmented-control.mui-segmented-control-inverted .mui-control-item.mui-active {
+    background-color: #fff;
+}
+
+
+.commodity_li{
+    width: 100% !important;
+    height: auto !important;
+    list-style: none !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    overflow: hidden !important;
+}
+
+.commodity_li img{
+    display: block;
+    width: 35%;
+    height: auto;
+    float: left;
+}
+
+.commodity_information_div{
+    width: 62%;
+    height: auto;
+    /*background: red;*/
+    float: left;
+    margin-left: 2%;
+}
+
+.commodity_name_tag{
+    display: block;
+    width: 100%;
+    height: auto;
+    line-height: 20px;
+    text-align: left;
+    font-size: 16px;
+    color: black;
+}
+
+.commodity_describe{
+    display: block;
+    width: 100%;
+    height: 20px;
+    line-height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+    font-size: 13px;
+    color: #808080;
+    margin-top: 3px;
+}
+
+.month_sale_tag{
+    display: block;
+    width: 50%;
+    height: 30px;
+    line-height: 30px;
+    margin-top: 3px;
+    text-align: left;
+    float: left;
+    color: #1E91FB;
+    font-size: 13px;
+    color: #808080;
+}
+
+.commodity_price_tag{
+    display: block;
+    width: 48%;
+    height: 30px;
+    line-height: 30px;
+    color: red;
+    font-size: 18px;
+    text-align: right;
+    margin-top: 3px;
+    float: right;
+    margin-right: 2%;
+}
+/*商品列表样式结束*/

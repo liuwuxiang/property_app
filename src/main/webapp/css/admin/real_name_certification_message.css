@@ -1,0 +1,48 @@
+.top_div{
+	width: 95%;
+	height: 40px;
+	margin-left: 2.5%;
+	margin-top: 15px;
+	text-align: right;
+	overflow: hidden;
+}
+
+.message_ul{
+	width: 95%;
+	height: auto;
+	margin-left: 2.5%;
+}
+
+.message_ul li{
+	width: 48%;
+	height: auto;
+	list-style: none;
+	text-align: center;
+	background: white;
+	cursor: pointer;
+	overflow: hidden;
+	margin-top: 10px;
+	text-align: left;
+	margin-left: 1%;
+	float: left;
+}
+
+.message_ul li a{
+	display: block;
+	width: 100%;
+	height: auto;
+	text-align: left;
+	font-size: 16px;
+}
+
+.photo_div{
+	width: 95%;
+	height: auto;
+	margin-left: 2.5%;
+	overflow: hidden;
+}
+
+.photo_div img{
+	width: 300px;
+	height: auto;
+}

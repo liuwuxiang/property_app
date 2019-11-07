@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkOrdersExpandHotelMapper">
+
+    <insert id="insertInfo" parameterType="com.springmvc.entity.WnkOrdersExpandHotel">
+        INSERT INTO wnk_orders_expand_hotel
+        (user_id, business_id, commodity_id, order_id, mobile, general_integral_number, send_integral_number, coupon, register_people, register_time, register_start_time_stamp, register_end_time_stamp)
+        VALUES
+        (#{user_id},#{business_id},#{commodity_id},#{order_id},#{mobile},#{general_integral_number},#{send_integral_number},#{coupon},#{register_people},#{register_time},#{register_start_time_stamp},#{register_end_time_stamp})
+    </insert>
+
+    <update id="updateInfo" parameterType="com.springmvc.entity.WnkOrdersExpandHotel">
+        UPDATE
+            wnk_orders_expand_hotel
+        SET
+            business_id               = #{business_id},
+            commodity_id              = #{commodity_id},
+            mobile                    = #{mobile},
+            general_integral_number   = #{general_integral_number},
+            send_integral_number      = #{send_integral_number},
+            coupon                    = #{coupon},
+            register_people           = #{register_people},
+            register_time             = #{register_time},
+            register_start_time_stamp = #{register_start_time_stamp},
+            register_end_time_stamp   = #{register_end_time_stamp},
+            user_id                   = #{user_id}
+        WHERE
+            order_id = #{order_id}
+
+    </update>
+
+    <select id="selectExpandInfoByOrderId" parameterType="int" resultType="com.springmvc.entity.WnkOrdersExpandHotel">
+        SELECT
+            *
+        FROM
+            wnk_orders_expand_hotel
+        WHERE
+            order_id = #{orederId}
+    </select>
+
+</mapper>

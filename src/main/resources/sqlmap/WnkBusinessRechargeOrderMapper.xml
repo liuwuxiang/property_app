@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessRechargeOrderMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkBusinessRechargeOrder" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="order_no" property="order_no" jdbcType="VARCHAR" />
+        <result column="business_id" property="business_id" jdbcType="INTEGER" />
+        <result column="state" property="state" jdbcType="INTEGER" />
+        <result column="create_time" property="create_time" jdbcType="TIMESTAMP" />
+        <result column="amount" property="amount" jdbcType="DOUBLE" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,order_no,business_id,
+        (CASE  WHEN state = 0 THEN '待支付' WHEN state = 1 THEN '已支付' WHEN state = 2 THEN '支付失败'  END) as state,
+        date_format(create_time, '%Y-%m-%d %H:%i:%S') as create_time,amount
+    </sql>
+
+    <!--新增商家充值订单信息-->
+    <insert id="insertBusinessRechargeOrder" parameterType="com.springmvc.entity.WnkBusinessRechargeOrder" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_business_recharge_order(order_no,business_id,state,create_time,amount)
+        VALUES (#{order_no,jdbcType=VARCHAR},#{business_id,jdbcType=INTEGER},#{state,jdbcType=INTEGER},#{create_time,jdbcType=TIMESTAMP},#{amount,jdbcType=DOUBLE})
+    </insert>
+
+    <!--通过订单号查询查询记录-->
+    <select id="selectRecordByOrderNo" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_business_recharge_order
+        where order_no = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--通过订单号修改支付状态-->
+    <insert id="updateStateByOrderNo" parameterType="com.springmvc.entity.WnkBusinessRechargeOrder">
+        UPDATE wnk_business_recharge_order
+        SET state = #{state,jdbcType=INTEGER}
+        WHERE order_no = #{order_no,jdbcType=VARCHAR}
+    </insert>
+
+</mapper>

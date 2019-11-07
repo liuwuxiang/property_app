@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.LoginSessionIdsMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.LoginSessionIds" >
+        <id column="session_id" property="session_id" jdbcType="VARCHAR" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="login_date" property="login_date" jdbcType="TIMESTAMP" />
+        <result column="type" property="type" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        session_id,user_id,login_date,type
+    </sql>
+
+    <!--新增SessionId记录-->
+    <insert id="addSessionIdRecord" parameterType="com.springmvc.entity.LoginSessionIds">
+        INSERT  INTO login_sessionids(session_id,user_id,type,login_date)
+        VALUES (#{session_id,jdbcType=VARCHAR},#{user_id,jdbcType=INTEGER},#{type,jdbcType=INTEGER},#{login_date,jdbcType=TIMESTAMP})
+    </insert>
+
+    <!--查询sessionId-->
+    <select id="selectBySessionId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM login_sessionids
+        where session_id = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--通过userId修改sessionId-->
+    <insert id="updateSessionIdByUserId" parameterType="com.springmvc.entity.LoginSessionIds">
+        UPDATE login_sessionids
+        SET session_id = #{session_id,jdbcType=VARCHAR},login_date = #{login_date,jdbcType=TIMESTAMP}
+        WHERE user_id = #{user_id,jdbcType=INTEGER} and type = #{type,jdbcType=INTEGER}
+    </insert>
+
+    <!--通过用户id以及使用类别查询记录-->
+    <select id="selectByUserIdAndType" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM login_sessionids
+        where user_id = #{param1,jdbcType=INTEGER} and type = #{param2,jdbcType=INTEGER}
+    </select>
+
+    <!--根据sessid删除记录-->
+    <delete id="deleteRecordBySessionId">
+        DELETE FROM login_sessionids WHERE session_id = #{param1,jdbcType=VARCHAR}
+    </delete>
+
+</mapper>

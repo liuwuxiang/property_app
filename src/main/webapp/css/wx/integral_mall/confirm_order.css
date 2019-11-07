@@ -1,0 +1,31 @@
+.mui-card {
+    margin: 0 0 1rem 0;
+}
+
+.mui-content>.mui-card:first-child {
+    margin-top: 0px;
+}
+
+.mui-card-content > img{
+    height: auto;
+}
+
+.mui-card-footer{
+    color: #000;
+}
+
+.mui-card-content > img{
+    height:auto;
+}
+
+.js-pay {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 2.5rem;
+    font-size: 1rem;
+    text-align: center;
+    line-height: 2.5rem;
+    color: #fff;
+    background-color: #fc9153;
+}

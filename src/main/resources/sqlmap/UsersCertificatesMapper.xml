@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.UsersCertificatesMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.UsersCertificates" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="number" property="number" jdbcType="VARCHAR" />
+        <result column="certificate_photo_id" property="certificate_photo_id" jdbcType="VARCHAR" />
+        <result column="user_id" property="user_id" jdbcType="INTEGER" />
+        <result column="user_name" property="user_name" jdbcType="VARCHAR" />
+        <result column="amount" property="amount" jdbcType="INTEGER" />
+        <result column="option_equity" property="option_equity" jdbcType="INTEGER" />
+        <result column="create_time" property="create_time" jdbcType="TIMESTAMP" />
+        <result column="record_id" property="record_id" jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,number,certificate_photo_id,user_id,user_name,amount,option_equity,record_id,
+        date_format(create_time, '%Y-%m-%d %H:%i:%S') as create_time
+    </sql>
+
+    <!--通过证书编号查询证书信息-->
+    <select id="selectByNumber" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM users_certificates where number =  #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--查询某个用户的所有证书-->
+    <select id="selectUserRecord" resultType="java.util.HashMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM users_certificates where user_id = #{param1,jdbcType=INTEGER} ORDER BY create_time DESC
+    </select>
+
+    <!--新增用户证书-->
+    <insert id="insertUserCertificate" parameterType="com.springmvc.entity.UsersCertificates" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO users_certificates(number,certificate_photo_id,user_id,user_name,amount,option_equity,create_time,record_id)
+        VALUES (#{number,jdbcType=VARCHAR},#{certificate_photo_id,jdbcType=VARCHAR},#{user_id,jdbcType=INTEGER}
+        ,#{user_name,jdbcType=VARCHAR},#{amount,jdbcType=INTEGER},#{option_equity,jdbcType=INTEGER},#{create_time,jdbcType=TIMESTAMP}
+        ,#{record_id,jdbcType=INTEGER})
+    </insert>
+
+
+</mapper>

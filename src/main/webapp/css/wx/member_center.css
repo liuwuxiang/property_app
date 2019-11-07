@@ -1,0 +1,75 @@
+.ewmshow_title{
+	display: block !important;
+	width: 96% !important;
+	height: 30px !important;
+	line-height: 30px !important;
+	border-bottom: solid 1px #EEEEEE !important;
+	font-size: 15px;
+}
+
+.member_levels_ul{
+	width: 96% !important;
+	height: auto !important;
+	overflow: hidden !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	margin-left: 2% !important;
+}
+
+.member_levels_ul li{
+	width: 100% !important;
+	height: auto !important;
+	list-style: none !important;
+	text-align: center !important;
+	cursor: pointer !important;
+	overflow: hidden !important;
+	border-bottom: solid 1px #EEEEEE !important;
+}
+
+.member_levels_li_icon{
+	display: block !important;
+	width: auto !important;
+	height: 50px !important;
+	float: left !important;
+	margin-top: 5px !important;
+	margin-bottom: 5px !important;
+}
+
+.member_levels_li_content{
+	display: block !important;
+	width: auto !important;
+	height: auto !important;
+	max-width: 60% !important;
+	float: left !important;
+	margin-left: 5px !important;
+	margin-top: 5px !important;
+	margin-bottom: 5px !important;
+}
+
+.member_levels_li_name{
+	display: block !important;
+	width: auto !important;
+	height: auto !important;
+	line-height: 20px !important;
+	text-align: left !important;
+	font-size: 15px !important;
+	color: black !important;
+	margin-top: 5px !important;
+}
+
+.member_levels_li_condition{
+	display: block !important;
+	width: auto !important;
+	height: auto !important;
+	line-height: 20px !important;
+	text-align: left !important;
+	font-size: 12px !important;
+	color: #A9A9A9 !important;
+}
+
+.member_levels_li_arrow{
+	width: auto !important;
+	height: 20px !important;
+	float: right !important;
+	margin-top: 18px !important;
+}

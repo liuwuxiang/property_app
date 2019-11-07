@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessMaterielGiftRecordMapper" >
+
+    <!--管理员查询物料赠送记录-所有-->
+    <select id="selectMaterielGiftRecordAll" resultType="map">
+        SELECT
+            COUNT(wbmgr.id) OVER() AS count,
+            wbmgr.id,
+            a.name AS admin_name,
+            DATE_FORMAT(wbmgr.gift_time,'%Y-%m-%d %H:%i:%S') AS gift_time_str,
+            wsi.store_name AS business_name,
+            wba.mobile AS business_mobile,
+            em.name    AS materiel_name,
+            wbmgr.gift_number,
+            wbmgr.back_number,
+            (CASE WHEN  wbmgr.back_status = 0 THEN '未撤回' WHEN wbmgr.back_status  = 1 THEN '已撤回' END) AS back_status
+        FROM
+            wnk_business_materiel_gift_record AS wbmgr,
+            admins                            AS a,
+            extension_materiel                AS em,
+            wnk_store_information             AS wsi,
+            wnk_business_account              AS wba
+        WHERE
+            a.id = wbmgr.admin_id AND em.id = wbmgr.materiel_id AND wsi.business_id = wbmgr.business_id AND wba.id = wbmgr.business_id
+        <if test="adminName != null">
+            AND  a.name LIKE #{adminName}
+        </if>
+        <if test="businessName != null">
+            AND  wsi.store_name LIKE #{businessName}
+        </if>
+        <if test="businessMobile != null">
+            AND  wba.mobile LIKE #{businessMobile}
+        </if>
+        <if test="materielId != null">
+            AND  wbmgr.materiel_id = #{materielId}
+        </if>
+        <if test="gift_number != null">
+            AND  wbmgr.gift_number LIKE #{gift_number}
+        </if>
+        <if test="back_number != null">
+            AND  wbmgr.back_number LIKE #{back_number}
+        </if>
+        <if test="backStatus != null">
+            AND  wbmgr.back_status = #{backStatus}
+        </if>
+        <if test="gift_time_str != null and ''!= gift_time_str">
+            AND unix_timestamp(wbmgr.gift_time) = unix_timestamp(#{gift_time_str})
+        </if>
+        ORDER BY wbmgr.gift_time DESC  LIMIT #{total},#{limit}
+    </select>
+
+
+    <!--插入赠送记录-->
+    <insert id="insertMaterielGiftRecord" parameterType="com.springmvc.entity.WnkBusinessMaterielGiftRecord" >
+        INSERT INTO wnk_business_materiel_gift_record
+        (admin_id, gift_time, business_id, gift_before_number, gift_after_number, materiel_id, gift_number)
+        VALUES
+        (#{admin_id},#{gift_time},#{business_id},#{gift_before_number},#{gift_after_number},#{materiel_id},#{gift_number})
+    </insert>
+
+    <!--根据ID查询赠送记录-->
+    <select id="selectMaterielGiftRecordById" parameterType="int" resultType="com.springmvc.entity.WnkBusinessMaterielGiftRecord">
+        SELECT * FROM wnk_business_materiel_gift_record WHERE id = #{gift_id}
+    </select>
+
+    <!--跟新商家赠送记录 (撤销赠送)-->
+    <update id="updateMaterielGiftRecordByBack" parameterType="com.springmvc.entity.WnkBusinessMaterielGiftRecord" >
+        UPDATE wnk_business_materiel_gift_record
+        SET
+            back_number = #{back_number},
+            back_time   = #{back_time},
+            back_status = #{back_status}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

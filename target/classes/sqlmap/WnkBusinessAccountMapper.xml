@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkBusinessAccountMapper" >
+    <resultMap id="BaseResultMap" type="com.springmvc.entity.WnkBusinessAccount" >
+        <id column="id"                         property="id"                   jdbcType="INTEGER" />
+        <result column="mobile"                 property="mobile"               jdbcType="VARCHAR" />
+        <result column="login_pwd"              property="login_pwd"            jdbcType="VARCHAR" />
+        <result column="pay_pwd"                property="pay_pwd"              jdbcType="VARCHAR" />
+        <result column="join_time"              property="join_time"            jdbcType="TIMESTAMP" />
+        <result column="state"                  property="state"                jdbcType="INTEGER" />
+        <result column="balance"                property="balance"              jdbcType="DOUBLE" />
+        <result column="consumption_integral"   property="consumption_integral" jdbcType="INTEGER" />
+        <result column="level_integral"         property="level_integral"       jdbcType="INTEGER" />
+        <result column="rose_number"            property="rose_number"          jdbcType="INTEGER" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id,mobile,date_format(join_time, '%Y-%m-%d %H:%i:%S') as join_time,state,balance,consumption_integral,level_integral,rose_number
+    </sql>
+
+    <!--通过手机号以及登录密码查询商家-->
+    <select id="selectByMobileAndLoginPWD" resultMap="BaseResultMap">
+        SELECT
+        id,state,balance,mobile
+        FROM wnk_business_account
+        where mobile = #{param1,jdbcType=VARCHAR} and login_pwd = #{param2,jdbcType=VARCHAR}
+    </select>
+
+    <!--通过手机号查询商家-->
+    <select id="selectByMobile" resultMap="BaseResultMap">
+        SELECT
+        id,state,balance,mobile
+        FROM wnk_business_account
+        where mobile = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--通过Id查询商家-->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        *
+        FROM wnk_business_account
+        where id = #{param1,jdbcType=VARCHAR}
+    </select>
+
+    <!--修改登录密码-->
+    <insert id="updateLoginPwd">
+        UPDATE wnk_business_account
+        SET login_pwd = #{param2,jdbcType=VARCHAR}
+        WHERE id = #{param1,jdbcType=INTEGER}
+    </insert>
+
+    <!--更新账户余额-->
+    <insert id="updateBalance">
+        UPDATE wnk_business_account
+        SET balance = #{param2,jdbcType=DOUBLE}
+        WHERE id = #{param1,jdbcType=INTEGER}
+    </insert>
+
+    <!--更新账户相关余额-->
+    <insert id="updateRelevantBalance">
+        UPDATE wnk_business_account
+        SET
+            balance = #{balance,jdbcType=DOUBLE},
+            consumption_integral = #{consumption_integral,jdbcType=INTEGER},
+            level_integral = #{level_integral,jdbcType=DOUBLE},
+            rose_number = #{rose_number,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--修改支付密码-->
+    <insert id="updatePayPwd">
+        UPDATE wnk_business_account
+        SET pay_pwd = #{param2,jdbcType=VARCHAR}
+        WHERE id = #{param1,jdbcType=INTEGER}
+    </insert>
+
+    <!--查询所有商户信息-->
+    <select id="selectAllRecord" resultType="java.util.HashMap">
+        SELECT
+            wba.id,
+            wba.balance,
+            (CASE WHEN wba.state = 0 THEN '启用' WHEN wba.state = 1 THEN '停用' END) as state_str,
+            (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wba.id = wnk_store_information.business_id) as store_name,
+            (SELECT wnk_store_information.contact_mobile FROM wnk_store_information WHERE wba.id = wnk_store_information.business_id) as contact_mobile,
+            (SELECT wnk_store_information.business_type_id FROM wnk_store_information WHERE wba.id = wnk_store_information.business_id) as business_type_id,
+            (SELECT wnk_store_information.fuwu_label FROM wnk_store_information WHERE wba.id = wnk_store_information.business_id) as fuwu_label,
+            (SELECT wnk_store_information.tese_label FROM wnk_store_information WHERE wba.id = wnk_store_information.business_id) as tese_label,
+            date_format(join_time, '%Y-%m-%d %H:%i:%S') as join_time,
+            (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_store_information.id=wsi.recommend_business_id) AS recommend_name
+        FROM wnk_business_account AS wba,
+            wnk_store_information AS wsi
+        where wba.id = wsi.business_id AND wsi.is_lower= 0
+    </select>
+
+    <!--查询所有已下架商户信息-->
+    <select id="selectAllLowerRecord" resultType="java.util.HashMap">
+        SELECT
+            wba.id,
+            wba.balance,
+            (CASE WHEN wba.state = 0 THEN '启用' WHEN wba.state = 1 THEN '停用' END) as state_str,
+            (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wba.id = wnk_store_information.business_id) as store_name,
+            (SELECT wnk_store_information.contact_mobile FROM wnk_store_information WHERE wba.id = wnk_store_information.business_id) as contact_mobile,
+            (SELECT wnk_store_information.business_type_id FROM wnk_store_information WHERE wba.id = wnk_store_information.business_id) as business_type_id,
+            (SELECT wnk_store_information.fuwu_label FROM wnk_store_information WHERE wba.id = wnk_store_information.business_id) as fuwu_label,
+            (SELECT wnk_store_information.tese_label FROM wnk_store_information WHERE wba.id = wnk_store_information.business_id) as tese_label,
+            date_format(join_time, '%Y-%m-%d %H:%i:%S') as join_time,
+            (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_store_information.id=wsi.recommend_business_id) AS recommend_name
+        FROM wnk_business_account AS wba,
+            wnk_store_information AS wsi
+        where wba.id = wsi.business_id AND wsi.is_lower= 1
+    </select>
+
+    <!--查询所有特别推荐商户信息-->
+    <select id="selectAllEspciallyRecommendRecord" resultType="java.util.HashMap">
+        SELECT
+        id,balance,(CASE WHEN state = 0 THEN '启用' WHEN state = 1 THEN '停用' END) as state_str,
+        (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_business_account.id=wnk_store_information.business_id) as store_name,
+        (SELECT wnk_store_information.contact_mobile FROM wnk_store_information WHERE wnk_business_account.id=wnk_store_information.business_id) as contact_mobile,
+        (SELECT wnk_store_information.business_type_id FROM wnk_store_information WHERE wnk_business_account.id=wnk_store_information.business_id) as business_type_id,
+        (SELECT wnk_store_information.fuwu_label FROM wnk_store_information WHERE wnk_business_account.id=wnk_store_information.business_id) as fuwu_label,
+        (SELECT wnk_store_information.tese_label FROM wnk_store_information WHERE wnk_business_account.id=wnk_store_information.business_id) as tese_label,
+        date_format(join_time, '%Y-%m-%d %H:%i:%S') as join_time
+        FROM wnk_business_account where (SELECT wnk_store_information.especially_recommend_state from wnk_store_information where wnk_business_account.id=wnk_store_information.business_id) = 1
+        and (SELECT wnk_store_information.is_lower from wnk_store_information where wnk_business_account.id=wnk_store_information.business_id) = 0
+    </select>
+
+    <!--根据条件查询特别推荐商户信息-->
+    <select id="adminSearchEspeciallyRecommendWnkBusiness" resultType="java.util.Map">
+        SELECT
+            wba.id,wba.balance,(CASE WHEN wba.state = 0 THEN '启用' WHEN wba.state = 1 THEN '停用' END) as state_str,
+            wsi.store_name AS store_name,wsi.contact_mobile   as contact_mobile,wsi.business_type_id as business_type_id,
+            wsi.fuwu_label as fuwu_label,wsi.tese_label as tese_label,DATE_FORMAT(join_time, '%Y-%m-%d %H:%i:%S') as join_time
+        FROM
+            wnk_business_account AS wba,wnk_store_information AS wsi
+        WHERE wba.id = wsi.business_id AND wsi.is_lower = #{type} AND wsi.especially_recommend_state=1
+
+        <if test="_parameter.store_name != null and ''!= _parameter.store_name">
+            AND wsi.store_name LIKE #{store_name}
+        </if>
+        <if test="_parameter.balance != null and ''!= _parameter.balance">
+            AND wba.balance = #{balance}
+        </if>
+        <if test="_parameter.contact_mobile != null and ''!= _parameter.contact_mobile">
+            AND wsi.contact_mobile LIKE #{contact_mobile}
+        </if>
+        <if test="_parameter.wnk_business_type != null and ''!= _parameter.wnk_business_type">
+            AND wsi.business_type_id = #{wnk_business_type}
+        </if>
+        <if test="_parameter.state_str != null and ''!= _parameter.state_str">
+            AND wba.state = #{state_str}
+        </if>
+        <if test="_parameter.join_time != null and ''!= _parameter.join_time">
+            AND unix_timestamp(join_time) = unix_timestamp(#{join_time})
+        </if>
+        order by join_time DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+    <!--添加商户-->
+    <insert id="insertBusiness" parameterType="com.springmvc.entity.WnkBusinessAccount" useGeneratedKeys="true" keyProperty="id">
+        INSERT  INTO wnk_business_account(mobile,login_pwd,join_time,state)
+        VALUES (#{mobile,jdbcType=VARCHAR},#{login_pwd,jdbcType=VARCHAR},#{join_time,jdbcType=TIMESTAMP},#{state,jdbcType=INTEGER})
+    </insert>
+
+
+    <!--修改商户账号信息-->
+    <insert id="updateAccountInformation" parameterType="com.springmvc.entity.WnkBusinessAccount">
+        UPDATE wnk_business_account
+        SET mobile = #{mobile,jdbcType=VARCHAR},login_pwd = #{login_pwd,jdbcType=VARCHAR},state = #{state,jdbcType=INTEGER}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </insert>
+
+    <!--根据条件查询商户信息-->
+    <select id="adminSearchBusinessInfoByConditions" resultType="java.util.HashMap" parameterType="map">
+        SELECT
+            wba.id,wba.balance,(CASE WHEN wba.state = 0 THEN '启用' WHEN wba.state = 1 THEN '停用' END) as state_str,
+            wsi.store_name AS store_name,wsi.contact_mobile   as contact_mobile,wsi.business_type_id as business_type_id,
+            wsi.fuwu_label as fuwu_label,wsi.tese_label as tese_label,
+            DATE_FORMAT(wba.join_time, '%Y-%m-%d %H:%i:%S') as join_time,
+            (SELECT wnk_store_information.store_name FROM wnk_store_information WHERE wnk_store_information.id=wsi.recommend_business_id) AS recommend_name
+        FROM wnk_business_account AS wba,wnk_store_information AS wsi
+        WHERE wba.id = wsi.business_id AND wsi.is_lower = #{type} AND 1=1
+        <if test="_parameter.store_name != null and ''!= _parameter.store_name">
+            AND wsi.store_name LIKE #{store_name}
+        </if>
+        <if test="_parameter.contact_mobile != null and ''!= _parameter.contact_mobile">
+            AND wsi.contact_mobile LIKE #{contact_mobile}
+        </if>
+        <if test="_parameter.balance != null and ''!= _parameter.balance">
+            AND wba.balance LIKE #{balance}
+        </if>
+        <if test="_parameter.wnk_business_type != null and ''!= _parameter.wnk_business_type">
+            AND wsi.business_type_id = #{wnk_business_type}
+        </if>
+        <if test="_parameter.wnk_business_store_state != null and ''!= _parameter.wnk_business_store_state">
+            AND wsi.state = #{wnk_business_store_state}
+        </if>
+        <if test="_parameter.join_time != null and ''!= _parameter.join_time">
+            AND unix_timestamp(join_time) = unix_timestamp(#{join_time})
+        </if>
+        order by join_time DESC LIMIT #{start_index} , #{limit}
+    </select>
+
+    <!--更新商家等级积分 levelIntegral-->
+    <update id="updateBusinessLevelIntegral" parameterType="map">
+        UPDATE wnk_business_account SET level_integral = #{levelIntegral} WHERE id = #{business_id}
+    </update>
+
+    <!--分页查询查询所有商家(排除已删除的商家)-->
+    <select id="selectBusinessAllExcludeDelete" parameterType="map" resultType="map">
+        SELECT
+            wba.*,
+            COUNT(wba.id) OVER() AS count
+        FROM
+            wnk_business_account  AS wba,
+            wnk_store_information AS wsi
+        WHERE wsi.business_id = wba.id
+        <if test="store_name != null">
+            AND  wsi.store_name LIKE #{store_name}
+        </if>
+        LIMIT #{total},#{limit}
+    </select>
+
+</mapper>

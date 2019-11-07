@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.springmvc.dao.WnkMaintainMapper" >
+
+    <sql id="fieldAll">
+        id,maintain_name,maintain_phone,create_time,status,business_type_id
+    </sql>
+
+    <!--根据商家类别查询对应类别维护员信息(已经启用的维护员)-->
+    <select id="selectMaintainInfoByBusinessTypeId" parameterType="int" resultType="com.springmvc.entity.WnkMaintain">
+        SELECT
+            <include refid="fieldAll"></include>
+        FROM
+            wnk_maintain
+        WHERE
+            status = 0 AND business_type_id = #{business_type_id}
+    </select>
+
+    <!--查询所有维护员信息-->
+    <select id="selectMaintainInfoAll" resultType="java.util.Map">
+        SELECT
+            wm.id,wm.maintain_name,wm.maintain_phone,IF(wm.status = 0,'启用','禁用') AS status,wbt.name AS maintain_type,DATE_FORMAT(wm.create_time,'%Y年%m月%d日 %H:%i:%s') AS create_time
+        FROM
+          wnk_maintain AS wm,
+          wnk_business_type AS wbt
+        WHERE wm.business_type_id = wbt.id
+    </select>
+
+    <!--根据维护员ID查询维护员信息-->
+    <select id="selectMaintainInfoById" parameterType="string" resultType="map">
+        SELECT
+            <include refid="fieldAll"></include>
+        FROM
+            wnk_maintain
+        WHERE
+            id = #{maintain_id}
+    </select>
+
+    <!--查询当前商家分类是否有维护员,无论是否已经启用-->
+    <select id="selectMaintainInfoByBusinessTypeIdAll" parameterType="int" resultType="com.springmvc.entity.WnkMaintain" >
+        SELECT
+          <include refid="fieldAll"></include>
+        FROM
+          wnk_maintain
+        WHERE
+          business_type_id = #{business_type_id}
+    </select>
+
+    <!--根据条件查询系统维护员管理-->
+    <select id="adminSearchMaintain" resultType="java.util.Map">
+        SELECT
+            wm.id,wm.maintain_name,wm.maintain_phone,IF(wm.status = 0,'启用','禁用') AS status,wbt.name AS maintain_type,DATE_FORMAT(wm.create_time,'%Y年%m月%d日 %H:%i:%s') AS create_time
+        FROM
+          wnk_maintain AS wm,
+          wnk_business_type AS wbt
+        WHERE wm.business_type_id = wbt.id AND 1=1
+        <if test="_parameter.maintain_name != null and ''!= _parameter.maintain_name">
+            AND wm.maintain_name LIKE #{maintain_name}
+        </if>
+        <if test="_parameter.maintain_phone != null and ''!= _parameter.maintain_phone">
+            AND wm.maintain_phone LIKE #{maintain_phone}
+        </if>
+        <if test="_parameter.maintain_type != null and ''!= _parameter.maintain_type">
+            AND wbt.name LIKE #{maintain_type}
+        </if>
+        <if test="_parameter.status != null ">
+            AND wm.status = #{status}
+        </if>
+        <if test="_parameter.create_time != null and ''!= _parameter.create_time">
+            AND unix_timestamp(create_time) = unix_timestamp(#{create_time})
+        </if>
+        order by create_time DESC LIMIT #{statrt_index} , #{limit}
+    </select>
+
+    <!--新增维护员-->
+    <insert id="insertMaintain" parameterType="com.springmvc.entity.WnkMaintain" >
+        INSERT INTO  wnk_maintain
+        (business_type_id, maintain_name, maintain_phone, create_time, status)
+        VALUES
+        (#{business_type_id},#{maintain_name},#{maintain_phone},NOW(),#{status})
+    </insert>
+
+    <!--更新维护员信息-->
+    <update id="updateMaintain" parameterType="com.springmvc.entity.WnkMaintain">
+        UPDATE wnk_maintain
+        <trim prefix="set" suffixOverrides=",">
+            <if test="business_type_id != null">
+                business_type_id = #{business_type_id},
+            </if>
+
+            <if test="maintain_name != null">
+                maintain_name = #{maintain_name},
+            </if>
+
+            <if test="maintain_phone != null">
+                maintain_phone = #{maintain_phone},
+            </if>
+
+            <if test="status != null">
+                status = #{status},
+            </if>
+        </trim>
+        WHERE id=#{id}
+    </update>
+
+</mapper>

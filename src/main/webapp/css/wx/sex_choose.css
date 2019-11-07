@@ -1,0 +1,66 @@
+body{
+	margin: 0 !important;
+	padding: 0 !important;
+	background: #F2F2F2 !important;
+}
+
+.sex_ul{
+	width: 100% !important;
+	height: auto !important;
+	overflow: hidden !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	margin-top: 10px !important;
+}
+
+.sex_ul li{
+	width: 100% !important;
+	height: auto;
+	list-style: none !important;
+	text-align: center !important;
+	cursor: pointer !important;
+	overflow: hidden !important;
+	border-bottom: solid 1px #EEEEEE !important;
+	background: white;
+}
+
+.sex_ul li div{
+	width: 97%;
+	height: 50px;
+	margin-left: 1.5%;
+	overflow: hidden;
+}
+
+.sex_ul li div img{
+	width: auto;
+	height: 25px;
+	margin-top: 12.5px;
+	float: left;
+}
+
+.sex_ul li div a{
+	display: block;
+	width: auto;
+	height: 50px;
+	line-height: 50px;
+	float: left;
+	margin-left: 10px;
+	color: #808080;
+	font-size: 15px;
+}
+
+.set_button{
+	display: block;
+	width: 96%;
+	height: 40px;
+	margin-top: 15px;
+	float: left;
+	border: 0;
+	-webkit-appearance: none;
+	border-radius: 8px;
+	margin-left: 2%;
+	color: white;
+	font-size: 15px;
+	background: #1E91FB;
+	line-height: 0;
+}
